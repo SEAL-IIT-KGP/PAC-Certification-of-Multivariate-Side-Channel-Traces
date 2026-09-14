@@ -457,6 +457,14 @@ def main() -> None:
         with estranet_summary.open(newline="") as f:
             for row in csv.DictReader(f):
                 estranet_suite_plus[row["dataset"]] = float(row["BI_plus"])
+    for fallback_dataset in ("ascad_desync_50", "ascad_desync_100"):
+        if fallback_dataset not in estranet_suite_plus:
+            print(
+                f"WARNING: {fallback_dataset} not found in {estranet_summary}; using a hard-coded "
+                "reference EstraNet BI_suite_plus value instead of a computed summary",
+                file=sys.stderr,
+                flush=True,
+            )
     estranet_suite_plus.setdefault("ascad_desync_50", 1.5609413912724257)
     estranet_suite_plus.setdefault("ascad_desync_100", 1.6907041265379728)
     estranet_suite_plus.setdefault("ascad_random_key", suite_plus["ascad_random_key"])

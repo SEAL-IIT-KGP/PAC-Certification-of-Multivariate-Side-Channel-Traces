@@ -18,6 +18,7 @@ datasets/processed/
 datasets/cache/
 models/
 checkpoints/
+external/
 
 *.out
 *.err

@@ -9,3 +9,7 @@ tqdm>=4.60
 # Optional, needed only for scripts that evaluate or train neural checkpoints.
 # tensorflow>=2.8
 # torch>=1.10
+
+# Not pip-installable: the TCHES20 loaders (`dataLoaders`) and the EstraNet
+# modules (`data_utils`, `data_utils_ches25`, `transformer`) come from their
+# upstream repositories; see "External dependencies" in README.md.

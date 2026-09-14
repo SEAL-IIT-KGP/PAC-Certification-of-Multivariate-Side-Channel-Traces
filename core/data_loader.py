@@ -573,7 +573,11 @@ def _try_load_via_tches20(
     """
     Attempt to load a TCHES20 dataset using the TCHES20 repo's own dataLoaders.
 
-    Returns (traces, labels) on success, or None if the loaders are not available.
+    Returns (profiling_traces, profiling_labels) on success, or None if the
+    loaders are not available. Only the profiling partition is returned. The
+    TCHES20 pretrained models were trained on it, so it must not be used to
+    certify those models; use
+    bi_suite_8datasets/evaluate_tches20_pretrained_fixed_split.py --split attack.
     """
     import sys as _sys
 
@@ -612,7 +616,13 @@ def _try_load_via_tches20(
         # TCHES20 loaders return:
         #   (profiling_traces, profiling_labels,
         #    attack_traces, attack_labels_per_key, correct_key)
-        # We use the profiling set for BI certification (train + holdout).
+        # This helper returns ONLY the profiling partition (result[0:2]); the
+        # caller splits it for its own train/holdout experiments. The TCHES20
+        # pretrained models were trained on this profiling partition, so it
+        # must NOT be used to certify those pretrained models. The paper
+        # certifies them on the official attack partition; use
+        # bi_suite_8datasets/evaluate_tches20_pretrained_fixed_split.py
+        # --split attack for that.
         profiling_traces = result[0]
         profiling_labels = result[1]
         print(f"  Loaded via TCHES20 dataLoaders: "
@@ -822,15 +832,17 @@ def select_poi_by_snr(
         Selected trace subset, POI indices
     """
     n_samples, n_features = traces.shape
-    n_classes = len(np.unique(labels))
+    # Iterate over the label values actually present (they need not be 0..K-1)
+    classes = np.unique(labels)
+    n_classes = len(classes)
 
     # Compute class-conditional means
     means = np.zeros((n_classes, n_features))
     vars = np.zeros((n_classes, n_features))
     counts = np.zeros(n_classes)
 
-    for k in range(n_classes):
-        idx = np.where(labels == k)[0]
+    for k, label in enumerate(classes):
+        idx = np.where(labels == label)[0]
         if len(idx) > 1:
             means[k] = np.mean(traces[idx], axis=0)
             vars[k] = np.var(traces[idx], axis=0)
@@ -838,7 +850,7 @@ def select_poi_by_snr(
 
     # Compute SNR
     weights = counts / np.sum(counts)
-    signal = np.var(means, axis=0)  # Variance of means
+    signal = np.var(means[counts > 0], axis=0)  # Variance of class means
     noise = np.sum(weights.reshape(-1, 1) * vars, axis=0)  # Mean of variances
     snr = signal / (noise + 1e-10)
 

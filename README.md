@@ -1,8 +1,8 @@
 # Bounded Information Certification for Side-Channel Leakage
 
-Implementation code for **Bounded Information: PAC Certification of Multivariate Side-Channel Traces** (AsiaCRYPT 2026).
+Implementation code for **Bounded Information: PAC Certification of Multivariate Side-Channel Traces** (ASIACRYPT 2026), by Kuheli Pratihar, Nimish Mishra, and Debdeep Mukhopadhyay (Indian Institute of Technology Kharagpur).
 
-Side-channel leakage certification asks how much an implementation leaks and how powerful an attacker must be to exploit that leakage. Existing information-theoretic estimators, such as perceived information (PI), hypothetical information (HI), and nonparametric mutual information (MI), aim to quantify distributional leakage, but they become unstable in high-dimensional traces and do not provide a finite-sample certificate of the best attacker. We introduce \emph{Bounded Information} (BI), a Probably Approximately Correct (PAC) leakage-certification methodology that upper-bounds the population exact-recovery success of a declared attacker scope on fresh traces. The attacker suite certificate, $\mathrm{BI}^{\mathrm{suite}}$, applies a KL-binomial confidence interval with a union bound over a fixed suite that contains every trained attacker, preprocessing choice, hyperparameter, and seed to be reported. BI therefore turns standard profiled-attack evaluation into an auditable certificate with an explicit attacker scope and confidence level. We further define $\mathrm{BI}^{\mathrm{loc}}(\varepsilon)$, a local score-family extension that certifies every attacker whose normalized score function stays within an audited radius of a suite member, and this extension stays a binomial quantity because the radius enters only through a relaxed-margin count. Across eight side-channel benchmarks with trace dimensions up to $7{,}000$, BI provides stable certificates without density estimation, and its tightness diagnostics tell an evaluator whether a certified value is a genuine measurement of leakage or a conservative bound that more attack traces would tighten.
+Side-channel leakage certification asks how much an implementation leaks and how powerful an attacker must be to exploit that leakage. Existing information-theoretic estimators, such as perceived information (PI), hypothetical information (HI), and nonparametric mutual information (MI), aim to quantify distributional leakage, but they become unstable in high-dimensional traces and do not provide a finite-sample certificate of the best attacker. We introduce *Bounded Information* (BI), a Probably Approximately Correct (PAC) leakage-certification methodology that upper-bounds the population exact-recovery success of a declared attacker scope on fresh traces. The attacker suite certificate, $\mathrm{BI}^{\mathrm{suite}}$, applies a KL-binomial confidence interval with a union bound over a fixed suite that contains every trained attacker, preprocessing choice, hyperparameter, and seed to be reported. BI therefore turns standard profiled-attack evaluation into an auditable certificate with an explicit attacker scope and confidence level. We further define $\mathrm{BI}^{\mathrm{loc}}(\varepsilon)$, a local score-family extension that certifies every attacker whose normalized score function stays within an audited radius of a suite member, and this extension stays a binomial quantity because the radius enters only through a relaxed-margin count. Across eight side-channel benchmarks with trace dimensions up to $7{,}000$, BI provides stable certificates without density estimation, and its tightness diagnostics tell an evaluator whether a certified value is a genuine measurement of leakage or a conservative bound that more attack traces would tighten.
 
 This repository provides tools for computing certifiable leakage bounds from trained models and datasets in side-channel analysis, addressing the instability of traditional metrics (PI/HI/MI) in high-dimensional settings.
 
@@ -22,8 +22,9 @@ Dataset setup documentation and lightweight setup helpers. See `datasets/README.
 
 ### `model_training/`
 
-Minimal training examples for the attacker families used by the experiments:
+Illustrative training examples for the attacker families. They are not the pretrained TCHES20 or EstraNet reference models evaluated in the paper, and their checkpoints are not directly loadable by the BI evaluators:
 
+- `common.py`: shared data loading, windowing, and split helpers for the examples.
 - `train_mlp_example.py`: MLP profiled attacker.
 - `train_cnn_example.py`: 1D CNN trace classifier.
 - `train_transformer_example.py`: Transformer-style attacker for longer traces.
@@ -32,7 +33,7 @@ Minimal training examples for the attacker families used by the experiments:
 
 Finite-suite certificate evaluation on the eight paper datasets:
 
-- `evaluate_tches20_pretrained_fixed_split.py`: TCHES20-style pretrained fixed-split suites.
+- `evaluate_tches20_pretrained_fixed_split.py`: TCHES20-style pretrained fixed-split suites (use `--split attack` for certificates).
 - `evaluate_estranet_bi_suite.py`: EstraNet checkpoint-suite evaluation.
 - `summarize_ascad_estranet_bi_baselines.py` and `summarize_ches_transformer_bi_sweep.py`: summary builders for checkpoint-suite rows.
 
@@ -78,9 +79,10 @@ Synthetic known-posterior oracle diagnostics:
 Postprocessing and plot generation:
 
 - `build_bi_suite_paper_artifacts.py`: finite-suite BI table assembly.
+- `audit_bi_suite_margin_reduction.py`: margin-reduction audit of the finite-suite rows.
 - `build_full_suite_bi_loc_artifacts.py` and `build_audited_score_radius_points.py`: local-family postprocessing.
 - `plot_bi_loc_radius_curves.py`: score-radius plot generation.
-- `generate_paper_plots.py`: paper plot regeneration.
+- `generate_paper_plots.py`: plot regeneration from result CSVs (see `scripts/README.md` for required inputs).
 - `build_real_challenger_diagnostic.py` and `merge_ascad_fixed_split_mlp_challengers.py`: real-data challenger summaries.
 
 ### `docs/`
@@ -96,3 +98,25 @@ pip install -r requirements.txt
 ```
 
 TensorFlow and PyTorch are optional at install time, but scripts that evaluate or train neural checkpoints need the matching framework installed.
+
+Run all entry points from the repository root (for example `python -m bi_suite_8datasets.evaluate_estranet_bi_suite --help`), because the scripts import shared code as `core.*`.
+
+## External dependencies
+
+Some evaluators import code and load models that are not part of this repository:
+
+- TCHES20 dataset loaders (`dataLoaders`) and pretrained models: https://github.com/KULeuven-COSIC/TCHES20V3_CNN_SCA. Pass the loader source directory with `--tches20-src-dir` where a script asks for it.
+- EstraNet (`data_utils`, `data_utils_ches25`, `transformer`): https://github.com/suvadeep-iitb/EstraNet. The default location is `external/EstraNet`.
+
+See `datasets/README.md` for the dataset files each benchmark expects.
+
+## Citation
+
+```bibtex
+@inproceedings{pratihar2026bounded,
+  title     = {Bounded Information: {PAC} Certification of Multivariate Side-Channel Traces},
+  author    = {Pratihar, Kuheli and Mishra, Nimish and Mukhopadhyay, Debdeep},
+  booktitle = {Advances in Cryptology -- {ASIACRYPT} 2026},
+  year      = {2026}
+}
+```

@@ -122,6 +122,15 @@ def make_row(
     return row
 
 
+def comparison_action(p: float, base: dict[str, object], subject: str, reference: str) -> str:
+    """Action text derived from the challenger-versus-suite comparison."""
+    if p > float(base["suite_p_plus"]):
+        return f"{subject} exceeds {reference} upper certificate p_plus; redeclare the scope before using this row."
+    if p > float(base["suite_p_obs"]):
+        return f"{subject} exceeds {reference} point estimate but remains within p_plus."
+    return f"{subject} does not exceed {reference} point estimate."
+
+
 def build_rows(paths: SourcePaths) -> pd.DataFrame:
     suite = load_required(paths.suite)
     rows: list[dict[str, object]] = []
@@ -129,6 +138,7 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
     arch = load_required(paths.ascad_arch)
     for (category, category_label), g in arch.groupby(["category", "category_label"], dropna=False):
         best = g.sort_values("attack_success", ascending=False).iloc[0]
+        arch_n_te = next((int(best[col]) for col in ("n_te", "n_holdout") if col in best.index and pd.notna(best[col])), None)
         rows.append(
             make_row(
                 suite,
@@ -139,10 +149,15 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 challenger_p_hat=float(best["attack_success"]),
                 challenger_BI_obs=float(best["observed_bi_bits"]),
                 source_artifact=str(paths.ascad_arch),
-                n_te=10000,
+                n_te=arch_n_te,
                 evaluation_mode="frozen measured challenger group",
                 comparability="same ASCAD target family; reported as a measured challenger group",
-                action="No challenger in this group exceeds the frozen suite point estimate.",
+                action=comparison_action(
+                    float(best["attack_success"]),
+                    suite_lookup(suite, "ascad_desync_0"),
+                    "Best challenger in this group",
+                    "the frozen suite",
+                ),
             )
         )
 
@@ -151,7 +166,9 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
     for scope_name, g in scope.groupby("scope_name", dropna=False):
         best = g.sort_values("p_max", ascending=False).iloc[0]
         p = float(best["p_max"])
-        suite_plus = suite_lookup(suite, "ascad_desync_0")["suite_p_plus"]
+        scope_suite = suite_lookup(suite, "ascad_desync_0")
+        suite_plus = scope_suite["suite_p_plus"]
+        n_holdout = int(best["n_holdout"])
         rows.append(
             make_row(
                 suite,
@@ -164,12 +181,17 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 challenger_BI_obs=None,
                 challenger_BI_plus=float(best["bi"]),
                 source_artifact=str(paths.ascad_scope),
-                n_te=int(best["n_holdout"]),
-                evaluation_mode="separate 10k holdout / augmented-scope diagnostic",
-                comparability="not the frozen 25k suite split; use only as redeclaration diagnostic",
+                n_te=n_holdout,
+                evaluation_mode=f"separate {n_holdout}-trace holdout / augmented-scope diagnostic",
+                comparability=(
+                    f"not the frozen suite split (suite n_te={scope_suite['suite_n_te']}); "
+                    "use only as redeclaration diagnostic"
+                ),
                 action=(
-                    "Point estimate exceeds suite p_obs but remains below suite p_plus; redeclare an augmented scope if this row is used."
-                    if p > suite_lookup(suite, "ascad_desync_0")["suite_p_obs"] and p <= suite_plus
+                    "Point estimate exceeds suite p_plus; redeclaration pressure: redeclare an augmented scope before this row is used."
+                    if p > suite_plus
+                    else "Point estimate exceeds suite p_obs but remains below suite p_plus; redeclare an augmented scope if this row is used."
+                    if p > scope_suite["suite_p_obs"]
                     else "No redeclaration pressure from this diagnostic row."
                 ),
             )
@@ -191,8 +213,13 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 source_artifact=str(paths.aes_budget),
                 n_te=int(best["n_holdout"]),
                 evaluation_mode="budgeted challenger holdout",
-                comparability="diagnostic budget/scope split; much weaker than frozen AES-RD suite",
-                action="No challenger approaches the frozen AES-RD suite.",
+                comparability="diagnostic budget/scope split; separate from the frozen AES-RD suite",
+                action=comparison_action(
+                    float(best["p_max"]),
+                    suite_lookup(suite, "aes_rd"),
+                    "Best budget/scope challenger",
+                    "the frozen AES-RD suite",
+                ),
             )
         )
 
@@ -215,9 +242,11 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 evaluation_mode="width sweep certificate",
                 comparability="same 100k CHES holdout; alternative Transformer window suite",
                 action=(
-                    "Slightly higher point estimate than w3000, but still inside original p_plus; redeclare width-sweep suite only if this becomes the reported scope."
+                    "Higher point estimate than w3000 and above original p_plus; redeclare the width-sweep suite before this row is reported."
+                    if float(r["p_obs"]) > suite_lookup(suite, "ches_ctf_2025")["suite_p_plus"]
+                    else "Higher point estimate than w3000, but still inside original p_plus; redeclare width-sweep suite only if this becomes the reported scope."
                     if float(r["p_obs"]) > suite_lookup(suite, "ches_ctf_2025")["suite_p_obs"]
-                    else "No material improvement over the frozen w3000 suite."
+                    else "No point-estimate improvement over the frozen w3000 suite."
                 ),
             )
         )
@@ -238,7 +267,12 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 n_te=100000,
                 evaluation_mode="checkpoint anchor sweep",
                 comparability="same CHES holdout; individual anchor relative to best checkpoint",
-                action="No anchor exceeds the frozen checkpoint-suite best.",
+                action=comparison_action(
+                    float(r["success"]),
+                    suite_lookup(suite, "ches_ctf_2025"),
+                    "This anchor",
+                    "the frozen checkpoint-suite",
+                ),
             )
         )
 
@@ -258,7 +292,12 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
                 n_te=100000,
                 evaluation_mode="checkpoint anchor sweep",
                 comparability="same 100k ASCAD-random holdout; individual anchor relative to best checkpoint",
-                action="No anchor exceeds the frozen checkpoint-suite best.",
+                action=comparison_action(
+                    float(r["success"]),
+                    suite_lookup(suite, "ascad_random_key"),
+                    "This anchor",
+                    "the frozen checkpoint-suite",
+                ),
             )
         )
 
@@ -307,6 +346,65 @@ def write_markdown(rows: pd.DataFrame, summary: pd.DataFrame, out_path: Path) ->
 
     point_exceed = int(rows["exceeds_suite_p_obs"].sum())
     plus_exceed = int(rows["exceeds_suite_p_plus"].sum())
+    increase_families = sorted(rows.loc[rows["exceeds_suite_p_obs"].astype(bool), "challenger_family"].astype(str).unique())
+    plus_families = sorted(rows.loc[rows["exceeds_suite_p_plus"].astype(bool), "challenger_family"].astype(str).unique())
+    if plus_exceed:
+        increase_claim = (
+            f"- Rows exceeding the frozen suite upper certificate `p_plus` come from: {'; '.join(plus_families)}. "
+            "These require scope redeclaration before they are reported."
+        )
+    elif point_exceed:
+        increase_claim = (
+            f"- The only point-estimate increases come from: {'; '.join(increase_families)}; "
+            "none exceeds the frozen suite upper certificate `p_plus`."
+        )
+    else:
+        increase_claim = "- No row exceeds the frozen suite point estimate."
+
+    def best_row(dataset: str, family_prefix: str) -> pd.Series | None:
+        g = rows[(rows["dataset"] == dataset) & rows["challenger_family"].astype(str).str.startswith(family_prefix)]
+        return None if g.empty else g.sort_values("challenger_p_hat", ascending=False).iloc[0]
+
+    interpretation = []
+    ascad_parts = []
+    arch_best = best_row("ascad_desync_0", "ASCAD architecture challengers")
+    if arch_best is not None:
+        ascad_parts.append(
+            f"measured architecture challengers {'exceed' if arch_best['exceeds_suite_p_obs'] else 'do not exceed'} "
+            f"the frozen TCHES20 suite point estimate (best {fmt(arch_best['challenger_p_hat'])} vs {fmt(arch_best['suite_p_obs'])})."
+        )
+    scope_best = best_row("ascad_desync_0", "ASCAD augmented scope challenger")
+    if scope_best is not None:
+        scope_n = f"{int(scope_best['challenger_n_te'])}-trace " if pd.notna(scope_best["challenger_n_te"]) else ""
+        ascad_parts.append(
+            f"A separate {scope_n}augmented-scope diagnostic reaches {fmt(scope_best['challenger_p_hat'])}, "
+            f"{'above' if scope_best['exceeds_suite_p_plus'] else 'within'} the frozen suite upper bound "
+            f"{fmt(scope_best['suite_p_plus'])} (suite n_te={int(scope_best['suite_n_te'])}); if used in the paper, "
+            "it should be reported as an augmented-scope diagnostic rather than as the frozen-suite result."
+        )
+    if ascad_parts:
+        interpretation.append("- ASCAD desync 0: " + " ".join(ascad_parts))
+    aes_best = best_row("aes_rd", "")
+    if aes_best is not None:
+        interpretation.append(
+            f"- AES-RD: budgeted linear/MLP/CNN challengers reach at most {fmt(aes_best['challenger_p_hat'])}, "
+            f"{'above' if aes_best['exceeds_suite_p_obs'] else 'not above'} the frozen suite success {fmt(aes_best['suite_p_obs'])}."
+        )
+    random_best = best_row("ascad_random_key", "")
+    if random_best is not None:
+        interpretation.append(
+            f"- ASCAD random key: checkpoint-anchor challengers {'beat' if random_best['exceeds_suite_p_obs'] else 'do not beat'} "
+            f"the frozen EstraNet checkpoint-suite best ({fmt(random_best['challenger_p_hat'])} vs {fmt(random_best['suite_p_obs'])})."
+        )
+    width_best = best_row("ches_ctf_2025", "CHES Transformer width challenger")
+    if width_best is not None:
+        interpretation.append(
+            f"- CHES-CTF-2025: the largest width-sweep point estimate is {fmt(width_best['challenger_p_hat'])} "
+            f"({width_best['challenger']}) versus {fmt(width_best['suite_p_obs'])} for the reported w3000 suite; it is "
+            f"{'above' if width_best['exceeds_suite_p_plus'] else 'within'} the reported suite upper certificate "
+            f"{fmt(width_best['suite_p_plus'])}. The width sweep is best described as a saturation/challenger diagnostic "
+            "or as a re-declared width-sweep suite if included."
+        )
     body = [
         "# Real-Data Out-of-Family Challenger Diagnostic",
         "",
@@ -317,7 +415,7 @@ def write_markdown(rows: pd.DataFrame, summary: pd.DataFrame, out_path: Path) ->
         f"- Challenger rows assembled: {len(rows)}.",
         f"- Rows whose point estimate exceeds the frozen suite point estimate: {point_exceed}.",
         f"- Rows whose point estimate exceeds the frozen suite upper certificate `p_plus`: {plus_exceed}.",
-        "- The only point-estimate increases are diagnostic scope/window changes, not failures of the certified upper bounds.",
+        increase_claim,
         "",
         "## Dataset-Level Best Challenger",
         "",
@@ -327,10 +425,7 @@ def write_markdown(rows: pd.DataFrame, summary: pd.DataFrame, out_path: Path) ->
         "",
         "## Interpretation",
         "",
-        "- ASCAD desync 0: measured architecture challengers do not exceed the frozen TCHES20 suite point estimate. A separate 10k augmented-scope diagnostic reaches 0.0090, still below the original 25k-suite upper bound 0.009646; if used in the paper, it should be reported as an augmented-scope diagnostic rather than as the frozen-suite result.",
-        "- AES-RD: budgeted linear/MLP/CNN challengers are far below the frozen suite success 0.177104.",
-        "- ASCAD random key: checkpoint-anchor challengers do not beat the frozen EstraNet checkpoint-suite best.",
-        "- CHES-CTF-2025: width 200 has the largest point estimate, 0.00438 versus 0.00429 for the reported w3000 suite, but it remains within the reported suite upper certificate 0.005606. The width sweep is best described as a saturation/challenger diagnostic or as a re-declared width-sweep suite if included.",
+        *interpretation,
         "",
         "## Files",
         "",
@@ -364,7 +459,7 @@ def write_latex(summary: pd.DataFrame, out_path: Path) -> None:
         r"\centering",
         r"\small",
         r"\caption{Out-of-family challenger diagnostics. These rows are diagnostics for declared-family saturation, not proofs of unrestricted oracle optimality.}",
-        r"\label{tab:real-challenger-diagnostic}",
+        r"\label{tab:bayes-completeness-real}",
         r"\begin{tabular}{lrrrrl}",
         r"\toprule",
         r"Dataset & $\widehat p_{\rm suite}$ & $p^+_{\rm suite}$ & $\widehat p_{\rm chall.}$ & $\Delta$ & Action \\",

@@ -89,6 +89,15 @@ except ImportError:
     HAS_TORCH = False
     print("[WARN] PyTorch not available — CNN models disabled")
 
+    class nn:
+        """Placeholder so torch-typed definitions below import without torch.
+
+        CNN suites are empty when HAS_TORCH is False, so these are never
+        instantiated; isinstance(model, nn.Module) is simply False.
+        """
+        class Module:
+            pass
+
 from core.data_loader import load_dataset, generate_synthetic_data
 from core.baseline_metrics import compute_pi, compute_hi
 
@@ -848,7 +857,9 @@ def run_experiment(
             # Compute BI certificate
             M = len(per_model_success)
             p_max = max(per_model_success.values())
-            best_model = trained_names[best_idx] if best_idx < len(trained_names) else "unknown"
+            # best_idx indexes `suite`, not the successfully trained models; take
+            # the name from per_model_success (first maximum, same tie-break).
+            best_model = max(per_model_success, key=per_model_success.get)
 
             # BI computation
             m = len(y_holdout)
@@ -1202,16 +1213,15 @@ def main():
     parser.add_argument(
         '--device',
         type=str,
-        default='cuda' if torch.cuda.is_available() else 'cpu' if HAS_TORCH else 'cpu',
+        default='cuda' if HAS_TORCH and torch.cuda.is_available() else 'cpu',
         help='Device: cpu or cuda'
     )
     parser.add_argument(
         '--gpu-workers',
         type=int,
         default=1,
-        help='Concurrent GPU training workers (seeds trained in parallel '
-             'via CUDA streams). Set to 4-5 for full single-GPU utilization. '
-             'Default 1 = sequential.'
+        help='Currently unused; kept for CLI compatibility. '
+             'Seeds and scopes are always trained sequentially.'
     )
     parser.add_argument(
         '--plot-only',
@@ -1263,7 +1273,8 @@ def main():
             # Summarize what's done
             ds_counts = {}
             for (d, sc, s) in completed_keys:
-                ds_counts[d] = ds_counts.get(d, 0) + 1
+                if sc in scopes and s in range(args.n_seeds):
+                    ds_counts[d] = ds_counts.get(d, 0) + 1
             expected_per_ds = len(scopes) * args.n_seeds
             for d, c in sorted(ds_counts.items()):
                 status = "COMPLETE" if c >= expected_per_ds else f"{c}/{expected_per_ds}"
@@ -1345,7 +1356,8 @@ def main():
     # Run experiment for each dataset
     for dataset in datasets:
         # Check if ALL (scope, seed) combos are done for this dataset
-        ds_done = sum(1 for (d, sc, s) in completed_keys if d == dataset)
+        ds_done = sum(1 for (d, sc, s) in completed_keys
+                      if d == dataset and sc in scopes and s in range(args.n_seeds))
         expected = len(scopes) * args.n_seeds
         if ds_done >= expected:
             print(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Skipping {dataset} (all {expected} entries in checkpoint)")

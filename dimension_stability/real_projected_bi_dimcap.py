@@ -274,7 +274,6 @@ def train_projected_suite(
                     solver="saga",
                     max_iter=max_iter,
                     n_jobs=-1,
-                    multi_class="multinomial",
                     random_state=int(seed),
                 ),
             ),

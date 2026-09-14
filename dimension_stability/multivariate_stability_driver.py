@@ -1073,11 +1073,13 @@ def plot_results(df: pd.DataFrame, analysis: Dict, output_dir: Path):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    stats = analysis['stats']
+    # Per-dataset 'stats' exist only for analyze_results(); analyze_stability()
+    # (sweep mode) returns pooled 'dimension_stats', used by Plots 4-5 below.
+    stats = analysis.get('stats')
     datasets_in_results = sorted(df['dataset'].unique())
 
     # ---- Plot 1: BI/PI/HI/TI/MLP-PI bar chart across datasets ----
-    if len(datasets_in_results) > 1:
+    if stats is not None and len(datasets_in_results) > 1:
         metrics_to_plot = ['bi', 'pi', 'hi', 'ti', 'mlp_pi']
         colors = ['#2ecc71', '#3498db', '#e74c3c', '#9b59b6', '#f39c12']
         labels_map = {'bi': 'BI', 'pi': 'ePI', 'hi': 'eHI', 'ti': 'TI', 'mlp_pi': 'MLP-PI'}
@@ -1164,7 +1166,7 @@ def plot_results(df: pd.DataFrame, analysis: Dict, output_dir: Path):
         plt.close()
 
     # ---- Plot 3: Dimension sweep stability ----
-    for ds in datasets_in_results:
+    for ds in (datasets_in_results if stats is not None else []):
         ds_stats = stats[stats['dataset'] == ds]
         if len(ds_stats) <= 1:
             continue
@@ -1327,7 +1329,7 @@ def main():
 
     # Baselines
     parser.add_argument(
-        '--include-baselines', action='store_true', default=True,
+        '--include-baselines', action=argparse.BooleanOptionalAction, default=True,
         help='Compute PI/HI/MI/MLP-PI baselines (default: True)',
     )
     parser.add_argument(
@@ -1344,12 +1346,8 @@ def main():
 
     # Checkpoint and resume
     parser.add_argument(
-        '--resume', action='store_true', default=True,
+        '--resume', action=argparse.BooleanOptionalAction, default=True,
         help='Resume from checkpoint if it exists (default: True)',
-    )
-    parser.add_argument(
-        '--no-resume', action='store_true',
-        help='Do not resume from checkpoint',
     )
     parser.add_argument(
         '--plot-only', action='store_true',
@@ -1359,10 +1357,10 @@ def main():
     args = parser.parse_args()
 
     # Override baselines flag
-    include_baselines = not args.no_baselines
+    include_baselines = args.include_baselines and not args.no_baselines
 
     # Parse resume flag
-    do_resume = args.resume and not args.no_resume
+    do_resume = args.resume
 
     # Parse dimensions
     dimensions = [int(d.strip()) for d in args.dimensions.split(',')]
@@ -1558,7 +1556,9 @@ def main():
 
     # Stability check
     if 'stats' in analysis or 'dimension_stats' in analysis:
-        s = analysis.get('stats') or analysis.get('dimension_stats')
+        s = analysis.get('stats')
+        if s is None:
+            s = analysis.get('dimension_stats')
         for ds in sorted(df['dataset'].unique()):
             bi_cv = s.loc[s['dataset'] == ds, 'bi_cv'].dropna() if 'dataset' in s.columns else pd.Series()
             if len(bi_cv) == 0:
