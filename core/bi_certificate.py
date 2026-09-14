@@ -9,7 +9,10 @@ experiments:
 
 For a suite of M attackers with n_te attack traces, the upper endpoint p_plus
 is the largest success probability whose Bernoulli KL distance from the
-observed success rate is within log(M/delta)/n_te. BI is then
+observed success rate is within log(2M/delta)/n_te, i.e. the two-sided
+allocation delta/(2M) of the finite-suite certificate (Proposition
+suite-cert). An evaluator who reports only the upper endpoint may instead
+spend delta/M (two_sided=False), which gives log(M/delta)/n_te. BI is then
 
     BI = log2(1 + K * max(p_plus - 1/K, 0)).
 """
@@ -59,9 +62,14 @@ def kl_upper_endpoint(successes: int, n: int, alpha: float) -> float:
     return lo
 
 
-def kl_confidence_slack(observed_success: float, m: int, M: int, delta: float) -> float:
-    """Return p_plus - p_hat under a suite-union KL-binomial endpoint."""
-    alpha = delta / max(1, int(M))
+def kl_confidence_slack(observed_success: float, m: int, M: int, delta: float,
+                        two_sided: bool = True) -> float:
+    """Return p_plus - p_hat under a suite-union KL-binomial endpoint.
+
+    two_sided=True uses alpha = delta / (2M) (paper default); two_sided=False
+    uses alpha = delta / M (upper endpoint only).
+    """
+    alpha = delta / ((2 if two_sided else 1) * max(1, int(M)))
     successes = int(round(float(observed_success) * int(m)))
     p_hat = successes / int(m)
     return kl_upper_endpoint(successes, int(m), alpha) - p_hat
@@ -137,7 +145,8 @@ def compute_bi_certificate(
     m: int,
     M: int = 1,
     delta: float = 1e-6,
-    n_classes: int = 256
+    n_classes: int = 256,
+    two_sided: bool = True
 ) -> BICertificate:
     """
     Compute the BI certificate for an observed success rate (Section 3 methodology).
@@ -147,7 +156,9 @@ def compute_bi_certificate(
 
     1. Convert the observed success rate to an integer success count.
 
-    2. Compute the KL-binomial upper endpoint with alpha = delta / M.
+    2. Compute the KL-binomial upper endpoint with alpha = delta / (2M)
+       (two-sided suite allocation, Proposition suite-cert), or
+       alpha = delta / M when two_sided=False (upper endpoint only).
 
     3. Convert p_plus - 1/K to BI bits.
 
@@ -155,9 +166,14 @@ def compute_bi_certificate(
     Args:
         holdout_success: Observed success rate p̂_max on holdout set
         m: Holdout set size (n_te in paper)
-        M: Number of models in attack suite (default 1 for single attack)
+        M: Number of models in attack suite (default 1). The paper's
+            singleton certificate is the one-sided endpoint at level delta
+            (Appendix eq. kl-bound, ln(1/δ)); reproduce it with M=1,
+            two_sided=False.
         delta: Failure probability (default 1e-6, confidence = 1-δ)
         n_classes: Number of target classes K (default 256 for AES byte)
+        two_sided: If True (default), spend delta/(2M) per endpoint as in the
+            paper's two-sided suite interval; if False, spend delta/M.
 
     Returns:
         BICertificate containing all certification details
@@ -166,7 +182,7 @@ def compute_bi_certificate(
     successes = max(0, min(int(m), successes))
     observed_success = successes / int(m)
 
-    alpha = float(delta) / max(1, int(M))
+    alpha = float(delta) / ((2 if two_sided else 1) * max(1, int(M)))
     certified_success = kl_upper_endpoint(successes, int(m), alpha)
     margin = certified_success - observed_success
 
@@ -193,7 +209,8 @@ def compute_bi_from_predictions(
     y_true: np.ndarray,
     M: int = 1,
     delta: float = 1e-6,
-    n_classes: int = 256
+    n_classes: int = 256,
+    two_sided: bool = True
 ) -> BICertificate:
     """
     Compute BI certificate directly from predictions and labels.
@@ -204,9 +221,11 @@ def compute_bi_from_predictions(
     Args:
         y_pred: Predicted class labels (argmax of model output)
         y_true: True class labels
-        M: Number of models in attack suite (1 for single attack)
+        M: Number of models in attack suite (for the paper's one-sided
+            singleton certificate use M=1, two_sided=False)
         delta: Failure probability
         n_classes: Number of target classes K
+        two_sided: delta/(2M) allocation if True (default), delta/M if False
 
     Returns:
         BICertificate with all certification details
@@ -219,7 +238,8 @@ def compute_bi_from_predictions(
         m=m,
         M=M,
         delta=delta,
-        n_classes=n_classes
+        n_classes=n_classes,
+        two_sided=two_sided
     )
 
 
@@ -227,7 +247,8 @@ def compute_bi_from_probabilities(
     y_pred_proba: np.ndarray,
     y_true: np.ndarray,
     M: int = 1,
-    delta: float = 1e-6
+    delta: float = 1e-6,
+    two_sided: bool = True
 ) -> BICertificate:
     """
     Compute BI certificate from probability predictions.
@@ -237,6 +258,7 @@ def compute_bi_from_probabilities(
         y_true: True class labels
         M: Number of models in attack suite
         delta: Failure probability
+        two_sided: delta/(2M) allocation if True (default), delta/M if False
 
     Returns:
         BICertificate
@@ -249,7 +271,8 @@ def compute_bi_from_probabilities(
         y_true=y_true,
         M=M,
         delta=delta,
-        n_classes=n_classes
+        n_classes=n_classes,
+        two_sided=two_sided
     )
 
 
@@ -258,7 +281,8 @@ def compute_attack_suite_bi(
     X_holdout: np.ndarray,
     y_holdout: np.ndarray,
     delta: float = 1e-6,
-    n_classes: int = 256
+    n_classes: int = 256,
+    two_sided: bool = True
 ) -> Tuple[BICertificate, int]:
     """
     Compute BI certificate for an attack suite (multiple models).
@@ -272,6 +296,7 @@ def compute_attack_suite_bi(
         y_holdout: Holdout labels
         delta: Failure probability
         n_classes: Number of target classes
+        two_sided: delta/(2M) allocation if True (default), delta/M if False
 
     Returns:
         Tuple of (BICertificate for best model, index of best model)
@@ -289,7 +314,7 @@ def compute_attack_suite_bi(
             y_pred = np.argmax(y_pred_proba, axis=1)
         else:
             y_pred = model.predict(X_holdout)
-            if hasattr(y_pred, 'argmax'):
+            if np.ndim(y_pred) > 1:
                 y_pred = np.argmax(y_pred, axis=1)
 
         success = np.mean(y_pred == y_holdout)
@@ -304,7 +329,8 @@ def compute_attack_suite_bi(
         m=m,
         M=M,
         delta=delta,
-        n_classes=n_classes
+        n_classes=n_classes,
+        two_sided=two_sided
     )
 
     return certificate, best_idx
@@ -315,7 +341,8 @@ def bi_scaling_analysis(
     m_values: List[int],
     M_values: List[int],
     delta_values: List[float],
-    n_classes: int = 256
+    n_classes: int = 256,
+    two_sided: bool = True
 ) -> Dict:
     """
     Analyze how BI certificate scales with m, M, and delta.
@@ -328,6 +355,7 @@ def bi_scaling_analysis(
         M_values: List of suite sizes to evaluate
         delta_values: List of confidence levels to evaluate
         n_classes: Number of target classes
+        two_sided: delta/(2M) allocation if True (default), delta/M if False
 
     Returns:
         Dictionary with scaling results
@@ -349,7 +377,8 @@ def bi_scaling_analysis(
                     m=m,
                     M=M,
                     delta=delta,
-                    n_classes=n_classes
+                    n_classes=n_classes,
+                    two_sided=two_sided
                 )
 
                 results['m'].append(m)
@@ -363,37 +392,42 @@ def bi_scaling_analysis(
 
 
 # Convenience functions for common configurations
-def quick_bi(success: float, m: int, M: int = 1) -> float:
+def quick_bi(success: float, m: int, M: int = 1, two_sided: bool = True) -> float:
     """Quick BI computation with default delta=1e-6 for 256 classes."""
-    return compute_bi_certificate(success, m, M).bi_bits
+    return compute_bi_certificate(success, m, M, two_sided=two_sided).bi_bits
 
 
-def margin_only(m: int, M: int = 1, delta: float = 1e-6) -> float:
+def margin_only(m: int, M: int = 1, delta: float = 1e-6, two_sided: bool = True) -> float:
     """Compute KL-binomial slack at p_hat=0.5 for a quick scale estimate."""
-    return kl_confidence_slack(0.5, m, M, delta)
+    return kl_confidence_slack(0.5, m, M, delta, two_sided=two_sided)
 
 
-def min_holdout_size(eta: float, M: int = 1, delta: float = 1e-6) -> int:
+def min_holdout_size(eta: float, M: int = 1, delta: float = 1e-6,
+                     two_sided: bool = True) -> int:
     """
     Approximate minimum holdout size for target confidence slack eta.
 
     This conservative approximation is useful for rough planning before the
-    observed success rate is known.
+    observed success rate is known. It uses the Hoeffding margin
+    sqrt(ln(2M/delta) / (2 n_te)) (ln(M/delta) when two_sided=False).
 
     Args:
         eta: Target maximum confidence margin
         M: Number of models in attack suite
         delta: Failure probability
+        two_sided: delta/(2M) allocation if True (default), delta/M if False
 
     Returns:
         Minimum holdout size (ceiling)
     """
-    return int(np.ceil(np.log(M / delta) / (2 * eta ** 2)))
+    n_events = (2 if two_sided else 1) * M
+    return int(np.ceil(np.log(n_events / delta) / (2 * eta ** 2)))
 
 
 def tightness_diagnostic(cert: BICertificate) -> Dict:
     """
-    Compute tightness diagnostic for a BI certificate (Section 3.4).
+    Compute tightness diagnostic for a BI certificate (Section 3.5,
+    "Tightness report and decision rule").
 
     Reports the gap between observed and certified values, which quantifies
     the statistical slack of the certificate.
@@ -424,7 +458,7 @@ if __name__ == "__main__":
     # Example usage and validation matching the current KL-binomial convention.
     print("BI Certificate Module - Example Usage")
     print("=" * 60)
-    print("  Suite endpoint: Bernoulli-KL upper confidence endpoint with alpha=delta/M")
+    print("  Suite endpoint: Bernoulli-KL upper confidence endpoint with alpha=delta/(2M)")
     print("  BI = log₂(1 + K·max(p_plus - 1/K, 0))")
     print("=" * 60)
 
@@ -467,8 +501,10 @@ if __name__ == "__main__":
     # Example 5: Verify endpoint helpers
     print(f"\nExample 5: Verify KL-binomial endpoint helpers")
     m, M, delta = 50000, 10, 1e-6
-    margin_single = kl_confidence_slack(0.15, m, 1, delta)
+    # Singleton certificate: one-sided endpoint at level delta (ln(1/δ)).
+    margin_single = kl_confidence_slack(0.15, m, 1, delta, two_sided=False)
+    # Suite certificate: two-sided allocation delta/(2M).
     margin_suite = kl_confidence_slack(0.15, m, M, delta)
-    print(f"  Single attack (M=1): slack = {margin_single:.6f}")
-    print(f"  Suite attack (M=10): slack = {margin_suite:.6f}")
+    print(f"  Single attack (M=1, one-sided): slack = {margin_single:.6f}")
+    print(f"  Suite attack (M=10, two-sided): slack = {margin_suite:.6f}")
     print(f"  Ratio suite/single: {margin_suite / margin_single:.3f}")

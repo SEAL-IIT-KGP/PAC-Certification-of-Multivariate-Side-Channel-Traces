@@ -3,8 +3,8 @@
 Tau-sweep experiment for ASCAD desync=0 temporal-window diagnostics.
 
 For each tau, evaluates the pretrained CNN on tau-length windows
-(zero-padded to 700) and records the window success statistics used by the
-current KL-binomial plotting script.
+(kept at their original time positions, zeros elsewhere) and records the
+window success statistics used by the current KL-binomial plotting script.
 
 Checkpoints after every (tau, seed) pair.  Resumable on restart.
 """
@@ -153,8 +153,12 @@ def predict_with_model(model, X, batch_size=1024):
 # ===================================================================
 
 def extract_tau_window(traces, tau, start_pos):
-    """Extract tau-length window starting at start_pos."""
-    return traces[:, start_pos:start_pos + tau]
+    """Keep the tau-length window starting at start_pos at its original time
+    positions and zero all samples outside it (the pretrained CNN expects
+    full-length aligned traces)."""
+    X = np.zeros_like(traces)
+    X[:, start_pos:start_pos + tau] = traces[:, start_pos:start_pos + tau]
+    return X
 
 
 def compute_position_grid(T, tau, strategy='grid'):

@@ -55,17 +55,21 @@ DATASETS = {
     'ascad_variable': {
         'name': 'ASCAD (Variable Key)',
         'description': 'ANSSI electromagnetic traces, variable key variant',
-        'url': 'https://static.data.gouv.fr/resources/ascad/20180530-163000/ASCAD_data.zip',
-        'filename': 'ASCAD_data.zip',
+        # Extracted database served directly (not a zip); link from
+        # ANSSI-FR/ASCAD ATMEGA_AES_v1/ATM_AES_v1_variable_key/Readme.md
+        'url': 'https://www.data.gouv.fr/api/1/datasets/r/b4ace767-c2a4-4db4-8e01-4527b5b91f00',
+        'filename': 'ascad-variable.h5',
         'extracted_name': 'ASCAD.h5',
-        'size_mb': 4700,
+        'size_mb': 420,
         'md5': None,
     },
     'aes_hd': {
         'name': 'AES-HD Extended',
         'description': 'Power traces with Hamming Distance leakage',
         'github_repo': 'https://github.com/AISyLab/AES_HD_Ext',
-        'direct_url': 'https://github.com/AISyLab/AES_HD_Ext/raw/master/aes_hd_ext.npz',
+        # The GitHub repository only holds a README; the data is served from
+        # the download link given there.
+        'direct_url': 'http://aisylabdatasets.ewi.tudelft.nl/aes_hd_ext.npz',
         'filename': 'aes_hd_ext.npz',
         'size_mb': 500,  # Approximate
         'md5': None,
@@ -156,7 +160,8 @@ def download_ascad(data_dir: Path, variant: str = 'fixed') -> bool:
     Download ASCAD dataset.
 
     ASCAD is hosted on data.gouv.fr (French government data portal).
-    The download is a large ZIP file containing the HDF5 dataset.
+    The fixed-key download is a large ZIP file containing several HDF5
+    databases; the variable-key download is a single HDF5 database.
 
     Args:
         data_dir: Directory to store dataset
@@ -166,8 +171,10 @@ def download_ascad(data_dir: Path, variant: str = 'fixed') -> bool:
         True if successful
     """
     config = DATASETS['ascad_fixed'] if variant == 'fixed' else DATASETS['ascad_variable']
-    ascad_dir = data_dir / 'ascad'
+    # Separate directories so the two variants' ASCAD.h5 files do not collide
+    ascad_dir = data_dir / ('ascad' if variant == 'fixed' else 'ascad_variable')
     ascad_dir.mkdir(parents=True, exist_ok=True)
+    is_zip = config['filename'].endswith('.zip')
 
     print(f"\n{'='*60}")
     print(f"ASCAD Dataset ({variant} key)")
@@ -182,18 +189,22 @@ def download_ascad(data_dir: Path, variant: str = 'fixed') -> bool:
         return verify_ascad(final_path)
 
     # For ASCAD, we provide instructions since the file is very large
+    if is_zip:
+        fetch_cmd = f'wget -O {config["filename"]} "{config["url"]}"\nunzip {config["filename"]}'
+    else:
+        fetch_cmd = f'wget -O ASCAD.h5 "{config["url"]}"'
     print("\n" + "="*60)
     print("ASCAD DOWNLOAD INSTRUCTIONS")
     print("="*60)
     print("""
-The ASCAD dataset is large (~4.7 GB) and hosted on the French government
+The ASCAD dataset is large (~{size_mb} MB) and hosted on the French government
 data portal. Due to its size, automatic download may be unreliable.
 
 Option 1: Manual Download (Recommended)
 ---------------------------------------
 1. Visit: https://github.com/ANSSI-FR/ASCAD
-2. Download the dataset from the provided Google Drive links
-3. Extract and place ASCAD.h5 in: {ascad_dir}
+2. Follow the download commands in the ATMEGA_AES_v1 {variant}-key Readme
+3. Place ASCAD.h5 in: {ascad_dir}
 
 Option 2: Direct Download (May be slow/unstable)
 ------------------------------------------------
@@ -202,30 +213,39 @@ URL: {url}
 Option 3: Use wget/curl (from terminal)
 ---------------------------------------
 cd {ascad_dir}
-wget -O ASCAD_data.zip "{url}"
-unzip ASCAD_data.zip
+{fetch_cmd}
 
 After downloading, the file should be at:
   {final_path}
-""".format(ascad_dir=ascad_dir, url=config['url'], final_path=final_path))
+""".format(size_mb=config['size_mb'], variant=variant, ascad_dir=ascad_dir,
+           url=config['url'], fetch_cmd=fetch_cmd, final_path=final_path))
 
     # Ask user if they want to attempt automatic download
     try:
         response = input("\nAttempt automatic download? (y/N): ").strip().lower()
         if response == 'y':
+            # Variable key: the database is served directly, no archive
+            if not is_zip and download_with_progress(config['url'], final_path, "Downloading ASCAD..."):
+                return verify_ascad(final_path)
             zip_path = ascad_dir / config['filename']
-            if download_with_progress(config['url'], zip_path, "Downloading ASCAD..."):
+            if is_zip and download_with_progress(config['url'], zip_path, "Downloading ASCAD..."):
                 print("Extracting...")
                 with zipfile.ZipFile(zip_path, 'r') as zf:
                     zf.extractall(ascad_dir)
                 print(f"✓ Extracted to {ascad_dir}")
 
-                # Find the .h5 file
-                h5_files = list(ascad_dir.rglob("*.h5"))
-                if h5_files:
+                # Find ASCAD.h5 (the archive also holds other .h5 files, e.g.
+                # the desync and raw-trace variants, so match the exact name)
+                h5_files = [p for p in ascad_dir.rglob("*.h5") if p.name == 'ASCAD.h5']
+                if len(h5_files) != 1:
+                    raise FileNotFoundError(
+                        f"Expected exactly one ASCAD.h5 in the extracted archive under "
+                        f"{ascad_dir}, found {len(h5_files)}: {[str(p) for p in h5_files]}"
+                    )
+                if h5_files[0] != final_path:
                     # Move to expected location
                     shutil.move(str(h5_files[0]), str(final_path))
-                    print(f"✓ Dataset ready: {final_path}")
+                print(f"✓ Dataset ready: {final_path}")
 
                 # Clean up zip
                 zip_path.unlink()
@@ -273,7 +293,8 @@ def download_aes_hd(data_dir: Path) -> bool:
     """
     Download AES-HD Extended dataset.
 
-    This dataset is available from GitHub and is smaller than ASCAD.
+    The dataset is described at the AISyLab GitHub repository and served from
+    the AISyLab dataset server; it is smaller than ASCAD.
 
     Args:
         data_dir: Directory to store dataset
@@ -299,11 +320,9 @@ def download_aes_hd(data_dir: Path) -> bool:
         print(f"\n✓ Dataset already exists: {final_path}")
         return verify_aes_hd(final_path)
 
-    # Try direct download from GitHub
-    print("\nAttempting download from GitHub...")
+    # Try the direct download link listed in the AISyLab repository README
+    print("\nAttempting download from the AISyLab dataset server...")
 
-    # GitHub LFS files may need special handling
-    # First try direct URL
     if download_with_progress(config['direct_url'], final_path, "Downloading AES-HD..."):
         return verify_aes_hd(final_path)
 
@@ -314,12 +333,12 @@ def download_aes_hd(data_dir: Path) -> bool:
     print(f"""
 If automatic download failed, please download manually:
 
-Option 1: Clone the repository
-------------------------------
-git clone {config['github_repo']} {aes_hd_dir}
-
-Option 2: Download directly
+Option 1: Download directly
 ---------------------------
+wget -O {final_path} "{config['direct_url']}"
+
+Option 2: Check the repository README for current links
+-------------------------------------------------------
 Visit: {config['github_repo']}
 Download: aes_hd_ext.npz
 Place in: {aes_hd_dir}

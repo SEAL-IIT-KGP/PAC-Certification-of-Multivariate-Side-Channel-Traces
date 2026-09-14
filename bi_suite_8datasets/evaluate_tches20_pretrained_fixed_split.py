@@ -197,7 +197,7 @@ def summarize_counts(rows: list[dict[str, object]], delta: float) -> dict[str, o
     return {
         "dataset": best["dataset"],
         "split": best["split"],
-        "scope_id": f"{best['dataset']}_tches20_m80_{best['split']}_fixed_split",
+        "scope_id": f"{best['dataset']}_tches20_m{m}_{best['split']}_fixed_split",
         "M": m,
         "n_te": n_te,
         "p_obs": p_obs,
@@ -223,6 +223,9 @@ def evaluate(args: argparse.Namespace) -> tuple[list[dict[str, object]], dict[st
         raise FileNotFoundError(f"no .hdf5 models found for {args.dataset} in {args.models_dir}")
     data = load_data(args.dataset, args.dataset_dir, args.tches20_src_dir)
     x_eval, y_eval = choose_split(args.split, data)
+    if args.max_eval_traces is not None:
+        x_eval = x_eval[: args.max_eval_traces]
+        y_eval = y_eval[: args.max_eval_traces]
     print(f"dataset={args.dataset} split={args.split} x={x_eval.shape} models={len(model_paths)}")
 
     rows = []
@@ -260,7 +263,15 @@ def evaluate(args: argparse.Namespace) -> tuple[list[dict[str, object]], dict[st
     complete_rows = [row for row in rows if row["status"] == "complete"]
     if not complete_rows:
         raise RuntimeError("all model evaluations failed")
-    return rows, summarize_counts(complete_rows, args.delta)
+    if len(complete_rows) < len(model_paths):
+        warnings.warn(
+            f"only {len(complete_rows)} of {len(model_paths)} declared models were evaluated; "
+            f"the summary certificate covers M={len(complete_rows)} models"
+        )
+    summary = summarize_counts(complete_rows, args.delta)
+    for row in rows:
+        row["scope_id"] = summary["scope_id"]
+    return rows, summary
 
 
 def write_rows(path: Path, rows: Iterable[dict[str, object]]) -> None:
@@ -275,7 +286,13 @@ def write_rows(path: Path, rows: Iterable[dict[str, object]]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True, choices=sorted(DATASET_KEYWORDS))
-    parser.add_argument("--split", required=True, choices=["profiling", "attack", "both"])
+    parser.add_argument(
+        "--split",
+        required=True,
+        choices=["profiling", "attack", "both"],
+        help="Evaluation split. Use 'attack' for certificates; 'profiling' and 'both' include the "
+        "models' own training traces and are in-sample diagnostics only.",
+    )
     parser.add_argument("--models-dir", required=True, type=Path)
     parser.add_argument("--dataset-dir", required=True, type=Path)
     parser.add_argument("--tches20-src-dir", required=True, type=Path)
@@ -283,11 +300,27 @@ def main() -> None:
     parser.add_argument("--delta", default=1e-6, type=float)
     parser.add_argument("--batch-size", default=1024, type=int)
     parser.add_argument("--max-models", default=0, type=int)
+    parser.add_argument(
+        "--max-eval-traces",
+        default=None,
+        type=int,
+        help="Evaluate only the first N records of the selected split (default: all records). "
+        "Use 12500 with --dataset aes_rd --split attack to match the paper's AES-RD attack set.",
+    )
     args = parser.parse_args()
+    if args.max_eval_traces is not None and args.max_eval_traces <= 0:
+        parser.error("--max-eval-traces must be a positive integer")
+    if args.split != "attack":
+        warnings.warn(
+            f"--split {args.split} evaluates the pretrained models on their own profiling (training) "
+            "traces; the result is in-sample and is not a valid certificate. Use --split attack."
+        )
 
     rows, summary = evaluate(args)
     stem = f"{args.dataset}_{args.split}"
-    write_rows(args.output_dir / f"{stem}_success.csv", rows)
+    success_path = args.output_dir / f"{stem}_success.csv"
+    summary["source_artifact"] = str(success_path)
+    write_rows(success_path, rows)
     write_rows(args.output_dir / f"{stem}_summary.csv", [summary])
     print(summary)
 
