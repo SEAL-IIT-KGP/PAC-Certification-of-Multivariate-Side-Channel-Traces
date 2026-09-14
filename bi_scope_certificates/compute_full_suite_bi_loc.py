@@ -9,6 +9,7 @@ import json
 import math
 import os
 import tempfile
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -84,6 +85,7 @@ def summarize_dataset(
         raise ValueError(f"no margins for {dataset}")
     n = len(next(iter(margins_by_center.values())))
     alpha = delta / max(1, m_count * len(eps_grid))
+    scope = f"{'full' if m_count == 80 else 'partial'} TCHES20-M{m_count} score-local suite"
 
     per_center_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
@@ -112,7 +114,7 @@ def summarize_dataset(
             per_center_rows.append(
                 {
                     "dataset": dataset,
-                    "scope": "full TCHES20-M80 score-local suite",
+                    "scope": scope,
                     "center_id": center_id,
                     "architecture": model_arch(center_id),
                     "M": m_count,
@@ -149,7 +151,7 @@ def summarize_dataset(
         summary_rows.append(
             {
                 "dataset": dataset,
-                "scope": "full TCHES20-M80 score-local suite",
+                "scope": scope,
                 "M": m_count,
                 "epsilon": eps,
                 "n_te": n,
@@ -233,6 +235,11 @@ def main() -> None:
         write_rows(err_path, errors)
         if not margins_by_center:
             raise SystemExit(1)
+    if len(margins_by_center) < 80:
+        warnings.warn(
+            f"{args.dataset}: only {len(margins_by_center)} of 80 TCHES20 models were evaluated; "
+            f"the certificate covers M={len(margins_by_center)} models, not the full TCHES20-M80 suite"
+        )
     per_center_path, summary_path, tie_path = summarize_dataset(
         dataset=args.dataset,
         margins_by_center=margins_by_center,

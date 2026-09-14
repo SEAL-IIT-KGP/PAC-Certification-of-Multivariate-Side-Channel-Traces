@@ -131,8 +131,13 @@ def summarize(rows: list[dict[str, str]], delta: float, n_classes: int) -> list[
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir", type=Path, required=True)
-    parser.add_argument("--output-csv", type=Path, required=True)
-    parser.add_argument("--delta", type=float, default=0.05)
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        default=Path(__file__).resolve().parents[1]
+        / "results/ches_transformer_bi_dim_sweep/ches_transformer_bi_dim_sweep_summary.csv",
+    )
+    parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--n-classes", type=int, default=256)
     args = parser.parse_args()
 

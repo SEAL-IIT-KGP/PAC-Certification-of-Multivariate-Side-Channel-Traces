@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset-dir", required=True)
     parser.add_argument("--tches20-src-dir", default="")
     parser.add_argument("--output-dir", default="results/attacker_scope_diagnostic")
-    parser.add_argument("--checkpoint", default="results/attacker_scope_diagnostic/scope_checkpoint.csv")
+    parser.add_argument("--checkpoint", default="results/attacker_scope_diagnostic/aesrd_budget_checkpoint.csv")
     parser.add_argument("--holdout-size", type=int, default=25000)
     parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--n-classes", type=int, default=256)

@@ -69,7 +69,7 @@ def read_summaries(input_dir: Path) -> pd.DataFrame:
 
 
 def build_compact_table(df: pd.DataFrame) -> pd.DataFrame:
-    selected = df[df["epsilon"].astype(float).isin([0.0, 1e-4, 1e-3, 1e-2])].copy()
+    selected = df[df["epsilon"].astype(float).isin([0.0, 1e-4, 3e-4, 1e-3, 1e-2])].copy()
     cols = [
         "dataset",
         "M",

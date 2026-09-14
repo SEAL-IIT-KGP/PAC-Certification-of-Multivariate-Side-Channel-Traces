@@ -140,7 +140,7 @@ def main() -> None:
     parser.add_argument("--beta-hat-2", type=int, required=True)
     parser.add_argument("--model-normalization", default="preLC")
     parser.add_argument("--head-initialization", default="forward")
-    parser.add_argument("--softmax-attn", action="store_true", default=True)
+    parser.add_argument("--softmax-attn", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
 
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)

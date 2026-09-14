@@ -157,8 +157,13 @@ def plot(csv_path: Path, out_dir: Path, audited_points_path: Path | None = None)
             label=label,
         )
 
-    if not audited_points.empty:
-        draw_audited_points(ax, audited_points, zero_proxy)
+    panel_points = (
+        audited_points[audited_points["dataset"].astype(str) == dataset]
+        if not audited_points.empty
+        else pd.DataFrame()
+    )
+    if not panel_points.empty:
+        draw_audited_points(ax, panel_points, zero_proxy)
 
     ax.set_xscale("log")
     ax.set_xlim(2.4e-6, 4.0e-2)
@@ -172,7 +177,7 @@ def plot(csv_path: Path, out_dir: Path, audited_points_path: Path | None = None)
     ax.set_xlabel(r"Score-local radius $\epsilon$")
     ax.set_ylabel(r"$\mathrm{BI}^{\mathrm{loc},+}$ [bits]")
     format_axis(ax)
-    if audited_points.empty:
+    if panel_points.empty:
         ax.legend(loc="upper left", frameon=True, edgecolor="#cccccc", framealpha=0.96)
     else:
         handles, labels = ax.get_legend_handles_labels()

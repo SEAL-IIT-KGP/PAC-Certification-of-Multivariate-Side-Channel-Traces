@@ -304,7 +304,6 @@ def compute_pi_logistic_fast(
         solver="saga",
         max_iter=max_iter,
         n_jobs=-1,
-        multi_class="multinomial",
         random_state=0,
     )
     clf.fit(X_tr, y_train)

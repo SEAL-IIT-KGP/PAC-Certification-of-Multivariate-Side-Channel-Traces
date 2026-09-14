@@ -250,27 +250,45 @@ def compute_pi_logistic(
     # Compute log-probability scores
     score_val = 0.0
     score_train = 0.0
+    n_val_classes = 0
+    n_train_classes = 0
+    n_unseen = 0
+    # predict_log_proba columns follow clf.classes_, not the label value
+    class_col = {c: j for j, c in enumerate(clf.classes_)}
 
     for i in range(n_classes):
         # Validation set
         X_val_i = X_val[y_val == i]
         if len(X_val_i) > 0:
+            n_val_classes += 1
             log_proba = clf.predict_log_proba(X_val_i)
             # Get probability for correct class
-            if i < log_proba.shape[1]:
-                score_val += np.mean(log_proba[:, i])
+            if i in class_col:
+                score_val += np.mean(log_proba[:, class_col[i]])
+            else:
+                # Class never seen in training: floor probability at 1e-10
+                n_unseen += 1
+                score_val += np.log(1e-10)
 
         # Training set
         X_train_i = X_train[y_train == i]
         if len(X_train_i) > 0:
+            n_train_classes += 1
             log_proba = clf.predict_log_proba(X_train_i)
-            if i < log_proba.shape[1]:
-                score_train += np.mean(log_proba[:, i])
+            score_train += np.mean(log_proba[:, class_col[i]])
+
+    if n_val_classes < n_classes or n_train_classes < n_classes:
+        warnings.warn(
+            f"PI/TI: {n_classes - n_val_classes} of {n_classes} classes absent from the "
+            f"validation set and {n_classes - n_train_classes} absent from the training set "
+            f"({n_unseen} validation classes unseen in training); averaging only over "
+            f"present classes."
+        )
 
     # Convert to bits: PI = log2(n_classes) + score (in natural log) * log2(e)
     log2_n = np.log2(n_classes)
-    PI = log2_n + (score_val / n_classes) * np.log2(np.e)
-    TI = log2_n + (score_train / n_classes) * np.log2(np.e)
+    PI = log2_n + (score_val / max(1, n_val_classes)) * np.log2(np.e)
+    TI = log2_n + (score_train / max(1, n_train_classes)) * np.log2(np.e)
 
     return PI, TI
 
@@ -308,19 +326,40 @@ def compute_pi_lda(
     log_proba_val = np.log(np.clip(clf.predict_proba(X_val), 1e-10, 1.0))
     log_proba_train = np.log(np.clip(clf.predict_proba(X_train), 1e-10, 1.0))
 
+    n_val_classes = 0
+    n_train_classes = 0
+    n_unseen = 0
+    # predict_proba columns follow clf.classes_, not the label value
+    class_col = {c: j for j, c in enumerate(clf.classes_)}
+
     for i in range(n_classes):
         idx_val = np.where(y_val == i)[0]
         idx_train = np.where(y_train == i)[0]
 
-        if len(idx_val) > 0 and i < log_proba_val.shape[1]:
-            score_val += np.mean(log_proba_val[idx_val, i])
+        if len(idx_val) > 0:
+            n_val_classes += 1
+            if i in class_col:
+                score_val += np.mean(log_proba_val[idx_val, class_col[i]])
+            else:
+                # Class never seen in training: same 1e-10 floor as the clip above
+                n_unseen += 1
+                score_val += np.log(1e-10)
 
-        if len(idx_train) > 0 and i < log_proba_train.shape[1]:
-            score_train += np.mean(log_proba_train[idx_train, i])
+        if len(idx_train) > 0:
+            n_train_classes += 1
+            score_train += np.mean(log_proba_train[idx_train, class_col[i]])
+
+    if n_val_classes < n_classes or n_train_classes < n_classes:
+        warnings.warn(
+            f"PI/TI: {n_classes - n_val_classes} of {n_classes} classes absent from the "
+            f"validation set and {n_classes - n_train_classes} absent from the training set "
+            f"({n_unseen} validation classes unseen in training); averaging only over "
+            f"present classes."
+        )
 
     log2_n = np.log2(n_classes)
-    PI = log2_n + (score_val / n_classes) * np.log2(np.e)
-    TI = log2_n + (score_train / n_classes) * np.log2(np.e)
+    PI = log2_n + (score_val / max(1, n_val_classes)) * np.log2(np.e)
+    TI = log2_n + (score_train / max(1, n_train_classes)) * np.log2(np.e)
 
     return PI, TI
 
@@ -462,6 +501,8 @@ def compute_hi_gaussian_template(
     # Compute HI via sampling
     H_Y = 0.0  # Entropy of labels
     S = 0.0    # Conditional term
+    covered_prior = 0.0  # Prior mass of classes present in the validation set
+    n_missing = 0
 
     for k in range(n_classes):
         if gt.priors[k] == 0:
@@ -472,7 +513,9 @@ def compute_hi_gaussian_template(
         # Get samples for this class
         idx = np.where(y_val == k)[0]
         if len(idx) == 0:
+            n_missing += 1
             continue
+        covered_prior += gt.priors[k]
 
         samples = X_val[idx]
 
@@ -487,6 +530,15 @@ def compute_hi_gaussian_template(
 
         # Add to sum
         S += gt.priors[k] * np.mean(np.log2(pr_k_l + 1e-100))
+
+    if n_missing > 0:
+        warnings.warn(
+            f"HI: {n_missing} training classes absent from the validation set; "
+            f"averaging the conditional term only over present classes."
+        )
+        if covered_prior > 0:
+            # Renormalize the prior-weighted average over present classes
+            S = S / covered_prior
 
     return H_Y + S
 

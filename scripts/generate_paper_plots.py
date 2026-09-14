@@ -268,12 +268,12 @@ def build_scope_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def apply_fixed_split_plot_overrides(paper: pd.DataFrame, summary_dir: Path) -> pd.DataFrame:
-    """Apply corrected fixed-split BI rows used by the refreshed plots."""
+    """Apply corrected fixed-split BI rows (official attack partitions) used by the refreshed plots."""
     if not summary_dir.exists():
         return paper
     overrides = {
-        "ascad_desync_0": summary_dir / "ascad_desync_0_profiling_summary.csv",
-        "dpav4": summary_dir / "dpav4_both_summary.csv",
+        "ascad_desync_0": summary_dir / "ascad_desync_0_attack_summary.csv",
+        "dpav4": summary_dir / "dpav4_attack_summary.csv",
     }
     out = paper.copy()
     out["fixed_split_plot_override"] = False
@@ -470,9 +470,12 @@ def plot_b_stability_vs_dimension(
     ches_transformer: pd.DataFrame | None = None,
     ches_nonbi_highdim: pd.DataFrame | None = None,
     ches_nonbi_d100: pd.DataFrame | None = None,
+    fill_missing_dimension_cells: bool = False,
 ) -> None:
     if ches_transformer is not None and not ches_transformer.empty:
-        plot_b_ches_transformer_dimension(out_dir, nonbi, ches_transformer, ches_nonbi_highdim)
+        plot_b_ches_transformer_dimension(
+            out_dir, nonbi, ches_transformer, ches_nonbi_highdim, fill_missing_dimension_cells
+        )
         plot_b_ches_transformer_real_extrapolated(
             out_dir, nonbi, ches_transformer, ches_nonbi_highdim, ches_nonbi_d100
         )
@@ -604,9 +607,12 @@ def plot_b_ches_transformer_dimension(
     nonbi: pd.DataFrame,
     ches_transformer: pd.DataFrame,
     ches_nonbi_highdim: pd.DataFrame | None = None,
+    fill_missing_cells: bool = False,
 ) -> None:
     ds = "ches_ctf_2025"
     floor_value = -3.0
+    plotted_metrics = ["GKOV_MI", "MLP_PI", "ePI_or_PI"]
+    filled_keys: set[tuple[float, str]] = set()
     rows = nonbi[
         nonbi["dataset"].astype(str).eq(ds)
         & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50, 100])
@@ -646,7 +652,7 @@ def plot_b_ches_transformer_dimension(
             {"dataset": ds, "dimension": 7000, "metric": "eHI_or_HI", "value_mean": -0.90, "status": "plot_expected"},
         ]
     )
-    if not rows.empty:
+    if fill_missing_cells and not rows.empty:
         rows["dimension"] = pd.to_numeric(rows["dimension"], errors="coerce")
         existing_keys = set(
             zip(
@@ -660,7 +666,21 @@ def plot_b_ches_transformer_dimension(
                 axis=1,
             )
         ].copy()
-    if not expected_plot_values.empty:
+    if fill_missing_cells and not expected_plot_values.empty:
+        filled = expected_plot_values[
+            pd.to_numeric(expected_plot_values["dimension"], errors="coerce").ge(100)
+            & expected_plot_values["metric"].astype(str).isin(plotted_metrics)
+        ]
+        filled_keys = set(zip(filled["dimension"].astype(float), filled["metric"].astype(str)))
+        if not filled.empty:
+            listing = "; ".join(
+                f"({int(r.dimension)}, {r.metric}, {r.status})" for r in filled.itertuples(index=False)
+            )
+            warnings.warn(
+                "plot_B_stability_vs_dimension.pdf: filling missing CHES (dimension, metric) cells with "
+                f"hard-coded non-measured values, drawn with hollow markers: {listing}",
+                stacklevel=2,
+            )
         rows = pd.concat([rows, expected_plot_values], ignore_index=True, sort=False)
     rows["dimension"] = pd.to_numeric(rows["dimension"], errors="coerce")
     rows = rows[rows["dimension"].ge(100)].copy()
@@ -673,7 +693,7 @@ def plot_b_ches_transformer_dimension(
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
 
-    for metric in ["GKOV_MI", "MLP_PI", "ePI_or_PI"]:
+    for metric in plotted_metrics:
         if metric not in pivot.columns:
             continue
         metric_rows = pivot[metric].dropna().sort_index()
@@ -690,6 +710,19 @@ def plot_b_ches_transformer_dimension(
             alpha=0.95,
             zorder=3,
         )
+        filled_points = [(d, v) for d, v in zip(plot_dims, plot_vals) if (d, metric) in filled_keys]
+        if filled_points:
+            ax.plot(
+                [d for d, _ in filled_points],
+                [v for _, v in filled_points],
+                linestyle="None",
+                marker="o",
+                markersize=MARKER_SIZE - 2,
+                markerfacecolor="white",
+                markeredgecolor=METRIC_COLORS[metric],
+                markeredgewidth=1.6,
+                zorder=4,
+            )
 
     if not ches.empty:
         ax.plot(
@@ -715,7 +748,24 @@ def plot_b_ches_transformer_dimension(
     ax.set_xlabel("Trace dimension $d'$", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylabel("Bits", fontsize=AXIS_TITLE_SIZE)
     format_axis(ax)
+    handles, labels = ax.get_legend_handles_labels()
+    if filled_keys:
+        handles.append(
+            plt.Line2D(
+                [],
+                [],
+                linestyle="None",
+                marker="o",
+                markersize=MARKER_SIZE - 2,
+                markerfacecolor="white",
+                markeredgecolor=GRAY,
+                label="filled, not measured",
+            )
+        )
+        labels.append("filled, not measured")
     ax.legend(
+        handles,
+        labels,
         frameon=True,
         fancybox=True,
         edgecolor="gray",
@@ -979,19 +1029,29 @@ def plot_e_bi_vs_holdout(out_dir: Path, paper: pd.DataFrame, ascad_estranet: pd.
         for _, measured in ascad_estranet.iterrows():
             ds_name = str(measured["dataset"])
             if ds_name in datasets:
+                values = pd.to_numeric(
+                    pd.Series([measured.get("p_obs"), measured.get("M"), measured.get("n_te")]), errors="coerce"
+                )
+                if not np.isfinite(values.to_numpy(dtype=float)).all():
+                    warnings.warn(
+                        f"plot_E_bi_vs_holdout.pdf: ignoring non-finite EstraNet summary row for {ds_name} "
+                        f"(p_obs={measured.get('p_obs')}, M={measured.get('M')}, n_te={measured.get('n_te')})",
+                        stacklevel=2,
+                    )
+                    continue
                 measured_overrides[ds_name] = {
-                    "p_obs": float(measured["p_obs"]),
-                    "M": int(measured["M"]),
-                    "n_te": int(measured["n_te"]),
+                    "p_obs": float(values.iloc[0]),
+                    "M": int(values.iloc[1]),
+                    "n_te": int(values.iloc[2]),
                 }
-    placeholder_overrides = {
-        "ascad_random_key": {"p_obs": 1.0 / 256.0, "M": 11, "n_te": 100000},
-    }
+    # ASCAD random has no usable paper-table row; it is plotted only from its real EstraNet summary.
+    requires_measured_summary = {"ascad_random_key"}
     for ds, color in zip(datasets, colors):
-        row = paper[paper["dataset"].eq(ds)].iloc[0]
-        p_obs = float(row["p_obs"])
-        m = int(row["M"])
-        n_te = int(row["n_te"])
+        ds_rows = paper[paper["dataset"].eq(ds)]
+        if ds_rows.empty:
+            warnings.warn(f"plot_E_bi_vs_holdout.pdf: skipping {ds}: no row in the paper table", stacklevel=2)
+            continue
+        row = ds_rows.iloc[0]
         label = DATASET_LABELS[ds] + r" $\mathrm{BI}^{suite,+}$"
         fixed_override = bool(row.get("fixed_split_plot_override", False))
         if ds in measured_overrides and not fixed_override:
@@ -999,11 +1059,25 @@ def plot_e_bi_vs_holdout(out_dir: Path, paper: pd.DataFrame, ascad_estranet: pd.
             p_obs = float(override["p_obs"])
             m = int(override["M"])
             n_te = int(override["n_te"])
-        elif ds in placeholder_overrides:
-            override = placeholder_overrides[ds]
-            p_obs = float(override["p_obs"])
-            m = int(override["M"])
-            n_te = int(override["n_te"])
+        elif ds in requires_measured_summary:
+            warnings.warn(
+                f"plot_E_bi_vs_holdout.pdf: skipping {ds}: its real EstraNet summary row is missing; "
+                "no placeholder value is plotted",
+                stacklevel=2,
+            )
+            continue
+        else:
+            values = pd.to_numeric(pd.Series([row["p_obs"], row["M"], row["n_te"]]), errors="coerce")
+            if not np.isfinite(values.to_numpy(dtype=float)).all():
+                warnings.warn(
+                    f"plot_E_bi_vs_holdout.pdf: skipping {ds}: paper-table row is not finite "
+                    f"(p_obs={row['p_obs']}, M={row['M']}, n_te={row['n_te']}, status={row.get('status')})",
+                    stacklevel=2,
+                )
+                continue
+            p_obs = float(values.iloc[0])
+            m = int(values.iloc[1])
+            n_te = int(values.iloc[2])
         plus_vals = []
         minus_vals = []
         for n in n_grid:
@@ -1274,6 +1348,15 @@ def main() -> None:
     parser.add_argument("--tau-results", default=str(repo / "results/locality_diagnostics/tau_sweep_results.csv"))
     parser.add_argument("--scope-results", default=str(repo / "results/attacker_scope_diagnostic/scope_checkpoint.csv"))
     parser.add_argument("--scope-budget-results", default=str(repo / "results/attacker_scope_diagnostic/aesrd_budget_checkpoint.csv"))
+    parser.add_argument(
+        "--fill-missing-dimension-cells",
+        action="store_true",
+        help=(
+            "Fill CHES (dimension, metric) cells missing from the non-BI summaries in "
+            "plot_B_stability_vs_dimension.pdf with hard-coded expected/interpolated values that are "
+            "not measurements. Off by default; filled cells are listed in a warning and drawn with hollow markers."
+        ),
+    )
     args = parser.parse_args()
 
     setup_style()
@@ -1349,6 +1432,7 @@ def main() -> None:
         ches_transformer,
         ches_nonbi_highdim,
         ches_nonbi_d100,
+        fill_missing_dimension_cells=args.fill_missing_dimension_cells,
     )
     plot_c_tau_sweep(out_dir, tau_df)
     plot_d_attack_scope(out_dir, scope_summary)

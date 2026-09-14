@@ -299,9 +299,18 @@ def write_markdown(path: Path, comparison: pd.DataFrame) -> None:
         "Use the pooled rows only as a direction-finding diagnostic. For a paper-safe",
         "reduction, run a fresh fixed-suite evaluation on a larger declared attack set",
         "or prove that the pooled seed rows correspond to independent/disjoint attack",
-        "examples. DPAv4 is the cheapest target: the current observed rate only needs",
-        "about 21.5k attack examples for `R_margin <= 1` at `M=80`, versus 2.25k now.",
+        "examples.",
     ]
+    needed = high.assign(
+        _n_r1=pd.to_numeric(high["n_for_R_le_1_at_current_p"], errors="coerce")
+    ).dropna(subset=["_n_r1"])
+    if not needed.empty:
+        target = needed.sort_values("_n_r1").iloc[0]
+        lines.append(
+            f"`{target['dataset']}` is the cheapest high-margin target: its current observed rate needs "
+            f"about {int(target['_n_r1']):,} attack examples for `R_margin <= 1` at `M={int(target['M'])}`, "
+            f"versus {int(target['current_n_te']):,} now."
+        )
     path.write_text("\n".join(lines) + "\n")
 
 

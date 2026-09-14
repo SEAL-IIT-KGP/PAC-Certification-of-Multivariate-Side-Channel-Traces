@@ -230,6 +230,7 @@ def row_done(args: argparse.Namespace, dataset: str, dimension: int, seed: int, 
         & pd.to_numeric(df["dimension"], errors="coerce").eq(int(dimension))
         & pd.to_numeric(df["seed"], errors="coerce").eq(int(seed))
         & df["metric"].astype(str).eq(metric)
+        & df["status"].astype(str).eq("complete")
     )
     return bool(mask.any())
 
