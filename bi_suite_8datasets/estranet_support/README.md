@@ -31,6 +31,10 @@ git -C external/EstraNet apply "$PWD/bi_suite_8datasets/estranet_support/train_t
 
 ## Training settings of the released checkpoints
 
+Training needs a CUDA-capable GPU: the ASCAD and CHES-CTF-2025 runs take
+4,000,000 steps at batch size 16, which is impractical on CPU. Evaluating the
+released checkpoints (Levels C and D of `paper_results/`) runs on CPU.
+
 All runs use `train_trans.py` with `n_layer=2`, `d_model=128`, `d_head=32`,
 `n_head=8`, `d_inner=256`, `n_head_softmax=8`, `d_head_softmax=16`,
 `dropout=0.05`, `conv_kernel_size=3`, `n_conv_layer=2`, `d_kernel_map=512`,
