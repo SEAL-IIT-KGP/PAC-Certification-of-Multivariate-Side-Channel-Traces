@@ -19,7 +19,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict
 
-import numpy as np
 import pandas as pd
 
 from dimension_stability.real_nonbi_dimcap_baselines import (
@@ -38,12 +37,7 @@ METRIC_TO_COLUMN = {
     "GKOV_MI": ("mi", "mi_success", "mi_error"),
 }
 
-METRIC_TO_ARG = {
-    "ePI_or_PI": "pi",
-    "eHI_or_HI": "hi",
-    "MLP_PI": "mlp_pi",
-    "GKOV_MI": "mi",
-}
+METRIC_TO_ARG = {"ePI_or_PI": "pi", "eHI_or_HI": "hi", "MLP_PI": "mlp_pi", "GKOV_MI": "mi"}
 
 CHECKPOINT_COLUMNS = [
     "dataset",
@@ -92,18 +86,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pi-max-iter", type=int, default=250)
     parser.add_argument("--max-mi-samples", type=int, default=8000)
     parser.add_argument("--window-method", default="center", choices=["center", "start", "random"])
-    parser.add_argument(
-        "--tches20-dataset-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"),
-    )
-    parser.add_argument(
-        "--tches20-src-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"),
-    )
-    parser.add_argument(
-        "--ches-h5",
-        default=str(repo / "datasets/raw/ches_ctf_2025/CHES_Challenge.h5"),
-    )
+    parser.add_argument("--tches20-dataset-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"))
+    parser.add_argument("--tches20-src-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"))
+    parser.add_argument("--ches-h5", default=str(repo / "datasets/raw/ches_ctf_2025/CHES_Challenge.h5"))
     return parser.parse_args()
 
 
@@ -156,19 +141,21 @@ def normalize_checkpoint(path: Path) -> pd.DataFrame:
 def write_summary(df: pd.DataFrame, output_dir: Path) -> None:
     rows = []
     if df.empty:
-        pd.DataFrame(columns=[
-            "dataset",
-            "dimension",
-            "metric",
-            "status",
-            "success_fraction",
-            "value_mean",
-            "value_std",
-            "success_count",
-            "run_count",
-            "source_artifact",
-            "note",
-        ]).to_csv(output_dir / "ches_nonbi_highdim_summary.csv", index=False)
+        pd.DataFrame(
+            columns=[
+                "dataset",
+                "dimension",
+                "metric",
+                "status",
+                "success_fraction",
+                "value_mean",
+                "value_std",
+                "success_count",
+                "run_count",
+                "source_artifact",
+                "note",
+            ]
+        ).to_csv(output_dir / "ches_nonbi_highdim_summary.csv", index=False)
         return
     for (dataset, dimension, metric), group in df.groupby(["dataset", "dimension", "metric"], dropna=False):
         values = pd.to_numeric(group["value"], errors="coerce")
@@ -208,8 +195,7 @@ def upsert_result(output_dir: Path, result: Dict[str, object]) -> None:
         )
         df = df.loc[~mask].copy()
         df = pd.concat(
-            [df, pd.DataFrame([{col: result.get(col, "") for col in CHECKPOINT_COLUMNS}])],
-            ignore_index=True,
+            [df, pd.DataFrame([{col: result.get(col, "") for col in CHECKPOINT_COLUMNS}])], ignore_index=True
         )
         df = df.sort_values(["dataset", "dimension", "seed", "metric"]).reset_index(drop=True)
         tmp = checkpoint.with_suffix(checkpoint.suffix + ".tmp")

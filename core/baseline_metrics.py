@@ -17,15 +17,15 @@ from scipy.spatial import cKDTree
 from scipy.stats import multivariate_normal
 from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.naive_bayes import GaussianNB
 from sklearn.covariance import LedoitWolf
-from typing import Tuple, Optional, List, Dict, Union
+from typing import Tuple, Dict
 import warnings
 
 
 # =============================================================================
 # MUTUAL INFORMATION ESTIMATORS (from GKOV_MI.py)
 # =============================================================================
+
 
 def gkov_mi_univariate(traces: np.ndarray, labels: np.ndarray, k: int = None) -> float:
     """
@@ -58,7 +58,7 @@ def gkov_mi_univariate(traces: np.ndarray, labels: np.ndarray, k: int = None) ->
     tree_labels = cKDTree(labels.reshape(-1, 1))
 
     # Find k-th nearest neighbor distances
-    dist = tree_joint.query(joint, k=k+1, p=float('inf'), workers=-1)[0][:, k]
+    dist = tree_joint.query(joint, k=k + 1, p=float("inf"), workers=-1)[0][:, k]
 
     # Initialize counts
     kp_arr = np.full(n, k, dtype=int)
@@ -66,18 +66,16 @@ def gkov_mi_univariate(traces: np.ndarray, labels: np.ndarray, k: int = None) ->
     n_arr = np.zeros(n, dtype=int)
 
     # Handle zero distances (identical points)
-    zero_mask = (dist == 0)
+    zero_mask = dist == 0
     if np.any(zero_mask):
         zero_idx = np.where(zero_mask)[0]
         zero_pts = joint[zero_idx]
-        kp_arr[zero_mask] = tree_joint.query_ball_point(
-            zero_pts, 1e-15, p=float('inf'), workers=-1, return_length=True
-        )
+        kp_arr[zero_mask] = tree_joint.query_ball_point(zero_pts, 1e-15, p=float("inf"), workers=-1, return_length=True)
         m_arr[zero_mask] = tree_traces.query_ball_point(
-            zero_pts[:, 0:1], 1e-15, p=float('inf'), workers=-1, return_length=True
+            zero_pts[:, 0:1], 1e-15, p=float("inf"), workers=-1, return_length=True
         )
         n_arr[zero_mask] = tree_labels.query_ball_point(
-            zero_pts[:, 1:2], 1e-15, p=float('inf'), workers=-1, return_length=True
+            zero_pts[:, 1:2], 1e-15, p=float("inf"), workers=-1, return_length=True
         )
 
     # Handle non-zero distances
@@ -85,14 +83,10 @@ def gkov_mi_univariate(traces: np.ndarray, labels: np.ndarray, k: int = None) ->
     if np.any(nonzero_mask):
         nonzero_idx = np.where(nonzero_mask)[0]
         m_arr[nonzero_mask] = tree_traces.query_ball_point(
-            traces[nonzero_idx].reshape(-1, 1),
-            dist[nonzero_idx],
-            p=float('inf'), workers=-1, return_length=True
+            traces[nonzero_idx].reshape(-1, 1), dist[nonzero_idx], p=float("inf"), workers=-1, return_length=True
         )
         n_arr[nonzero_mask] = tree_labels.query_ball_point(
-            labels[nonzero_idx].reshape(-1, 1),
-            dist[nonzero_idx],
-            p=float('inf'), workers=-1, return_length=True
+            labels[nonzero_idx].reshape(-1, 1), dist[nonzero_idx], p=float("inf"), workers=-1, return_length=True
         )
 
     # Compute MI estimate
@@ -136,29 +130,21 @@ def gkov_mi_multivariate(traces: np.ndarray, labels: np.ndarray, k: int = None) 
     tree_labels = cKDTree(labels)
 
     # Find k-th nearest neighbor distances
-    dist = tree_joint.query(joint, k=k+1, p=float('inf'), workers=-1)[0][:, k]
+    dist = tree_joint.query(joint, k=k + 1, p=float("inf"), workers=-1)[0][:, k]
 
     # Adjust distances for boundary handling
     cond_dist = np.where(dist == 0, dist, dist - 2e-15)
 
     # Count neighbors in marginal spaces
-    m_arr = tree_traces.query_ball_point(
-        traces, cond_dist + 1e-15,
-        p=float('inf'), workers=-1, return_length=True
-    )
-    n_arr = tree_labels.query_ball_point(
-        labels, cond_dist + 1e-15,
-        p=float('inf'), workers=-1, return_length=True
-    )
+    m_arr = tree_traces.query_ball_point(traces, cond_dist + 1e-15, p=float("inf"), workers=-1, return_length=True)
+    n_arr = tree_labels.query_ball_point(labels, cond_dist + 1e-15, p=float("inf"), workers=-1, return_length=True)
 
     # Compute MI with zero-distance handling
     mi = 0.0
     for i in range(n):
         kp = k
         if dist[i] == 0:
-            kp = tree_joint.query_ball_point(
-                joint[i], 1e-15, p=float('inf'), workers=-1, return_length=True
-            )
+            kp = tree_joint.query_ball_point(joint[i], 1e-15, p=float("inf"), workers=-1, return_length=True)
         mi += (scipy.special.digamma(kp) - np.log(m_arr[i] + 1) - np.log(n_arr[i] + 1)) / n
 
     mi += np.log(n)
@@ -168,10 +154,7 @@ def gkov_mi_multivariate(traces: np.ndarray, labels: np.ndarray, k: int = None) 
 
 
 def compute_mi(
-    traces: np.ndarray,
-    labels: np.ndarray,
-    k: int = None,
-    max_dim_for_estimate: int = 100
+    traces: np.ndarray, labels: np.ndarray, k: int = None, max_dim_for_estimate: int = 100
 ) -> Tuple[float, bool]:
     """
     Compute MI with automatic selection of univariate/multivariate estimator.
@@ -194,8 +177,7 @@ def compute_mi(
     # Check if dimension is too high for reliable estimation
     if n_features > max_dim_for_estimate:
         warnings.warn(
-            f"MI estimation unreliable for d={n_features} > {max_dim_for_estimate}. "
-            "Consider dimensionality reduction."
+            f"MI estimation unreliable for d={n_features} > {max_dim_for_estimate}. Consider dimensionality reduction."
         )
         return np.nan, False
 
@@ -214,12 +196,9 @@ def compute_mi(
 # PERCEIVED INFORMATION (PI) via Classifiers
 # =============================================================================
 
+
 def compute_pi_logistic(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: np.ndarray,
-    y_val: np.ndarray,
-    n_classes: int = 256
+    X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, n_classes: int = 256
 ) -> Tuple[float, float]:
     """
     Compute PI and TI using logistic regression.
@@ -237,11 +216,7 @@ def compute_pi_logistic(
         Tuple of (PI on validation, TI on training) in bits
     """
     # Train logistic regression
-    clf = LogisticRegression(
-    solver='lbfgs',
-    max_iter=1000,
-    n_jobs=-1
-    )
+    clf = LogisticRegression(solver="lbfgs", max_iter=1000, n_jobs=-1)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -294,11 +269,7 @@ def compute_pi_logistic(
 
 
 def compute_pi_lda(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: np.ndarray,
-    y_val: np.ndarray,
-    n_classes: int = 256
+    X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, n_classes: int = 256
 ) -> Tuple[float, float]:
     """
     Compute PI using Linear Discriminant Analysis.
@@ -369,8 +340,8 @@ def compute_pi(
     y_train: np.ndarray,
     X_val: np.ndarray,
     y_val: np.ndarray,
-    method: str = 'logistic',
-    n_classes: int = 256
+    method: str = "logistic",
+    n_classes: int = 256,
 ) -> Tuple[float, float]:
     """
     Unified PI computation interface.
@@ -386,9 +357,9 @@ def compute_pi(
     Returns:
         Tuple of (PI, TI) in bits
     """
-    if method == 'logistic':
+    if method == "logistic":
         return compute_pi_logistic(X_train, y_train, X_val, y_val, n_classes)
-    elif method == 'lda':
+    elif method == "lda":
         return compute_pi_lda(X_train, y_train, X_val, y_val, n_classes)
     else:
         raise ValueError(f"Unknown method: {method}")
@@ -397,6 +368,7 @@ def compute_pi(
 # =============================================================================
 # HYPOTHETICAL INFORMATION (HI) via Gaussian Templates
 # =============================================================================
+
 
 class GaussianTemplate:
     """
@@ -444,7 +416,7 @@ class GaussianTemplate:
                             lw = LedoitWolf()
                             lw.fit(traces[idx])
                             self.covs[k] = lw.covariance_
-                        except:
+                        except Exception:
                             self.covs[k] = np.cov(traces[idx].T) + 1e-6 * np.eye(self.n_dims)
                     else:
                         cov = np.cov(traces[idx].T)
@@ -465,16 +437,12 @@ class GaussianTemplate:
 
         try:
             return multivariate_normal.pdf(x, self.means[k], self.covs[k])
-        except:
+        except Exception:
             return np.zeros(len(x)) + 1e-100
 
 
 def compute_hi_gaussian_template(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: np.ndarray,
-    y_val: np.ndarray,
-    n_classes: int = 256
+    X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, n_classes: int = 256
 ) -> float:
     """
     Compute Hypothetical Information using Gaussian templates.
@@ -500,7 +468,7 @@ def compute_hi_gaussian_template(
 
     # Compute HI via sampling
     H_Y = 0.0  # Entropy of labels
-    S = 0.0    # Conditional term
+    S = 0.0  # Conditional term
     covered_prior = 0.0  # Prior mass of classes present in the validation set
     n_missing = 0
 
@@ -544,11 +512,7 @@ def compute_hi_gaussian_template(
 
 
 def compute_hi(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: np.ndarray,
-    y_val: np.ndarray,
-    n_classes: int = 256
+    X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, n_classes: int = 256
 ) -> float:
     """
     Unified HI computation interface.
@@ -570,6 +534,7 @@ def compute_hi(
 # UNIFIED INTERFACE
 # =============================================================================
 
+
 def compute_all_metrics(
     X_train: np.ndarray,
     y_train: np.ndarray,
@@ -577,7 +542,7 @@ def compute_all_metrics(
     y_val: np.ndarray,
     compute_mi_flag: bool = True,
     max_dim_for_mi: int = 20,
-    n_classes: int = 256
+    n_classes: int = 256,
 ) -> Dict[str, float]:
     """
     Compute all baseline metrics: PI, TI, HI, and optionally MI.
@@ -599,20 +564,20 @@ def compute_all_metrics(
     # PI and TI
     try:
         pi, ti = compute_pi(X_train, y_train, X_val, y_val, n_classes=n_classes)
-        results['PI'] = pi
-        results['TI'] = ti
+        results["PI"] = pi
+        results["TI"] = ti
     except Exception as e:
         warnings.warn(f"PI computation failed: {e}")
-        results['PI'] = np.nan
-        results['TI'] = np.nan
+        results["PI"] = np.nan
+        results["TI"] = np.nan
 
     # HI (eHI - empirical HI)
     try:
         hi = compute_hi(X_train, y_train, X_val, y_val, n_classes=n_classes)
-        results['HI'] = hi
+        results["HI"] = hi
     except Exception as e:
         warnings.warn(f"HI computation failed: {e}")
-        results['HI'] = np.nan
+        results["HI"] = np.nan
 
     # MI (only if dimension is reasonable)
     if compute_mi_flag:
@@ -622,15 +587,15 @@ def compute_all_metrics(
 
         if n_dims <= max_dim_for_mi:
             mi, success = compute_mi(X_combined, y_combined)
-            results['MI'] = mi if success else np.nan
-            results['MI_success'] = success
+            results["MI"] = mi if success else np.nan
+            results["MI_success"] = success
         else:
-            results['MI'] = np.nan
-            results['MI_success'] = False
-            results['MI_note'] = f"Skipped: dim={n_dims} > max={max_dim_for_mi}"
+            results["MI"] = np.nan
+            results["MI_success"] = False
+            results["MI_note"] = f"Skipped: dim={n_dims} > max={max_dim_for_mi}"
     else:
-        results['MI'] = np.nan
-        results['MI_success'] = False
+        results["MI"] = np.nan
+        results["MI_success"] = False
 
     return results
 
@@ -648,14 +613,16 @@ if __name__ == "__main__":
 
     # Simple leakage model: trace = HW(label) + noise
     labels = np.random.randint(0, n_classes, n_samples)
-    hw = np.array([bin(x).count('1') for x in labels])
+    hw = np.array([bin(x).count("1") for x in labels])
     traces = hw.reshape(-1, 1) + np.random.randn(n_samples, 1) * 0.5
 
     # Multi-dimensional traces
-    traces_multi = np.column_stack([
-        traces,
-        np.random.randn(n_samples, n_dims - 1)  # Add noise dimensions
-    ])
+    traces_multi = np.column_stack(
+        [
+            traces,
+            np.random.randn(n_samples, n_dims - 1),  # Add noise dimensions
+        ]
+    )
 
     # Split data
     split = int(0.7 * n_samples)
@@ -664,13 +631,9 @@ if __name__ == "__main__":
 
     # Compute metrics
     print("\nComputing metrics for synthetic data...")
-    results = compute_all_metrics(
-        X_train, y_train, X_val, y_val,
-        compute_mi_flag=True,
-        max_dim_for_mi=10
-    )
+    results = compute_all_metrics(X_train, y_train, X_val, y_val, compute_mi_flag=True, max_dim_for_mi=10)
 
-    print(f"\nResults:")
+    print("\nResults:")
     for key, value in results.items():
         if isinstance(value, float):
             print(f"  {key}: {value:.4f} bits")

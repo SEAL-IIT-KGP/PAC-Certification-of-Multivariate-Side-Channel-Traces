@@ -12,11 +12,10 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 import re
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import List
 
 import numpy as np
 import tensorflow as tf
@@ -148,17 +147,11 @@ def main() -> None:
 
     if args.dataset == "ASCAD":
         dataset = data_utils.Dataset(
-            data_path=str(args.data_path),
-            split="test",
-            input_length=args.input_length,
-            data_desync=args.data_desync,
+            data_path=str(args.data_path), split="test", input_length=args.input_length, data_desync=args.data_desync
         )
     else:
         dataset = data_utils_ches25.Dataset(
-            data_path=str(args.data_path),
-            split="test",
-            input_length=args.input_length,
-            data_desync=args.data_desync,
+            data_path=str(args.data_path), split="test", input_length=args.input_length, data_desync=args.data_desync
         )
     labels = labels_from_dataset(dataset)
 

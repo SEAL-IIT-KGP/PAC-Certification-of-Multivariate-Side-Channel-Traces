@@ -21,12 +21,7 @@ class TraceTransformer(nn.Module):
         n_tokens = max(1, trace_len // patch_len)
         self.positional = nn.Parameter(torch.zeros(1, n_tokens, d_model))
         layer = nn.TransformerEncoderLayer(
-            d_model=d_model,
-            nhead=4,
-            dim_feedforward=4 * d_model,
-            dropout=0.1,
-            batch_first=True,
-            activation="gelu",
+            d_model=d_model, nhead=4, dim_feedforward=4 * d_model, dropout=0.1, batch_first=True, activation="gelu"
         )
         self.encoder = nn.TransformerEncoder(layer, num_layers=2)
         self.classifier = nn.Linear(d_model, n_classes)

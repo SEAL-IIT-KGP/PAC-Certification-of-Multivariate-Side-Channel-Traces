@@ -18,26 +18,13 @@ DATASET_LABELS = {
     "aes_rd": "AES-RD",
 }
 
-DATASET_ORDER = {
-    "ascad_desync_50": 0,
-    "ascad_desync_100": 1,
-    "ascad_random_key": 2,
-    "aes_rd": 3,
-}
+DATASET_ORDER = {"ascad_desync_50": 0, "ascad_desync_100": 1, "ascad_random_key": 2, "aes_rd": 3}
 ARCH_ORDER = {"MLP": 0, "CNN": 1, "Transformer": 2}
 
 
 def esc(value: object) -> str:
     text = str(value)
-    replacements = {
-        "\\": r"\textbackslash{}",
-        "_": r"\_",
-        "%": r"\%",
-        "&": r"\&",
-        "#": r"\#",
-        "{": r"\{",
-        "}": r"\}",
-    }
+    replacements = {"\\": r"\textbackslash{}", "_": r"\_", "%": r"\%", "&": r"\&", "#": r"\#", "{": r"\{", "}": r"\}"}
     return "".join(replacements.get(ch, ch) for ch in text)
 
 
@@ -88,14 +75,7 @@ def add_audit_metadata(points: pd.DataFrame, audit: pd.DataFrame) -> pd.DataFram
     if audit.empty:
         return points.copy()
     keys = ["dataset", "architecture", "center_id"]
-    keep = [
-        "dataset",
-        "architecture",
-        "center_id",
-        "audit_route",
-        "bounded_domain",
-        "certified_statement",
-    ]
+    keep = ["dataset", "architecture", "center_id", "audit_route", "bounded_domain", "certified_statement"]
     merged = points.merge(audit[[c for c in keep if c in audit.columns]], on=keys, how="left")
     merged["audited_radius_source"] = "declared score-radius grid point from Figure 2 relaxed-margin audit"
     merged["claim"] = (
@@ -148,7 +128,9 @@ def make_tex_table(df: pd.DataFrame, epsilon: float) -> str:
 """
 
 
-def write_summary(path: Path, all_points: pd.DataFrame, main_points: pd.DataFrame, epsilon: float, main_dataset: str) -> None:
+def write_summary(
+    path: Path, all_points: pd.DataFrame, main_points: pd.DataFrame, epsilon: float, main_dataset: str
+) -> None:
     selected = selected_epsilons(all_points) or [float(epsilon)]
     radius_line = f"Audited radius: `epsilon={', '.join(f'{e:g}' for e in selected)}`."
     if any(not math.isclose(e, float(epsilon), rel_tol=1e-9, abs_tol=0.0) for e in selected):
@@ -210,8 +192,14 @@ def update_manifest(package_dir: Path, entries: list[dict[str, str]]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv"))
-    parser.add_argument("--audit-csv", type=Path, default=Path("results/bi_scope_certificates/nonoptional_audit/score_radius_audit_table.csv"))
+    parser.add_argument(
+        "--curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv")
+    )
+    parser.add_argument(
+        "--audit-csv",
+        type=Path,
+        default=Path("results/bi_scope_certificates/nonoptional_audit/score_radius_audit_table.csv"),
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("results/bi_scope_certificates"))
     parser.add_argument("--package-dir", type=Path, default=Path("results/bi_scope_certificates/mainpaper_package"))
     parser.add_argument("--epsilon", type=float, default=1e-4)
@@ -230,7 +218,13 @@ def main() -> None:
     main_path = args.output_dir / "audited_score_radius_biloc_points_main.csv"
     all_points.to_csv(all_path, index=False)
     main_points.to_csv(main_path, index=False)
-    write_summary(args.output_dir / "AUDITED_SCORE_RADIUS_BILOC_POINTS.md", all_points, main_points, args.epsilon, args.main_dataset)
+    write_summary(
+        args.output_dir / "AUDITED_SCORE_RADIUS_BILOC_POINTS.md",
+        all_points,
+        main_points,
+        args.epsilon,
+        args.main_dataset,
+    )
 
     if args.package_dir:
         (args.package_dir / "data").mkdir(parents=True, exist_ok=True)
@@ -238,8 +232,7 @@ def main() -> None:
         all_points.to_csv(args.package_dir / "data" / "audited_score_radius_biloc_points.csv", index=False)
         main_points.to_csv(args.package_dir / "data" / "audited_score_radius_biloc_points_main.csv", index=False)
         (args.package_dir / "tables" / "audited_score_radius_biloc_points.tex").write_text(
-            make_tex_table(main_points, args.epsilon),
-            encoding="utf-8",
+            make_tex_table(main_points, args.epsilon), encoding="utf-8"
         )
         update_manifest(
             args.package_dir,

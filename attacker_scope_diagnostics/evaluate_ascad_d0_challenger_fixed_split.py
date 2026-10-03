@@ -141,13 +141,7 @@ def filter_suite(suite, model_family: str):
 
 
 def scope_model_names(scope: int, n_features: int, args: argparse.Namespace) -> list[str]:
-    suite = scope_module.build_scope(
-        scope,
-        n_features,
-        args.n_classes,
-        args.target_cnn_params,
-        args.device,
-    )
+    suite = scope_module.build_scope(scope, n_features, args.n_classes, args.target_cnn_params, args.device)
     suite = filter_suite(suite, args.model_family)
     return [name for name, model in suite if not (scope_module.HAS_TORCH and isinstance(model, scope_module.nn.Module))]
 
@@ -158,11 +152,7 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
     if args.disable_cnn:
         scope_module.HAS_TORCH = False
 
-    x, y = load_dataset(
-        args.dataset,
-        data_dir=args.dataset_dir,
-        tches20_src_dir=args.tches20_src_dir,
-    )
+    x, y = load_dataset(args.dataset, data_dir=args.dataset_dir, tches20_src_dir=args.tches20_src_dir)
     x = select_features(np.asarray(x), args.max_features, args.feature_select)
     y = np.asarray(y).reshape(-1).astype(np.int64)
     if len(x) != len(y):
@@ -199,22 +189,10 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
 
         if args.disable_cnn:
             t0 = time.time()
-            full_suite = scope_module.build_scope(
-                2,
-                x.shape[1],
-                args.n_classes,
-                args.target_cnn_params,
-                args.device,
-            )
+            full_suite = scope_module.build_scope(2, x.shape[1], args.n_classes, args.target_cnn_params, args.device)
             full_suite = filter_suite(full_suite, args.model_family)
             full_fixed_success, full_holdout_success = evaluate_models(
-                full_suite,
-                x_train,
-                y_train,
-                x,
-                y,
-                x_hold,
-                y_hold,
+                full_suite, x_train, y_train, x, y, x_hold, y_hold
             )
             print(
                 f"seed={seed} trained matched linear+MLP challenger pool "
@@ -233,23 +211,9 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
                 fixed_success = {name: full_fixed_success[name] for name in names if name in full_fixed_success}
                 holdout_success = {name: full_holdout_success[name] for name in names if name in full_holdout_success}
             else:
-                suite = scope_module.build_scope(
-                    scope,
-                    x.shape[1],
-                    args.n_classes,
-                    args.target_cnn_params,
-                    args.device,
-                )
+                suite = scope_module.build_scope(scope, x.shape[1], args.n_classes, args.target_cnn_params, args.device)
                 suite = filter_suite(suite, args.model_family)
-                fixed_success, holdout_success = evaluate_models(
-                    suite,
-                    x_train,
-                    y_train,
-                    x,
-                    y,
-                    x_hold,
-                    y_hold,
-                )
+                fixed_success, holdout_success = evaluate_models(suite, x_train, y_train, x, y, x_hold, y_hold)
             best_fixed_model, p_fixed = best_item(fixed_success)
             best_hold_model, p_hold = best_item(holdout_success)
             print(

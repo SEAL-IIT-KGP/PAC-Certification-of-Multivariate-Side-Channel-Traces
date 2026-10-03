@@ -27,11 +27,7 @@ DATASET_LABELS = {
 
 DATASET_ORDER = ["ascad_desync_50", "ascad_desync_100", "ascad_random_key", "aes_rd"]
 
-COLORS = {
-    "MLP": "#1f4e79",
-    "CNN": "#d95f02",
-    "Transformer": "#2ca25f",
-}
+COLORS = {"MLP": "#1f4e79", "CNN": "#d95f02", "Transformer": "#2ca25f"}
 ARCH_ORDER = ["MLP", "CNN", "Transformer"]
 
 TICK_SIZE = 16
@@ -42,6 +38,9 @@ PANEL_FIG_SIZE = (10.4, 7.6)
 LINE_WIDTH = 2.7
 MARKER_SIZE = 9
 AUDITED_MARKER_SIZE = 170
+# Legend text for the star markers and the output file stem; both can be set from the command line.
+POINT_LABEL = "audited radius"
+OUTPUT_STEM = "bi_loc_radius_curves"
 
 
 def setup_style() -> None:
@@ -111,7 +110,7 @@ def iter_arch_groups(panel: pd.DataFrame):
 
 def add_audited_legend(ax: plt.Axes) -> None:
     handles, labels = ax.get_legend_handles_labels()
-    if "audited radius" not in labels:
+    if POINT_LABEL not in labels:
         handles.append(
             plt.Line2D(
                 [],
@@ -121,10 +120,10 @@ def add_audited_legend(ax: plt.Axes) -> None:
                 markersize=11,
                 markerfacecolor="#ffffff",
                 markeredgecolor="black",
-                label="audited radius",
+                label=POINT_LABEL,
             )
         )
-        labels.append("audited radius")
+        labels.append(POINT_LABEL)
     ax.legend(handles, labels, loc="lower right", frameon=True, edgecolor="#cccccc", framealpha=0.96, fontsize=11)
 
 
@@ -158,9 +157,7 @@ def plot(csv_path: Path, out_dir: Path, audited_points_path: Path | None = None)
         )
 
     panel_points = (
-        audited_points[audited_points["dataset"].astype(str) == dataset]
-        if not audited_points.empty
-        else pd.DataFrame()
+        audited_points[audited_points["dataset"].astype(str) == dataset] if not audited_points.empty else pd.DataFrame()
     )
     if not panel_points.empty:
         draw_audited_points(ax, panel_points, zero_proxy)
@@ -190,14 +187,14 @@ def plot(csv_path: Path, out_dir: Path, audited_points_path: Path | None = None)
                 markersize=11,
                 markerfacecolor="#ffffff",
                 markeredgecolor="black",
-                label="audited radius",
+                label=POINT_LABEL,
             )
         )
-        ax.legend(handles, labels + ["audited radius"], loc="upper left", frameon=True, edgecolor="#cccccc", framealpha=0.96)
+        ax.legend(handles, labels + [POINT_LABEL], loc="upper left", frameon=True, edgecolor="#cccccc", framealpha=0.96)
 
     fig.tight_layout(pad=0.4)
-    fig.savefig(out_dir / "bi_loc_radius_curves.pdf", bbox_inches="tight")
-    fig.savefig(out_dir / "bi_loc_radius_curves.png", dpi=300, bbox_inches="tight")
+    fig.savefig(out_dir / f"{OUTPUT_STEM}.pdf", bbox_inches="tight")
+    fig.savefig(out_dir / f"{OUTPUT_STEM}.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -225,7 +222,9 @@ def plot_panels(df: pd.DataFrame, out_dir: Path, audited_points: pd.DataFrame | 
                 markersize=MARKER_SIZE * 0.72,
                 label=str(arch),
             )
-        panel_points = audited_points[audited_points["dataset"] == dataset] if not audited_points.empty else pd.DataFrame()
+        panel_points = (
+            audited_points[audited_points["dataset"] == dataset] if not audited_points.empty else pd.DataFrame()
+        )
         if not panel_points.empty:
             draw_audited_points(ax, panel_points, zero_proxy)
         ax.set_xscale("log")
@@ -257,33 +256,29 @@ def plot_panels(df: pd.DataFrame, out_dir: Path, audited_points: pd.DataFrame | 
     fig.supxlabel(r"Score-local radius $\epsilon$", fontsize=AXIS_TITLE_SIZE)
     fig.supylabel(r"$\mathrm{BI}^{\mathrm{loc},+}$ [bits]", fontsize=AXIS_TITLE_SIZE)
     fig.tight_layout(pad=0.7)
-    fig.savefig(out_dir / "bi_loc_radius_curves.pdf", bbox_inches="tight")
-    fig.savefig(out_dir / "bi_loc_radius_curves.png", dpi=300, bbox_inches="tight")
+    fig.savefig(out_dir / f"{OUTPUT_STEM}.pdf", bbox_inches="tight")
+    fig.savefig(out_dir / f"{OUTPUT_STEM}.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
 def main() -> None:
+    global POINT_LABEL, OUTPUT_STEM
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--csv",
-        type=Path,
-        default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv"),
-    )
-    parser.add_argument(
-        "--out-dir",
-        type=Path,
-        default=Path("results/bi_scope_certificates"),
-    )
+    parser.add_argument("--csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv"))
+    parser.add_argument("--out-dir", type=Path, default=Path("results/bi_scope_certificates"))
     parser.add_argument(
         "--audited-points-csv",
         type=Path,
         default=None,
         help="Optional CSV of concrete audited radius points to overlay with star markers.",
     )
+    parser.add_argument("--point-label", default=POINT_LABEL, help="Legend text for the star markers.")
+    parser.add_argument("--output-stem", default=OUTPUT_STEM, help="File name (without extension) of the figure.")
     args = parser.parse_args()
+    POINT_LABEL, OUTPUT_STEM = args.point_label, args.output_stem
     plot(args.csv, args.out_dir, args.audited_points_csv)
-    print(args.out_dir / "bi_loc_radius_curves.pdf")
-    print(args.out_dir / "bi_loc_radius_curves.png")
+    print(args.out_dir / f"{OUTPUT_STEM}.pdf")
+    print(args.out_dir / f"{OUTPUT_STEM}.png")
 
 
 if __name__ == "__main__":

@@ -14,11 +14,10 @@ import argparse
 import fcntl
 import json
 import math
-import os
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -64,10 +63,7 @@ def checkpoint_keys(checkpoint: Path) -> set[Key]:
         return set()
     if not {"dataset", "scope_level", "seed"}.issubset(df.columns):
         return set()
-    return {
-        (str(row.dataset), int(row.scope_level), int(row.seed))
-        for row in df.itertuples(index=False)
-    }
+    return {(str(row.dataset), int(row.scope_level), int(row.seed)) for row in df.itertuples(index=False)}
 
 
 def append_checkpoint(result: scope_module.ExperimentResult, checkpoint: Path) -> None:
@@ -102,8 +98,8 @@ def split_seed(X: np.ndarray, y: np.ndarray, seed: int, holdout_size: int):
     holdout_size_actual = min(holdout_size, n_total - train_size - val_size)
     idx = rng.permutation(n_total)
     idx_train = idx[:train_size]
-    idx_val = idx[train_size:train_size + val_size]
-    idx_holdout = idx[train_size + val_size:train_size + val_size + holdout_size_actual]
+    idx_val = idx[train_size : train_size + val_size]
+    idx_holdout = idx[train_size + val_size : train_size + val_size + holdout_size_actual]
     X_train_full = np.vstack([X[idx_train], X[idx_val]])
     y_train_full = np.hstack([y[idx_train], y[idx_val]])
     return X_train_full, y_train_full, X[idx_holdout], y[idx_holdout]
@@ -117,17 +113,49 @@ def build_budgeted_suites(n_features: int, n_classes: int, cnn_channels: int):
         ("Ridge", RidgeClassifier(alpha=1.0)),
     ]
     mlp = [
-        ("MLP_64_budget", MLPClassifier(hidden_layer_sizes=(64,), max_iter=80, early_stopping=True, validation_fraction=0.1, n_iter_no_change=5, batch_size=512, random_state=42)),
-        ("MLP_128_64_budget", MLPClassifier(hidden_layer_sizes=(128, 64), max_iter=80, early_stopping=True, validation_fraction=0.1, n_iter_no_change=5, batch_size=512, random_state=43)),
+        (
+            "MLP_64_budget",
+            MLPClassifier(
+                hidden_layer_sizes=(64,),
+                max_iter=80,
+                early_stopping=True,
+                validation_fraction=0.1,
+                n_iter_no_change=5,
+                batch_size=512,
+                random_state=42,
+            ),
+        ),
+        (
+            "MLP_128_64_budget",
+            MLPClassifier(
+                hidden_layer_sizes=(128, 64),
+                max_iter=80,
+                early_stopping=True,
+                validation_fraction=0.1,
+                n_iter_no_change=5,
+                batch_size=512,
+                random_state=43,
+            ),
+        ),
     ]
     cnn_local = []
     cnn_wide = []
     if scope_module.HAS_TORCH and n_features >= 3:
         for rf in [9, 17, 33]:
-            cnn_local.append((f"CNN_RL{rf}_ch{cnn_channels}_budget", scope_module.ControlledReceptiveFieldCNN(n_features, n_classes, rf, cnn_channels)))
+            cnn_local.append(
+                (
+                    f"CNN_RL{rf}_ch{cnn_channels}_budget",
+                    scope_module.ControlledReceptiveFieldCNN(n_features, n_classes, rf, cnn_channels),
+                )
+            )
         for rf in [65, 129]:
             if rf <= n_features:
-                cnn_wide.append((f"CNN_RL{rf}_ch{cnn_channels}_budget", scope_module.ControlledReceptiveFieldCNN(n_features, n_classes, rf, cnn_channels)))
+                cnn_wide.append(
+                    (
+                        f"CNN_RL{rf}_ch{cnn_channels}_budget",
+                        scope_module.ControlledReceptiveFieldCNN(n_features, n_classes, rf, cnn_channels),
+                    )
+                )
     return {1: linear, 2: mlp, 3: cnn_local, 4: cnn_wide}
 
 
@@ -149,8 +177,7 @@ def train_cnn(model, X_train, y_train, X_holdout, y_holdout, args) -> float:
     val_idx = idx[-n_val:]
 
     train_ds = TensorDataset(
-        torch.as_tensor(X_train[tr_idx], dtype=torch.float32),
-        torch.as_tensor(y_train[tr_idx], dtype=torch.long),
+        torch.as_tensor(X_train[tr_idx], dtype=torch.float32), torch.as_tensor(y_train[tr_idx], dtype=torch.long)
     )
     val_x = torch.as_tensor(X_train[val_idx], dtype=torch.float32)
     val_y = torch.as_tensor(y_train[val_idx], dtype=torch.long)
@@ -174,8 +201,8 @@ def train_cnn(model, X_train, y_train, X_holdout, y_holdout, args) -> float:
         losses = []
         with torch.no_grad():
             for start in range(0, len(val_x), max(args.batch_size, 1024)):
-                xb = val_x[start:start + max(args.batch_size, 1024)].to(device, non_blocking=use_cuda)
-                yb = val_y[start:start + max(args.batch_size, 1024)].to(device, non_blocking=use_cuda)
+                xb = val_x[start : start + max(args.batch_size, 1024)].to(device, non_blocking=use_cuda)
+                yb = val_y[start : start + max(args.batch_size, 1024)].to(device, non_blocking=use_cuda)
                 losses.append(criterion(model(xb), yb).item())
         val_loss = float(np.mean(losses)) if losses else best
         if val_loss < best:
@@ -190,7 +217,7 @@ def train_cnn(model, X_train, y_train, X_holdout, y_holdout, args) -> float:
     model.eval()
     with torch.no_grad():
         for start in range(0, len(X_holdout), 1024):
-            xb = torch.as_tensor(X_holdout[start:start + 1024], dtype=torch.float32).to(device, non_blocking=use_cuda)
+            xb = torch.as_tensor(X_holdout[start : start + 1024], dtype=torch.float32).to(device, non_blocking=use_cuda)
             preds.append(model(xb).argmax(dim=1).cpu().numpy())
     pred = np.concatenate(preds) if preds else np.array([], dtype=np.int64)
     return float(np.mean(pred == y_holdout))
@@ -205,7 +232,9 @@ def train_sklearn_model(model, X_train_scaled, y_train, X_holdout_scaled, y_hold
     return float(np.mean(pred == y_holdout))
 
 
-def make_result(dataset: str, seed: int, scope: int, successes: Dict[str, float], n_train: int, n_holdout: int, args) -> scope_module.ExperimentResult:
+def make_result(
+    dataset: str, seed: int, scope: int, successes: Dict[str, float], n_train: int, n_holdout: int, args
+) -> scope_module.ExperimentResult:
     M = len(successes)
     p_max = max(successes.values()) if successes else 0.0
     best_model = max(successes, key=successes.get) if successes else "none"
@@ -271,16 +300,19 @@ def main() -> int:
                 else:
                     success = train_sklearn_model(model, X_train_scaled, y_train, X_holdout_scaled, y_holdout)
                 successes[name] = success
-                print(f"[model] {name} success={success:.5f} seconds={time.time()-mt0:.1f}", flush=True)
+                print(f"[model] {name} success={success:.5f} seconds={time.time() - mt0:.1f}", flush=True)
             except Exception as exc:
                 print(f"[model-failed] {name}: {exc}", flush=True)
 
         if scope in missing_scopes:
             result = make_result(args.dataset, args.seed, scope, dict(successes), len(X_train), len(X_holdout), args)
             append_checkpoint(result, checkpoint)
-            print(f"[scope-done] seed={args.seed} scope={scope} BI={result.bi:.4f} M={result.M} seconds={time.time()-t0:.1f}", flush=True)
+            print(
+                f"[scope-done] seed={args.seed} scope={scope} BI={result.bi:.4f} M={result.M} seconds={time.time() - t0:.1f}",
+                flush=True,
+            )
         else:
-            print(f"[scope-skip-append] seed={args.seed} scope={scope} seconds={time.time()-t0:.1f}", flush=True)
+            print(f"[scope-skip-append] seed={args.seed} scope={scope} seconds={time.time() - t0:.1f}", flush=True)
 
     return 0
 

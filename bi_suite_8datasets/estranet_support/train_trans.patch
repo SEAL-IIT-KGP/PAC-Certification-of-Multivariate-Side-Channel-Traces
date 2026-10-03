@@ -1,0 +1,123 @@
+diff --git a/train_trans.py b/train_trans.py
+index 8a8b2ab..570ce0e
+--- a/train_trans.py
++++ b/train_trans.py
+@@ -14,9 +14,11 @@ import absl.logging as _logging  # pylint: disable=unused-import
+ import tensorflow as tf
+ import data_utils
+ import data_utils_ches20
++import data_utils_ches25
+ from transformer import Transformer
+ import evaluation_utils
+ import evaluation_utils_ches20
++import evaluation_utils_ches25
+ import pickle
+ 
+ import numpy as np
+@@ -29,7 +31,7 @@ flags.DEFINE_bool("use_tpu", default=False,
+ flags.DEFINE_string("data_path", default="",
+       help="Path to data file")
+ flags.DEFINE_string("dataset", default="ASCAD",
+-      help="Name of the dataset (ASCAD, CHES20, AES_RD, DPAv42)")
++      help="Name of the dataset (ASCAD, CHES20, CHES25, AES_RD, DPAv42)")
+ flags.DEFINE_string("checkpoint_dir", default=None,
+       help="directory for saving checkpoint.")
+ flags.DEFINE_integer("checkpoint_idx", default=0,
+@@ -107,6 +109,8 @@ flags.DEFINE_integer("max_eval_batch", default=-1,
+       help="Set -1 to turn off.")
+ flags.DEFINE_bool("output_attn", default=False,
+       help="output attention probabilities")
++flags.DEFINE_integer("rank_repeats", default=100,
++      help="Number of shuffled key-rank trials during evaluation.")
+ 
+ 
+ FLAGS = flags.FLAGS
+@@ -163,6 +167,12 @@ def create_model(n_classes):
+     return model
+ 
+ 
++def build_model_for_restore(model):
++    """Create subclassed Keras variables before restoring TF checkpoints."""
++    dummy_input = tf.zeros([1, FLAGS.input_length], dtype=tf.float32)
++    model(dummy_input, training=False)
++
++
+ def train(train_dataset, eval_dataset, num_train_batch, num_eval_batch, strategy, chk_name):
+     # Ensure that the batch sizes are divisible by number of replicas in sync
+     assert(FLAGS.train_batch_size % strategy.num_replicas_in_sync == 0)
+@@ -196,6 +206,7 @@ def train(train_dataset, eval_dataset, num_train_batch, num_eval_batch, strategy
+             model = create_model(4)
+         else:
+             model = create_model(256)
++        build_model_for_restore(model)
+         optimizer = tf.keras.optimizers.Adam(learning_rate=lr_sch)
+         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+ 
+@@ -352,6 +363,7 @@ def evaluate(data, strategy, chk_name):
+             model = create_model(4)
+         else:
+             model = create_model(256)
++        build_model_for_restore(model)
+         optimizer = tf.keras.optimizers.Adam(learning_rate=FLAGS.learning_rate)
+         checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=model)
+ 
+@@ -365,7 +377,7 @@ def evaluate(data, strategy, chk_name):
+             chk_path = os.path.join(FLAGS.checkpoint_dir, '%s-%s'%(chk_name, FLAGS.checkpoint_idx))
+         tf.compat.v1.logging.info("Restoring checkpoint: {}".format(chk_path))
+         try:
+-            checkpoint.read(chk_path, options=options).expect_partial()
++            checkpoint.restore(chk_path, options=options).expect_partial()
+             tf.compat.v1.logging.info("Restored checkpoint: {}".format(chk_path))
+         except:
+             tf.compat.v1.logging.info("Could not restore checkpoint")
+@@ -418,6 +430,7 @@ def print_hyperparams():
+     tf.compat.v1.logging.info("softmax_attn          : %s" % (FLAGS.softmax_attn))
+     tf.compat.v1.logging.info("max_eval_batch        : %s" % (FLAGS.max_eval_batch))
+     tf.compat.v1.logging.info("output_attn           : %s" % (FLAGS.output_attn))
++    tf.compat.v1.logging.info("rank_repeats          : %s" % (FLAGS.rank_repeats))
+     tf.compat.v1.logging.info("")
+     tf.compat.v1.logging.info("")
+ 
+@@ -449,6 +462,13 @@ def main(unused_argv):
+             test_data = data_utils_ches20.Dataset(data_path=data_path, split="test",
+                  input_length=FLAGS.input_length, data_desync=FLAGS.data_desync)
+ 
++    elif FLAGS.dataset == 'CHES25':
++        if FLAGS.do_train:
++            train_data = data_utils_ches25.Dataset(data_path=FLAGS.data_path, split="train",
++                    input_length=FLAGS.input_length, data_desync=FLAGS.data_desync)
++        test_data = data_utils_ches25.Dataset(data_path=FLAGS.data_path, split="test",
++                input_length=FLAGS.input_length, data_desync=FLAGS.data_desync)
++
+     else:
+         assert False
+ 
+@@ -465,6 +485,8 @@ def main(unused_argv):
+         chk_name = 'trans_long'
+     elif FLAGS.dataset == 'CHES20':
+         chk_name = 'trans_long'
++    elif FLAGS.dataset == 'CHES25':
++        chk_name = 'trans_long'
+     else:
+         assert False
+ 
+@@ -500,13 +522,18 @@ def main(unused_argv):
+         elif FLAGS.dataset == 'CHES20':
+             nonces = test_data.nonces[:nsamples]
+             keys = test_data.umsk_keys
++        elif FLAGS.dataset == 'CHES25':
++            plaintexts = test_data.plaintexts[:nsamples]
++            keys = test_data.keys[:nsamples]
+ 
+         key_rank_list = []
+-        for i in range(100):
++        for i in range(FLAGS.rank_repeats):
+             if FLAGS.dataset == 'ASCAD':
+                 key_ranks = evaluation_utils.compute_key_rank(test_scores, plaintexts, keys)
+             elif FLAGS.dataset == 'CHES20':
+                 key_ranks = evaluation_utils_ches20.compute_key_rank(test_scores, nonces, keys)
++            elif FLAGS.dataset == 'CHES25':
++                key_ranks = evaluation_utils_ches25.compute_key_rank(test_scores, plaintexts, keys)
+ 
+             key_rank_list.append(key_ranks)
+         key_ranks = np.stack(key_rank_list, axis=0)

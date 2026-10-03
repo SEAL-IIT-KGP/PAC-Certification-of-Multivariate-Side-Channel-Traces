@@ -12,11 +12,10 @@ import fcntl
 import math
 import os
 import socket
-import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -36,8 +35,7 @@ LOADER_BACKED_DATASETS = [
 
 UNSUPPORTED_DATASETS = {
     "ascad_random_key": (
-        "no_loader_backed_random-key H5 was found locally/remotely; the visible ASCAD.h5 "
-        "asset has fixed key metadata"
+        "no_loader_backed_random-key H5 was found locally/remotely; the visible ASCAD.h5 asset has fixed key metadata"
     )
 }
 
@@ -135,18 +133,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--metrics", default="all", help="Comma-separated subset: pi,hi,mlp_pi,mi or all")
     parser.add_argument("--window-method", default="center", choices=["center", "start", "random"])
-    parser.add_argument(
-        "--tches20-dataset-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"),
-    )
-    parser.add_argument(
-        "--tches20-src-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"),
-    )
-    parser.add_argument(
-        "--ches-h5",
-        default=str(repo / "datasets/raw/ches_ctf_2025/CHES_Challenge.h5"),
-    )
+    parser.add_argument("--tches20-dataset-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"))
+    parser.add_argument("--tches20-src-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"))
+    parser.add_argument("--ches-h5", default=str(repo / "datasets/raw/ches_ctf_2025/CHES_Challenge.h5"))
     return parser.parse_args()
 
 
@@ -195,9 +184,7 @@ def write_manifest(args: argparse.Namespace) -> None:
             "status": "scheduled" if dataset in LOADER_BACKED_DATASETS else "unsupported",
             "dimensions": args.dimensions if dataset in LOADER_BACKED_DATASETS else "",
             "seeds": args.seeds if dataset in LOADER_BACKED_DATASETS else "",
-            "source_artifact": (
-                args.ches_h5 if dataset == "ches_ctf_2025" else args.tches20_dataset_dir
-            )
+            "source_artifact": (args.ches_h5 if dataset == "ches_ctf_2025" else args.tches20_dataset_dir)
             if dataset in LOADER_BACKED_DATASETS
             else "",
             "note": "loader-backed real-dataset pass"
@@ -223,10 +210,7 @@ def read_task(manifest: Path, task_id: int) -> Dict[str, object]:
 
 
 def load_ches_window(
-    h5_path: Path,
-    dimension: int,
-    n_samples_total: int,
-    window_method: str,
+    h5_path: Path, dimension: int, n_samples_total: int, window_method: str
 ) -> Tuple[np.ndarray, np.ndarray, str]:
     import h5py
 
@@ -259,11 +243,7 @@ def load_dataset_window(args: argparse.Namespace, dataset: str, dimension: int) 
 
     from dimension_stability.multivariate_stability_driver import create_windowed_representation, try_load_tches20_data
 
-    traces, labels = try_load_tches20_data(
-        dataset,
-        args.tches20_dataset_dir,
-        args.tches20_src_dir,
-    )
+    traces, labels = try_load_tches20_data(dataset, args.tches20_dataset_dir, args.tches20_src_dir)
     n = min(int(args.n_samples_total), int(len(labels)))
     traces = np.asarray(traces[:n])
     labels = np.asarray(labels[:n], dtype=np.int64).reshape(-1)
@@ -273,10 +253,7 @@ def load_dataset_window(args: argparse.Namespace, dataset: str, dimension: int) 
 
 
 def split_train_val(
-    traces: np.ndarray,
-    labels: np.ndarray,
-    seed: int,
-    n_val_target: int,
+    traces: np.ndarray, labels: np.ndarray, seed: int, n_val_target: int
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     n_total = int(len(labels))
     n_val = min(int(n_val_target), max(1, n_total // 5))
@@ -290,22 +267,12 @@ def split_train_val(
 
 
 def compute_pi_logistic_fast(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_val: np.ndarray,
-    y_val: np.ndarray,
-    n_classes: int,
-    max_iter: int,
+    X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray, n_classes: int, max_iter: int
 ) -> Tuple[float, float]:
     scaler = StandardScaler()
     X_tr = scaler.fit_transform(X_train)
     X_vl = scaler.transform(X_val)
-    clf = LogisticRegression(
-        solver="saga",
-        max_iter=max_iter,
-        n_jobs=-1,
-        random_state=0,
-    )
+    clf = LogisticRegression(solver="saga", max_iter=max_iter, n_jobs=-1, random_state=0)
     clf.fit(X_tr, y_train)
 
     log_proba_val = clf.predict_log_proba(X_vl)
@@ -347,22 +314,10 @@ def metric_attempts(
         try:
             if args.pi_method == "fast":
                 pi, ti = compute_pi_logistic_fast(
-                    X_train,
-                    y_train,
-                    X_val,
-                    y_val,
-                    n_classes=args.n_classes,
-                    max_iter=args.pi_max_iter,
+                    X_train, y_train, X_val, y_val, n_classes=args.n_classes, max_iter=args.pi_max_iter
                 )
             else:
-                pi, ti = compute_pi(
-                    X_train,
-                    y_train,
-                    X_val,
-                    y_val,
-                    method="logistic",
-                    n_classes=args.n_classes,
-                )
+                pi, ti = compute_pi(X_train, y_train, X_val, y_val, method="logistic", n_classes=args.n_classes)
             result.update({"pi": safe_float(pi), "ti": safe_float(ti), "pi_success": True, "pi_error": ""})
         except SystemExit as exc:
             code = getattr(exc, "code", 1)
@@ -386,20 +341,9 @@ def metric_attempts(
 
     if "mlp_pi" in selected:
         try:
-            mlp_pi, mlp_ti = compute_mlp_pi_ti(
-                X_train,
-                y_train,
-                X_val,
-                y_val,
-                n_classes=args.n_classes,
-            )
+            mlp_pi, mlp_ti = compute_mlp_pi_ti(X_train, y_train, X_val, y_val, n_classes=args.n_classes)
             result.update(
-                {
-                    "mlp_pi": safe_float(mlp_pi),
-                    "mlp_ti": safe_float(mlp_ti),
-                    "mlp_pi_success": True,
-                    "mlp_pi_error": "",
-                }
+                {"mlp_pi": safe_float(mlp_pi), "mlp_ti": safe_float(mlp_ti), "mlp_pi_success": True, "mlp_pi_error": ""}
             )
         except SystemExit as exc:
             code = getattr(exc, "code", 1)
@@ -436,11 +380,14 @@ def metric_attempts(
             except Exception as exc:
                 result.update({"mi": math.nan, "mi_success": False, "mi_error": repr(exc)})
         else:
-            result.update({"mi": math.nan, "mi_success": False, "mi_error": f"Dimension {dimension} > max {args.max_dim_mi}"})
+            result.update(
+                {"mi": math.nan, "mi_success": False, "mi_error": f"Dimension {dimension} > max {args.max_dim_mi}"}
+            )
     else:
         result.update({"mi": math.nan, "mi_success": False, "mi_error": "skipped by --metrics"})
 
     return result
+
 
 def row_complete(row: pd.Series) -> bool:
     if row.empty:
@@ -469,7 +416,9 @@ def write_summary(df: pd.DataFrame, output_dir: Path) -> None:
     ]
     for (dataset, dimension), group in df.groupby(["dataset", "dimension"], dropna=False):
         for metric, label, success_col in metrics:
-            values = pd.to_numeric(group[metric], errors="coerce") if metric in group.columns else pd.Series(dtype=float)
+            values = (
+                pd.to_numeric(group[metric], errors="coerce") if metric in group.columns else pd.Series(dtype=float)
+            )
             success = group[success_col].fillna(False).astype(bool) & values.notna()
             rows.append(
                 {
@@ -595,7 +544,9 @@ def run_task(args: argparse.Namespace) -> None:
     result["elapsed_sec"] = round(time.monotonic() - tic, 3)
     upsert_result(output_dir, result)
     flags = ", ".join(f"{name}={result.get(name + '_success')}" for name in ["pi", "hi", "mlp_pi", "mi"])
-    print(f"[done] dataset={dataset} d={dimension} seed={seed} {flags} elapsed={result['elapsed_sec']}s status={result.get('status')}")
+    print(
+        f"[done] dataset={dataset} d={dimension} seed={seed} {flags} elapsed={result['elapsed_sec']}s status={result.get('status')}"
+    )
 
 
 def main() -> None:

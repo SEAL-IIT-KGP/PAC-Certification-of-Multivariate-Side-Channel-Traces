@@ -6,6 +6,17 @@ Side-channel leakage certification asks how much an implementation leaks and how
 
 This repository provides tools for computing certifiable leakage bounds from trained models and datasets in side-channel analysis, addressing the instability of traditional metrics (PI/HI/MI) in high-dimensional settings.
 
+## Reproducing the Paper's Results
+
+`paper_results/` rebuilds Tables 7-9 and Figures 1-2 of the paper and compares every regenerated value with the printed one. The quickest check needs no data and takes about a minute:
+
+```bash
+docker build -t bi-certification .
+docker run --rm -v "$PWD/results:/artifact/results" bi-certification
+```
+
+or, without Docker, `pip install -r requirements.txt && python -m paper_results.reproduce archived`. The same driver recomputes the results from the public TCHES20 traces and pretrained models (`python -m paper_results.reproduce tches20`) and from the released EstraNet checkpoints. `paper_results/README.md` is the step-by-step guide, with the expected output of each level, and `docs/EXPERIMENT_MAP.md` maps every table and figure to its code.
+
 ## Repository Layout
 
 ### `core/`
@@ -29,6 +40,15 @@ Illustrative training examples for the attacker families. They are not the pretr
 - `train_cnn_example.py`: 1D CNN trace classifier.
 - `train_transformer_example.py`: Transformer-style attacker for longer traces.
 
+### `paper_results/`
+
+Table and figure builders for the paper, the archived per-model counts they start from, the values printed in the paper, and the reproduction driver:
+
+- `reproduce.py`: runs a reproduction level (`archived`, `tches20`, `estranet`) and reports which results match the paper.
+- `table7_bi_suite.py`, `table8_key_recovery.py`, `table9_biloc_full_suite.py`, `figure1_dimension_sweep.py`, `figure2_biloc_selected_centers.py`: one builder per result.
+- `evaluate_selected_models.py`, `evaluate_estranet_suites.py`: EPI and key recovery for the selected suite members, and the EstraNet suite counts.
+- `fetch_tches20.sh`, `fetch_estranet.sh`: fetch the public benchmark and the EstraNet sources.
+
 ### `bi_suite_8datasets/`
 
 Finite-suite certificate evaluation on the eight paper datasets:
@@ -43,6 +63,8 @@ Score-local certificate code for `BI_loc`:
 
 - `compute_bi_loc_margin_curves.py`: relaxed-margin score-radius curves.
 - `compute_full_suite_bi_loc.py`: full-suite local-family computation.
+- `profile_epsilon_calibration.py`: calibration/certification split and score-variation profile behind the calibrated radius.
+- `prepare_aesrd_estranet_h5.py`: AES-RD input file for the EstraNet reference model.
 - `build_bi_scope_tables.py`: table assembly for local and suite certificates.
 
 ### `dimension_stability/`
@@ -66,6 +88,14 @@ Trained attacker-scope and challenger diagnostics:
 
 - `attacker_scope_diagnostic.py`: main scope comparison driver.
 - `scope_cell_runner.py`, `aesrd_scope_seed_runner.py`, and `evaluate_ascad_d0_challenger_fixed_split.py`: focused rerun and challenger wrappers.
+
+### `multibyte_composition/`
+
+Four-byte key recovery on the raw ASCAD traces (full version): point-of-interest scan, per-byte attackers, and exact four-byte composition.
+
+### `epi_comparison/`
+
+Same-model comparison of BI with effective PI on the public TCHES20 models, including the temperature-rescaling sweep (full version).
 
 ### `bayes_oracle/`
 
@@ -91,24 +121,35 @@ Manuscript-to-code mapping. Start with `docs/EXPERIMENT_MAP.md` when locating th
 
 ## Setup
 
+The repository was tested with Python 3.11 and the versions pinned in the requirement files:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ml.txt
 ```
 
-TensorFlow and PyTorch are optional at install time, but scripts that evaluate or train neural checkpoints need the matching framework installed.
+`requirements.txt` (NumPy 1.26.4, SciPy 1.13.1, pandas 2.2.3, scikit-learn 1.5.2, Matplotlib 3.9.4, h5py 3.11.0, tqdm 4.66.5) covers the certificate code and the table and figure builders. `requirements-ml.txt` adds TensorFlow 2.15.0, which evaluates the pretrained Keras models and the EstraNet checkpoints, and PyTorch 2.2.2, which is used by the diagnostics and the training examples. CPU inference is sufficient for the evaluations behind the paper's tables. `requirements-lock.txt` lists the complete resolved environment of the reference runs (Linux x86-64), and the `Dockerfile` builds an image with both requirement files installed.
 
 Run all entry points from the repository root (for example `python -m bi_suite_8datasets.evaluate_estranet_bi_suite --help`), because the scripts import shared code as `core.*`.
+
+The code is formatted and linted with `ruff` using the settings in `pyproject.toml` (120 columns); `ruff format . && ruff check .` keeps a contribution consistent with the rest.
 
 ## External dependencies
 
 Some evaluators import code and load models that are not part of this repository:
 
 - TCHES20 dataset loaders (`dataLoaders`) and pretrained models: https://github.com/KULeuven-COSIC/TCHES20V3_CNN_SCA. Pass the loader source directory with `--tches20-src-dir` where a script asks for it.
-- EstraNet (`data_utils`, `data_utils_ches25`, `transformer`): https://github.com/suvadeep-iitb/EstraNet. The default location is `external/EstraNet`.
+- EstraNet (`data_utils`, `transformer`): https://github.com/suvadeep-iitb/EstraNet. The default location is `external/EstraNet`.
+
+`paper_results/fetch_tches20.sh` and `paper_results/fetch_estranet.sh` fetch both at fixed commits. This repository uses the two code bases unchanged and adds a CHES-CTF-2025 loader (`data_utils_ches25`) next to the EstraNet sources; `bi_suite_8datasets/estranet_support/README.md` describes the added files and the training settings of the EstraNet checkpoints.
 
 See `datasets/README.md` for the dataset files each benchmark expects.
+
+## License
+
+The code in this repository is released under the MIT License (see `LICENSE`). The TCHES20 benchmark, the EstraNet sources, and the datasets are distributed by their authors under their own terms and are fetched from their original locations.
 
 ## Citation
 

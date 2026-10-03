@@ -25,12 +25,7 @@ DATASET_LABELS = {
     "ascad_desync_100": "ASCAD d100",
 }
 
-COLORS = {
-    "aes_rd": "#1f4e79",
-    "ascad_desync_0": "#d95f02",
-    "ascad_desync_50": "#2ca25f",
-    "ascad_desync_100": "#756bb1",
-}
+COLORS = {"aes_rd": "#1f4e79", "ascad_desync_0": "#d95f02", "ascad_desync_50": "#2ca25f", "ascad_desync_100": "#756bb1"}
 
 ZERO_PROXY = 3e-6
 

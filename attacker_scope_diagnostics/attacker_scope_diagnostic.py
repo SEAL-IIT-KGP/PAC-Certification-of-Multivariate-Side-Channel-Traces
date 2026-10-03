@@ -56,19 +56,16 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 import warnings
 import json
 import argparse
 import signal
 import sys
-import os
 from datetime import datetime
-from tqdm import tqdm
 import traceback
 import math
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Sklearn
 from sklearn.preprocessing import StandardScaler
@@ -84,6 +81,7 @@ try:
     import torch.nn as nn
     import torch.optim as optim
     from torch.utils.data import TensorDataset, DataLoader
+
     HAS_TORCH = True
 except ImportError:
     HAS_TORCH = False
@@ -95,19 +93,22 @@ except ImportError:
         CNN suites are empty when HAS_TORCH is False, so these are never
         instantiated; isinstance(model, nn.Module) is simply False.
         """
+
         class Module:
             pass
 
-from core.data_loader import load_dataset, generate_synthetic_data
+
+from core.data_loader import load_dataset
 from core.baseline_metrics import compute_pi, compute_hi
 
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-warnings.filterwarnings('ignore', category=ConvergenceWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Lock for thread-safe numpy RNG access in train_torch_model()
 _np_rng_lock = threading.Lock()
@@ -117,33 +118,22 @@ _np_rng_lock = threading.Lock()
 # Constants
 # ===================================================================
 
-ALL_DATASETS = [
-    'ascad_desync_0',
-    'ascad_desync_50',
-    'ascad_desync_100',
-    'aes_hd',
-    'aes_rd',
-    'dpav4',
-]
+ALL_DATASETS = ["ascad_desync_0", "ascad_desync_50", "ascad_desync_100", "aes_hd", "aes_rd", "dpav4"]
 
-SCOPE_NAMES = {
-    1: 'Linear',
-    2: 'MLP-bottleneck',
-    3: 'CNN τ-local',
-    4: 'CNN-wide',
-}
+SCOPE_NAMES = {1: "Linear", 2: "MLP-bottleneck", 3: "CNN τ-local", 4: "CNN-wide"}
 
 SCOPE_DESCRIPTIONS = {
-    1: 'LDA, LogReg, GNB, Ridge',
-    2: 'Scope 1 + MLP variants',
-    3: 'Scope 2 + CNNs (R_L=9,17,33)',
-    4: 'Scope 3 + CNNs (R_L=65,129)',
+    1: "LDA, LogReg, GNB, Ridge",
+    2: "Scope 1 + MLP variants",
+    3: "Scope 2 + CNNs (R_L=9,17,33)",
+    4: "Scope 3 + CNNs (R_L=65,129)",
 }
 
 
 # ===================================================================
 # ControlledReceptiveFieldCNN
 # ===================================================================
+
 
 class ControlledReceptiveFieldCNN(nn.Module):
     """
@@ -164,6 +154,7 @@ class ControlledReceptiveFieldCNN(nn.Module):
         n_channels: Base number of channels (adjusted per layer to keep params ~target)
         target_params: Target parameter count (default 50000)
     """
+
     def __init__(
         self,
         seq_len: int,
@@ -188,13 +179,9 @@ class ControlledReceptiveFieldCNN(nn.Module):
         out_channels = n_channels
 
         for i in range(num_layers):
-            layers.append(nn.Conv1d(
-                in_channels=in_channels,
-                out_channels=out_channels,
-                kernel_size=3,
-                padding=1,
-                bias=False
-            ))
+            layers.append(
+                nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, padding=1, bias=False)
+            )
             layers.append(nn.BatchNorm1d(out_channels))
             layers.append(nn.SELU(inplace=False))
             in_channels = out_channels
@@ -230,8 +217,10 @@ def compute_mlp_pi_ti(X_train, y_train, X_val, y_val, n_classes=256):
 
         clf = MLPClassifier(
             hidden_layer_sizes=(64, 32, 16, 4),
-            activation='relu', max_iter=200,
-            early_stopping=True, validation_fraction=0.15,
+            activation="relu",
+            max_iter=200,
+            early_stopping=True,
+            validation_fraction=0.15,
             batch_size=256,
         )
         with warnings.catch_warnings():
@@ -247,7 +236,8 @@ def compute_mlp_pi_ti(X_train, y_train, X_val, y_val, n_classes=256):
             idx_val = np.where(y_val == x)[0]
             idx_train = np.where(y_train == x)[0]
             class_col = np.where(classes == x)[0]
-            if len(class_col) == 0: continue
+            if len(class_col) == 0:
+                continue
             class_col = class_col[0]
             if len(idx_val) > 0:
                 score_val += np.mean(log_proba_val[idx_val, class_col])
@@ -272,10 +262,7 @@ def count_cnn_params(model: nn.Module) -> int:
 
 
 def adjust_cnn_channels_for_params(
-    seq_len: int,
-    receptive_field: int,
-    n_classes: int,
-    target_params: int = 50000,
+    seq_len: int, receptive_field: int, n_classes: int, target_params: int = 50000
 ) -> int:
     """
     Estimate appropriate n_channels to achieve target_params.
@@ -284,14 +271,11 @@ def adjust_cnn_channels_for_params(
     """
     candidates = [8, 16, 32, 48, 64, 96, 128]
     best_n_ch = 32
-    best_diff = float('inf')
+    best_diff = float("inf")
 
     for n_ch in candidates:
         model = ControlledReceptiveFieldCNN(
-            seq_len=seq_len,
-            n_classes=n_classes,
-            receptive_field=receptive_field,
-            n_channels=n_ch,
+            seq_len=seq_len, n_classes=n_classes, receptive_field=receptive_field, n_channels=n_ch
         )
         params = count_cnn_params(model)
         diff = abs(params - target_params)
@@ -306,6 +290,7 @@ def adjust_cnn_channels_for_params(
 # Model training utilities
 # ===================================================================
 
+
 def train_torch_model(
     model: nn.Module,
     X_train: np.ndarray,
@@ -314,7 +299,7 @@ def train_torch_model(
     batch_size: int = 256,
     lr: float = 1e-3,
     patience: int = 5,
-    device: str = 'cpu',
+    device: str = "cpu",
 ) -> nn.Module:
     """
     Train a PyTorch model with early stopping on validation loss.
@@ -355,17 +340,16 @@ def train_torch_model(
     X_v_t = torch.FloatTensor(X_v).to(device)
     y_v_t = torch.LongTensor(y_v).to(device)
 
-    use_pin = (str(device) != 'cpu')
+    use_pin = str(device) != "cpu"
     train_ds = TensorDataset(X_tr_t, y_tr_t)
     train_dl = DataLoader(
-        train_ds, batch_size=batch_size, shuffle=True,
-        pin_memory=use_pin, num_workers=2 if use_pin else 0,
+        train_ds, batch_size=batch_size, shuffle=True, pin_memory=use_pin, num_workers=2 if use_pin else 0
     )
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
 
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
     no_improve = 0
 
     model.train()
@@ -398,7 +382,7 @@ def train_torch_model(
     return model
 
 
-def predict_torch(model: nn.Module, X: np.ndarray, device: str = 'cpu') -> np.ndarray:
+def predict_torch(model: nn.Module, X: np.ndarray, device: str = "cpu") -> np.ndarray:
     """Get predictions from a PyTorch model."""
     model.eval()
     with torch.no_grad():
@@ -412,60 +396,54 @@ def predict_torch(model: nn.Module, X: np.ndarray, device: str = 'cpu') -> np.nd
 # Scope builders
 # ===================================================================
 
+
 def build_linear_suite(n_features: int) -> List[Tuple[str, Any]]:
     """Scope 1: Linear models (M ≈ 5-8)."""
     suite = []
 
     # LDA
-    suite.append(('LDA', LinearDiscriminantAnalysis()))
+    suite.append(("LDA", LinearDiscriminantAnalysis()))
 
     # Logistic Regression
     for C in [0.1, 1.0, 10.0]:
-        suite.append((f'LogReg_C{C}', LogisticRegression(
-            solver='lbfgs', max_iter=500, C=C, n_jobs=-1
-        )))
+        suite.append((f"LogReg_C{C}", LogisticRegression(solver="lbfgs", max_iter=500, C=C, n_jobs=-1)))
 
     # Gaussian Naive Bayes
-    suite.append(('GNB', GaussianNB()))
+    suite.append(("GNB", GaussianNB()))
 
     # Ridge Classifier
-    suite.append(('Ridge', RidgeClassifier(alpha=1.0)))
+    suite.append(("Ridge", RidgeClassifier(alpha=1.0)))
 
     return suite
 
 
 def build_mlp_suite(n_features: int) -> List[Tuple[str, Any]]:
     """Scope 2: MLP models to add to Scope 1 (adds ~8-12)."""
-    architectures = [
-        (64,),
-        (128,),
-        (256,),
-        (128, 64),
-        (256, 128),
-        (128, 64, 32),
-    ]
+    architectures = [(64,), (128,), (256,), (128, 64), (256, 128), (128, 64, 32)]
 
     suite = []
     for arch in architectures:
-        name = 'MLP_' + '_'.join(str(a) for a in arch)
-        suite.append((name, MLPClassifier(
-            hidden_layer_sizes=arch,
-            max_iter=300,
-            early_stopping=True,
-            validation_fraction=0.1,
-            n_iter_no_change=10,
-            batch_size=256,
-            random_state=42,
-        )))
+        name = "MLP_" + "_".join(str(a) for a in arch)
+        suite.append(
+            (
+                name,
+                MLPClassifier(
+                    hidden_layer_sizes=arch,
+                    max_iter=300,
+                    early_stopping=True,
+                    validation_fraction=0.1,
+                    n_iter_no_change=10,
+                    batch_size=256,
+                    random_state=42,
+                ),
+            )
+        )
 
     return suite
 
 
 def build_cnn_local_suite(
-    n_features: int,
-    n_classes: int = 256,
-    target_cnn_params: int = 50000,
-    device: str = 'cpu',
+    n_features: int, n_classes: int = 256, target_cnn_params: int = 50000, device: str = "cpu"
 ) -> List[Tuple[str, nn.Module]]:
     """
     Scope 3: CNN models with τ-local receptive fields to add to Scope 2.
@@ -484,20 +462,14 @@ def build_cnn_local_suite(
 
     for r_l in receptive_fields:
         base_ch = adjust_cnn_channels_for_params(
-            seq_len=n_features,
-            receptive_field=r_l,
-            n_classes=n_classes,
-            target_params=target_cnn_params,
+            seq_len=n_features, receptive_field=r_l, n_classes=n_classes, target_params=target_cnn_params
         )
 
         for mult in channel_multipliers:
             n_ch = max(8, int(base_ch * mult))
-            name = f'CNN_RL{r_l}_ch{n_ch}'
+            name = f"CNN_RL{r_l}_ch{n_ch}"
             model = ControlledReceptiveFieldCNN(
-                seq_len=n_features,
-                n_classes=n_classes,
-                receptive_field=r_l,
-                n_channels=n_ch,
+                seq_len=n_features, n_classes=n_classes, receptive_field=r_l, n_channels=n_ch
             )
             suite.append((name, model))
 
@@ -505,10 +477,7 @@ def build_cnn_local_suite(
 
 
 def build_cnn_wide_suite(
-    n_features: int,
-    n_classes: int = 256,
-    target_cnn_params: int = 50000,
-    device: str = 'cpu',
+    n_features: int, n_classes: int = 256, target_cnn_params: int = 50000, device: str = "cpu"
 ) -> List[Tuple[str, nn.Module]]:
     """
     Scope 4: Wider CNN models to add to Scope 3.
@@ -530,20 +499,14 @@ def build_cnn_wide_suite(
             continue
 
         base_ch = adjust_cnn_channels_for_params(
-            seq_len=n_features,
-            receptive_field=r_l,
-            n_classes=n_classes,
-            target_params=target_cnn_params,
+            seq_len=n_features, receptive_field=r_l, n_classes=n_classes, target_params=target_cnn_params
         )
 
         for mult in channel_multipliers:
             n_ch = max(8, int(base_ch * mult))
-            name = f'CNN_RL{r_l}_ch{n_ch}'
+            name = f"CNN_RL{r_l}_ch{n_ch}"
             model = ControlledReceptiveFieldCNN(
-                seq_len=n_features,
-                n_classes=n_classes,
-                receptive_field=r_l,
-                n_channels=n_ch,
+                seq_len=n_features, n_classes=n_classes, receptive_field=r_l, n_channels=n_ch
             )
             suite.append((name, model))
 
@@ -551,11 +514,7 @@ def build_cnn_wide_suite(
 
 
 def build_scope(
-    level: int,
-    n_features: int,
-    n_classes: int = 256,
-    target_cnn_params: int = 50000,
-    device: str = 'cpu',
+    level: int, n_features: int, n_classes: int = 256, target_cnn_params: int = 50000, device: str = "cpu"
 ) -> List[Tuple[str, Any]]:
     """
     Build attack suite for a given scope level (1-4).
@@ -585,14 +544,10 @@ def build_scope(
         suite.extend(build_mlp_suite(n_features))
 
     if level >= 3:
-        suite.extend(build_cnn_local_suite(
-            n_features, n_classes, target_cnn_params, device
-        ))
+        suite.extend(build_cnn_local_suite(n_features, n_classes, target_cnn_params, device))
 
     if level >= 4:
-        suite.extend(build_cnn_wide_suite(
-            n_features, n_classes, target_cnn_params, device
-        ))
+        suite.extend(build_cnn_wide_suite(n_features, n_classes, target_cnn_params, device))
 
     return suite
 
@@ -600,6 +555,7 @@ def build_scope(
 # ===================================================================
 # Training and evaluation
 # ===================================================================
+
 
 def train_and_evaluate_suite(
     suite: List[Tuple[str, Any]],
@@ -612,7 +568,7 @@ def train_and_evaluate_suite(
     cnn_patience: int = 5,
     cnn_lr: float = 1e-3,
     batch_size: int = 256,
-    device: str = 'cpu',
+    device: str = "cpu",
 ) -> Tuple[Dict[str, float], List[str], int]:
     """
     Train all models in a suite and evaluate on holdout.
@@ -667,7 +623,7 @@ def train_and_evaluate_suite(
             else:
                 # sklearn model
                 model.fit(X_train_scaled, y_train)
-                if hasattr(model, 'predict_proba'):
+                if hasattr(model, "predict_proba"):
                     y_pred_proba = model.predict_proba(X_holdout_scaled)
                     preds = np.argmax(y_pred_proba, axis=1)
                 else:
@@ -693,9 +649,11 @@ def train_and_evaluate_suite(
 # Experiment runner
 # ===================================================================
 
+
 @dataclass
 class ExperimentResult:
     """Container for a single experiment result row."""
+
     dataset: str
     scope_level: int
     scope_name: str
@@ -730,7 +688,7 @@ def run_experiment(
     cnn_epochs: int = 30,
     cnn_patience: int = 5,
     cnn_lr: float = 1e-3,
-    device: str = 'cpu',
+    device: str = "cpu",
     gpu_workers: int = 1,
     completed_keys: Optional[set] = None,
     scope_checkpoint_callback=None,
@@ -766,11 +724,7 @@ def run_experiment(
 
     # Load dataset
     try:
-        X, y = load_dataset(
-            dataset,
-            data_dir=dataset_dir,
-            tches20_src_dir=tches20_src_dir,
-        )
+        X, y = load_dataset(dataset, data_dir=dataset_dir, tches20_src_dir=tches20_src_dir)
     except Exception as e:
         warnings.warn(f"Failed to load {dataset}: {str(e)}")
         return results
@@ -790,8 +744,8 @@ def run_experiment(
 
         idx = rng.permutation(n_total)
         idx_train = idx[:train_size]
-        idx_val = idx[train_size:train_size + val_size]
-        idx_holdout = idx[train_size + val_size:train_size + val_size + holdout_size_actual]
+        idx_val = idx[train_size : train_size + val_size]
+        idx_holdout = idx[train_size + val_size : train_size + val_size + holdout_size_actual]
 
         X_train = X[idx_train]
         y_train = y[idx_train]
@@ -816,17 +770,12 @@ def run_experiment(
                 continue
 
             import time as _time
+
             t0 = _time.time()
-            print(f"    seed={seed} scope={scope_level} ({SCOPE_NAMES[scope_level]})...", end='', flush=True)
+            print(f"    seed={seed} scope={scope_level} ({SCOPE_NAMES[scope_level]})...", end="", flush=True)
 
             # Build suite for this scope
-            suite = build_scope(
-                scope_level,
-                n_features,
-                n_classes,
-                target_cnn_params,
-                device,
-            )
+            suite = build_scope(scope_level, n_features, n_classes, target_cnn_params, device)
 
             if len(suite) == 0:
                 warnings.warn(f"Empty suite for scope {scope_level}, skipping")
@@ -922,6 +871,7 @@ def run_experiment(
 # Plotting
 # ===================================================================
 
+
 def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
     """
     Generate summary plots for the attacker-scope comparison.
@@ -944,8 +894,8 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    datasets_in_results = sorted(df['dataset'].unique())
-    scope_colors = {1: '#3498db', 2: '#e74c3c', 3: '#2ecc71', 4: '#9b59b6'}
+    datasets_in_results = sorted(df["dataset"].unique())
+    scope_colors = {1: "#3498db", 2: "#e74c3c", 3: "#2ecc71", 4: "#9b59b6"}
 
     # ---- Plot 1: BI by Scope Level (grouped bar chart per dataset) ----
     fig, ax = plt.subplots(figsize=(max(12, len(datasets_in_results) * 3), 8))
@@ -957,39 +907,47 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
     for idx, scope in enumerate(sorted(scopes)):
         means, stds = [], []
         for ds in datasets_in_results:
-            df_sub = df[(df['dataset'] == ds) & (df['scope_level'] == scope)]
-            bi_vals = df_sub['bi'].dropna()
+            df_sub = df[(df["dataset"] == ds) & (df["scope_level"] == scope)]
+            bi_vals = df_sub["bi"].dropna()
             means.append(bi_vals.mean() if len(bi_vals) > 0 else 0)
             stds.append(bi_vals.std() if len(bi_vals) > 1 else 0)
 
         offset = (idx - n_scopes / 2 + 0.5) * width
-        color = scope_colors.get(scope, '#333333')
-        ax.bar(x + offset, means, width, yerr=stds,
-               label=f'Scope {scope}: {SCOPE_NAMES.get(scope, "")}',
-               color=color, alpha=0.85, edgecolor='white',
-               capsize=CAP_SIZE, error_kw={'linewidth': 1.5})
+        color = scope_colors.get(scope, "#333333")
+        ax.bar(
+            x + offset,
+            means,
+            width,
+            yerr=stds,
+            label=f"Scope {scope}: {SCOPE_NAMES.get(scope, '')}",
+            color=color,
+            alpha=0.85,
+            edgecolor="white",
+            capsize=CAP_SIZE,
+            error_kw={"linewidth": 1.5},
+        )
 
     ax.set_xticks(x)
-    ax.set_xticklabels(datasets_in_results, rotation=30, ha='right', fontsize=TICK_SIZE)
-    ax.set_ylabel('BI (bits)', fontsize=LABEL_SIZE)
-    ax.set_title('BI Certification by Attack Scope', fontsize=TITLE_SIZE)
-    ax.tick_params(axis='both', labelsize=TICK_SIZE)
-    ax.legend(fontsize=LEGEND_SIZE, loc='best')
-    ax.grid(True, alpha=0.3, axis='y')
+    ax.set_xticklabels(datasets_in_results, rotation=30, ha="right", fontsize=TICK_SIZE)
+    ax.set_ylabel("BI (bits)", fontsize=LABEL_SIZE)
+    ax.set_title("BI Certification by Attack Scope", fontsize=TITLE_SIZE)
+    ax.tick_params(axis="both", labelsize=TICK_SIZE)
+    ax.legend(fontsize=LEGEND_SIZE, loc="best")
+    ax.grid(True, alpha=0.3, axis="y")
     plt.tight_layout()
-    plt.savefig(output_dir / 'attacker_scope_bi_by_scope.pdf', dpi=300)
-    plt.savefig(output_dir / 'attacker_scope_bi_by_scope.png', dpi=150)
+    plt.savefig(output_dir / "attacker_scope_bi_by_scope.pdf", dpi=300)
+    plt.savefig(output_dir / "attacker_scope_bi_by_scope.png", dpi=150)
     plt.close()
 
     # ---- Plot 2: BI vs Scope Level per dataset (line plot with error bars) ----
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    ds_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    ds_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
     for di, ds in enumerate(datasets_in_results):
-        df_ds = df[df['dataset'] == ds]
+        df_ds = df[df["dataset"] == ds]
         scope_means, scope_stds, scope_levels = [], [], []
         for scope in sorted(scopes):
-            bi_vals = df_ds[df_ds['scope_level'] == scope]['bi'].dropna()
+            bi_vals = df_ds[df_ds["scope_level"] == scope]["bi"].dropna()
             if len(bi_vals) > 0:
                 scope_levels.append(scope)
                 scope_means.append(bi_vals.mean())
@@ -997,36 +955,42 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
 
         if scope_levels:
             color = ds_colors[di % len(ds_colors)]
-            ax.errorbar(scope_levels, scope_means, yerr=scope_stds,
-                        marker='o', capsize=CAP_SIZE, color=color,
-                        linewidth=LINE_WIDTH, markersize=MARKER_SIZE,
-                        label=ds)
+            ax.errorbar(
+                scope_levels,
+                scope_means,
+                yerr=scope_stds,
+                marker="o",
+                capsize=CAP_SIZE,
+                color=color,
+                linewidth=LINE_WIDTH,
+                markersize=MARKER_SIZE,
+                label=ds,
+            )
 
-    ax.set_xlabel('Scope Level', fontsize=LABEL_SIZE)
-    ax.set_ylabel('BI (bits)', fontsize=LABEL_SIZE)
-    ax.set_title('BI Monotonicity Across Attack Scopes', fontsize=TITLE_SIZE)
-    ax.tick_params(axis='both', labelsize=TICK_SIZE)
+    ax.set_xlabel("Scope Level", fontsize=LABEL_SIZE)
+    ax.set_ylabel("BI (bits)", fontsize=LABEL_SIZE)
+    ax.set_title("BI Monotonicity Across Attack Scopes", fontsize=TITLE_SIZE)
+    ax.tick_params(axis="both", labelsize=TICK_SIZE)
     ax.set_xticks(sorted(scopes))
-    ax.set_xticklabels([f'{s}\n{SCOPE_NAMES.get(s, "")}' for s in sorted(scopes)],
-                       fontsize=TICK_SIZE - 2)
-    ax.legend(fontsize=LEGEND_SIZE, loc='best')
+    ax.set_xticklabels([f"{s}\n{SCOPE_NAMES.get(s, '')}" for s in sorted(scopes)], fontsize=TICK_SIZE - 2)
+    ax.legend(fontsize=LEGEND_SIZE, loc="best")
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(output_dir / 'attacker_scope_bi_monotonicity.pdf', dpi=300)
-    plt.savefig(output_dir / 'attacker_scope_bi_monotonicity.png', dpi=150)
+    plt.savefig(output_dir / "attacker_scope_bi_monotonicity.pdf", dpi=300)
+    plt.savefig(output_dir / "attacker_scope_bi_monotonicity.png", dpi=150)
     plt.close()
 
     # ---- Plot 3: All metrics by scope (for each dataset) ----
     metrics_to_plot = [
-        ('bi', 'BI', '#2ecc71', 'o'),
-        ('pi', 'ePI', '#3498db', 'D'),
-        ('ti', 'TI', '#3498db', 'v'),
-        ('hi', 'eHI', '#e74c3c', 's'),
-        ('mlp_pi', 'MLP-PI', '#9b59b6', 'p'),
+        ("bi", "BI", "#2ecc71", "o"),
+        ("pi", "ePI", "#3498db", "D"),
+        ("ti", "TI", "#3498db", "v"),
+        ("hi", "eHI", "#e74c3c", "s"),
+        ("mlp_pi", "MLP-PI", "#9b59b6", "p"),
     ]
 
     for ds in datasets_in_results:
-        df_ds = df[df['dataset'] == ds]
+        df_ds = df[df["dataset"] == ds]
 
         fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -1035,32 +999,39 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
                 continue
             scope_means, scope_stds, scope_levels = [], [], []
             for scope in sorted(scopes):
-                vals = df_ds[df_ds['scope_level'] == scope][metric].dropna()
+                vals = df_ds[df_ds["scope_level"] == scope][metric].dropna()
                 if len(vals) > 0:
                     scope_levels.append(scope)
                     scope_means.append(vals.mean())
                     scope_stds.append(vals.std() if len(vals) > 1 else 0)
 
             if scope_levels:
-                ls = '-' if metric == 'bi' else '--'
-                lw = LINE_WIDTH if metric == 'bi' else LINE_WIDTH - 0.5
-                ax.errorbar(scope_levels, scope_means, yerr=scope_stds,
-                            marker=marker, capsize=CAP_SIZE, color=color,
-                            linewidth=lw, markersize=MARKER_SIZE,
-                            label=label, linestyle=ls)
+                ls = "-" if metric == "bi" else "--"
+                lw = LINE_WIDTH if metric == "bi" else LINE_WIDTH - 0.5
+                ax.errorbar(
+                    scope_levels,
+                    scope_means,
+                    yerr=scope_stds,
+                    marker=marker,
+                    capsize=CAP_SIZE,
+                    color=color,
+                    linewidth=lw,
+                    markersize=MARKER_SIZE,
+                    label=label,
+                    linestyle=ls,
+                )
 
-        ax.set_xlabel('Scope Level', fontsize=LABEL_SIZE)
-        ax.set_ylabel('Bits', fontsize=LABEL_SIZE)
-        ax.set_title(f'Leakage Metrics by Scope: {ds}', fontsize=TITLE_SIZE)
-        ax.tick_params(axis='both', labelsize=TICK_SIZE)
+        ax.set_xlabel("Scope Level", fontsize=LABEL_SIZE)
+        ax.set_ylabel("Bits", fontsize=LABEL_SIZE)
+        ax.set_title(f"Leakage Metrics by Scope: {ds}", fontsize=TITLE_SIZE)
+        ax.tick_params(axis="both", labelsize=TICK_SIZE)
         ax.set_xticks(sorted(scopes))
-        ax.set_xticklabels([f'{s}\n{SCOPE_NAMES.get(s, "")}' for s in sorted(scopes)],
-                           fontsize=TICK_SIZE - 2)
-        ax.legend(fontsize=LEGEND_SIZE, loc='best')
+        ax.set_xticklabels([f"{s}\n{SCOPE_NAMES.get(s, '')}" for s in sorted(scopes)], fontsize=TICK_SIZE - 2)
+        ax.legend(fontsize=LEGEND_SIZE, loc="best")
         ax.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig(output_dir / f'attacker_scope_metrics_by_scope_{ds}.pdf', dpi=300)
-        plt.savefig(output_dir / f'attacker_scope_metrics_by_scope_{ds}.png', dpi=150)
+        plt.savefig(output_dir / f"attacker_scope_metrics_by_scope_{ds}.pdf", dpi=300)
+        plt.savefig(output_dir / f"attacker_scope_metrics_by_scope_{ds}.png", dpi=150)
         plt.close()
 
     # ---- Plot 4: Suite size M and margin term by scope ----
@@ -1068,51 +1039,59 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
 
     # Left: Suite size M
     for di, ds in enumerate(datasets_in_results):
-        df_ds = df[df['dataset'] == ds]
+        df_ds = df[df["dataset"] == ds]
         scope_levels, m_means = [], []
         for scope in sorted(scopes):
-            m_vals = df_ds[df_ds['scope_level'] == scope]['M'].dropna()
+            m_vals = df_ds[df_ds["scope_level"] == scope]["M"].dropna()
             if len(m_vals) > 0:
                 scope_levels.append(scope)
                 m_means.append(m_vals.mean())
         if scope_levels:
             color = ds_colors[di % len(ds_colors)]
-            ax1.plot(scope_levels, m_means, marker='o', color=color,
-                     linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=ds)
+            ax1.plot(
+                scope_levels, m_means, marker="o", color=color, linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=ds
+            )
 
-    ax1.set_xlabel('Scope Level', fontsize=LABEL_SIZE)
-    ax1.set_ylabel('Suite Size M', fontsize=LABEL_SIZE)
-    ax1.set_title('Suite Size by Scope', fontsize=TITLE_SIZE)
-    ax1.tick_params(axis='both', labelsize=TICK_SIZE)
+    ax1.set_xlabel("Scope Level", fontsize=LABEL_SIZE)
+    ax1.set_ylabel("Suite Size M", fontsize=LABEL_SIZE)
+    ax1.set_title("Suite Size by Scope", fontsize=TITLE_SIZE)
+    ax1.tick_params(axis="both", labelsize=TICK_SIZE)
     ax1.set_xticks(sorted(scopes))
-    ax1.legend(fontsize=LEGEND_SIZE, loc='best')
+    ax1.legend(fontsize=LEGEND_SIZE, loc="best")
     ax1.grid(True, alpha=0.3)
 
     # Right: Margin term
     for di, ds in enumerate(datasets_in_results):
-        df_ds = df[df['dataset'] == ds]
+        df_ds = df[df["dataset"] == ds]
         scope_levels, margin_means = [], []
         for scope in sorted(scopes):
-            margin_vals = df_ds[df_ds['scope_level'] == scope]['margin_term'].dropna()
+            margin_vals = df_ds[df_ds["scope_level"] == scope]["margin_term"].dropna()
             if len(margin_vals) > 0:
                 scope_levels.append(scope)
                 margin_means.append(margin_vals.mean())
         if scope_levels:
             color = ds_colors[di % len(ds_colors)]
-            ax2.plot(scope_levels, margin_means, marker='s', color=color,
-                     linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=ds)
+            ax2.plot(
+                scope_levels,
+                margin_means,
+                marker="s",
+                color=color,
+                linewidth=LINE_WIDTH,
+                markersize=MARKER_SIZE,
+                label=ds,
+            )
 
-    ax2.set_xlabel('Scope Level', fontsize=LABEL_SIZE)
-    ax2.set_ylabel('Margin Term', fontsize=LABEL_SIZE)
-    ax2.set_title(r'Confidence Slack Diagnostic', fontsize=TITLE_SIZE)
-    ax2.tick_params(axis='both', labelsize=TICK_SIZE)
+    ax2.set_xlabel("Scope Level", fontsize=LABEL_SIZE)
+    ax2.set_ylabel("Margin Term", fontsize=LABEL_SIZE)
+    ax2.set_title(r"Confidence Slack Diagnostic", fontsize=TITLE_SIZE)
+    ax2.tick_params(axis="both", labelsize=TICK_SIZE)
     ax2.set_xticks(sorted(scopes))
-    ax2.legend(fontsize=LEGEND_SIZE, loc='best')
+    ax2.legend(fontsize=LEGEND_SIZE, loc="best")
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig(output_dir / 'attacker_scope_suite_size_and_margin.pdf', dpi=300)
-    plt.savefig(output_dir / 'attacker_scope_suite_size_and_margin.png', dpi=150)
+    plt.savefig(output_dir / "attacker_scope_suite_size_and_margin.pdf", dpi=300)
+    plt.savefig(output_dir / "attacker_scope_suite_size_and_margin.png", dpi=150)
     plt.close()
 
     print(f"Plots saved to {output_dir}")
@@ -1122,128 +1101,52 @@ def plot_results(df: pd.DataFrame, output_dir: Path, scopes: List[int]):
 # Main
 # ===================================================================
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description='Attacker scope comparison'
-    )
+    parser = argparse.ArgumentParser(description="Attacker scope comparison")
     parser.add_argument(
-        '--datasets',
+        "--datasets", type=str, default="ascad_desync_0 aes_rd", help='Space-separated list of datasets or "all"'
+    )
+    parser.add_argument("--dataset-dir", type=str, default="./datasets", help="Path to datasets directory")
+    parser.add_argument("--tches20-src-dir", type=str, default="./datasets", help="Path to TCHES20 source data")
+    parser.add_argument("--scopes", type=str, default="1,2,3,4", help="Comma-separated scope levels to evaluate")
+    parser.add_argument("--n-seeds", type=int, default=5, help="Number of random seeds")
+    parser.add_argument("--holdout-size", type=int, default=25000, help="Size of holdout set")
+    parser.add_argument("--delta", type=float, default=1e-6, help="Failure probability for BI certification")
+    parser.add_argument("--n-classes", type=int, default=256, help="Number of classes")
+    parser.add_argument("--batch-size", type=int, default=256, help="Batch size for CNN training")
+    parser.add_argument("--target-cnn-params", type=int, default=50000, help="Target parameter count for CNN models")
+    parser.add_argument("--cnn-epochs", type=int, default=30, help="Max epochs for CNN training")
+    parser.add_argument("--cnn-patience", type=int, default=5, help="Early stopping patience for CNN")
+    parser.add_argument("--cnn-lr", type=float, default=1e-3, help="Learning rate for CNN")
+    parser.add_argument("--output-dir", type=str, default="results/attacker_scope_diagnostic", help="Output directory")
+    parser.add_argument(
+        "--device",
         type=str,
-        default='ascad_desync_0 aes_rd',
-        help='Space-separated list of datasets or "all"'
+        default="cuda" if HAS_TORCH and torch.cuda.is_available() else "cpu",
+        help="Device: cpu or cuda",
     )
     parser.add_argument(
-        '--dataset-dir',
-        type=str,
-        default='./datasets',
-        help='Path to datasets directory'
-    )
-    parser.add_argument(
-        '--tches20-src-dir',
-        type=str,
-        default='./datasets',
-        help='Path to TCHES20 source data'
-    )
-    parser.add_argument(
-        '--scopes',
-        type=str,
-        default='1,2,3,4',
-        help='Comma-separated scope levels to evaluate'
-    )
-    parser.add_argument(
-        '--n-seeds',
-        type=int,
-        default=5,
-        help='Number of random seeds'
-    )
-    parser.add_argument(
-        '--holdout-size',
-        type=int,
-        default=25000,
-        help='Size of holdout set'
-    )
-    parser.add_argument(
-        '--delta',
-        type=float,
-        default=1e-6,
-        help='Failure probability for BI certification'
-    )
-    parser.add_argument(
-        '--n-classes',
-        type=int,
-        default=256,
-        help='Number of classes'
-    )
-    parser.add_argument(
-        '--batch-size',
-        type=int,
-        default=256,
-        help='Batch size for CNN training'
-    )
-    parser.add_argument(
-        '--target-cnn-params',
-        type=int,
-        default=50000,
-        help='Target parameter count for CNN models'
-    )
-    parser.add_argument(
-        '--cnn-epochs',
-        type=int,
-        default=30,
-        help='Max epochs for CNN training'
-    )
-    parser.add_argument(
-        '--cnn-patience',
-        type=int,
-        default=5,
-        help='Early stopping patience for CNN'
-    )
-    parser.add_argument(
-        '--cnn-lr',
-        type=float,
-        default=1e-3,
-        help='Learning rate for CNN'
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='results/attacker_scope_diagnostic',
-        help='Output directory'
-    )
-    parser.add_argument(
-        '--device',
-        type=str,
-        default='cuda' if HAS_TORCH and torch.cuda.is_available() else 'cpu',
-        help='Device: cpu or cuda'
-    )
-    parser.add_argument(
-        '--gpu-workers',
+        "--gpu-workers",
         type=int,
         default=1,
-        help='Currently unused; kept for CLI compatibility. '
-             'Seeds and scopes are always trained sequentially.'
+        help="Currently unused; kept for CLI compatibility. Seeds and scopes are always trained sequentially.",
     )
     parser.add_argument(
-        '--plot-only',
-        action='store_true',
-        help='Only generate plots from existing checkpoint; do not run experiments'
+        "--plot-only", action="store_true", help="Only generate plots from existing checkpoint; do not run experiments"
     )
-    parser.add_argument(
-        '--no-resume',
-        action='store_true',
-        help='Force fresh run (ignore existing checkpoint)'
-    )
+    parser.add_argument("--no-resume", action="store_true", help="Force fresh run (ignore existing checkpoint)")
 
     args = parser.parse_args()
 
     # Parse datasets
-    if args.datasets.lower() == 'all':
+    if args.datasets.lower() == "all":
         datasets = ALL_DATASETS
     else:
         datasets = args.datasets.split()
 
     # Parse scopes
-    scopes = [int(s.strip()) for s in args.scopes.split(',')]
+    scopes = [int(s.strip()) for s in args.scopes.split(",")]
 
     # Create output directory
     output_dir = Path(args.output_dir)
@@ -1260,7 +1163,7 @@ def main():
     print("=" * 80)
 
     # ---- CHECKPOINT/RESUME LOGIC ----
-    checkpoint_path = output_dir / 'scope_checkpoint.csv'
+    checkpoint_path = output_dir / "scope_checkpoint.csv"
     existing_df = None
     completed_keys = set()  # (dataset, scope_level, seed) tuples
 
@@ -1269,10 +1172,10 @@ def main():
             existing_df = pd.read_csv(checkpoint_path)
             print(f"\n[CHECKPOINT] Found checkpoint with {len(existing_df)} rows")
             for _, row in existing_df.iterrows():
-                completed_keys.add((row['dataset'], int(row['scope_level']), int(row['seed'])))
+                completed_keys.add((row["dataset"], int(row["scope_level"]), int(row["seed"])))
             # Summarize what's done
             ds_counts = {}
-            for (d, sc, s) in completed_keys:
+            for d, sc, s in completed_keys:
                 if sc in scopes and s in range(args.n_seeds):
                     ds_counts[d] = ds_counts.get(d, 0) + 1
             expected_per_ds = len(scopes) * args.n_seeds
@@ -1288,7 +1191,7 @@ def main():
         if checkpoint_path.exists():
             df = pd.read_csv(checkpoint_path)
             if not df.empty:
-                figures_dir = output_dir / 'figures'
+                figures_dir = output_dir / "figures"
                 try:
                     plot_results(df, figures_dir, scopes)
                     print(f"\nPlots generated successfully in {figures_dir}")
@@ -1313,10 +1216,7 @@ def main():
         new_df = pd.DataFrame([asdict(r) for r in accumulated_results])
         if existing_df is not None:
             combined = pd.concat([existing_df, new_df], ignore_index=True)
-            combined = combined.drop_duplicates(
-                subset=['dataset', 'scope_level', 'seed'],
-                keep='last'
-            )
+            combined = combined.drop_duplicates(subset=["dataset", "scope_level", "seed"], keep="last")
         else:
             combined = new_df
         combined.to_csv(checkpoint_path, index=False)
@@ -1330,9 +1230,7 @@ def main():
             new_df = pd.DataFrame([asdict(r) for r in accumulated_results])
             if existing_df is not None:
                 combined = pd.concat([existing_df, new_df], ignore_index=True)
-                combined = combined.drop_duplicates(
-                    subset=['dataset', 'scope_level', 'seed'], keep='last'
-                )
+                combined = combined.drop_duplicates(subset=["dataset", "scope_level", "seed"], keep="last")
             else:
                 combined = new_df
             combined.to_csv(checkpoint_path, index=False)
@@ -1341,12 +1239,12 @@ def main():
             if checkpoint_path.exists():
                 df = pd.read_csv(checkpoint_path)
                 if df is not None and not df.empty:
-                    figures_dir = output_dir / 'figures'
+                    figures_dir = output_dir / "figures"
                     plot_results(df, figures_dir, scopes)
                     print(f"  Plots saved to {figures_dir}")
         except Exception as e:
             print(f"  [WARN] Plot generation failed: {e}")
-        print(f"  Checkpoint saved. Re-run to resume.")
+        print("  Checkpoint saved. Re-run to resume.")
         sys.exit(0)
 
     # Register signal handlers
@@ -1356,11 +1254,12 @@ def main():
     # Run experiment for each dataset
     for dataset in datasets:
         # Check if ALL (scope, seed) combos are done for this dataset
-        ds_done = sum(1 for (d, sc, s) in completed_keys
-                      if d == dataset and sc in scopes and s in range(args.n_seeds))
+        ds_done = sum(1 for (d, sc, s) in completed_keys if d == dataset and sc in scopes and s in range(args.n_seeds))
         expected = len(scopes) * args.n_seeds
         if ds_done >= expected:
-            print(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Skipping {dataset} (all {expected} entries in checkpoint)")
+            print(
+                f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Skipping {dataset} (all {expected} entries in checkpoint)"
+            )
             continue
 
         print(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processing {dataset} ({ds_done}/{expected} done)...")
@@ -1399,22 +1298,27 @@ def main():
 
     # Save results to CSV and generate plots
     if df is not None and not df.empty:
-
         # Print summary
         print("\n" + "=" * 80)
         print("SUMMARY TABLE: Mean BI by Scope")
         print("=" * 80)
 
-        summary = df.groupby(['dataset', 'scope_level']).agg({
-            'M': 'mean',
-            'bi': ['mean', 'std'],
-            'pi': ['mean', 'std'],
-            'ti': ['mean', 'std'],
-            'hi': ['mean', 'std'],
-            'mlp_pi': ['mean', 'std'],
-            'p_max': 'mean',
-            'margin_term': 'mean',
-        }).round(4)
+        summary = (
+            df.groupby(["dataset", "scope_level"])
+            .agg(
+                {
+                    "M": "mean",
+                    "bi": ["mean", "std"],
+                    "pi": ["mean", "std"],
+                    "ti": ["mean", "std"],
+                    "hi": ["mean", "std"],
+                    "mlp_pi": ["mean", "std"],
+                    "p_max": "mean",
+                    "margin_term": "mean",
+                }
+            )
+            .round(4)
+        )
 
         print(summary)
 
@@ -1424,14 +1328,14 @@ def main():
         print("=" * 80)
 
         for dataset in datasets:
-            df_ds = df[df['dataset'] == dataset]
-            for seed in df_ds['seed'].unique():
-                df_seed = df_ds[df_ds['seed'] == seed].sort_values('scope_level')
+            df_ds = df[df["dataset"] == dataset]
+            for seed in df_ds["seed"].unique():
+                df_seed = df_ds[df_ds["seed"] == seed].sort_values("scope_level")
                 if len(df_seed) < 2:
                     continue
 
-                bi_vals = df_seed['bi'].values
-                is_monotonic = all(bi_vals[i] <= bi_vals[i+1] for i in range(len(bi_vals)-1))
+                bi_vals = df_seed["bi"].values
+                is_monotonic = all(bi_vals[i] <= bi_vals[i + 1] for i in range(len(bi_vals) - 1))
 
                 if not is_monotonic:
                     print(f"WARNING: {dataset} seed {seed} NOT monotonic: {bi_vals}")
@@ -1442,8 +1346,8 @@ def main():
         print("=" * 80)
 
         for scope_level in sorted(scopes):
-            df_scope = df[df['scope_level'] == scope_level]
-            M_mean = df_scope['M'].mean()
+            df_scope = df[df["scope_level"] == scope_level]
+            M_mean = df_scope["M"].mean()
             margin_sqrt_ln = math.sqrt(math.log(M_mean / args.delta) / 2)
 
             print(f"\nScope {scope_level} ({SCOPE_NAMES[scope_level]}):")
@@ -1452,12 +1356,12 @@ def main():
             print(f"  BI (mean ± std): {df_scope['bi'].mean():.4f} ± {df_scope['bi'].std():.4f}")
             print(f"  p_max (mean): {df_scope['p_max'].mean():.6f}")
 
-        csv_path = output_dir / 'scope_results.csv'
+        csv_path = output_dir / "scope_results.csv"
         df.to_csv(csv_path, index=False)
         print(f"Results saved to {csv_path}")
 
         # Generate plots
-        figures_dir = output_dir / 'figures'
+        figures_dir = output_dir / "figures"
         plot_results(df, figures_dir, scopes)
 
     else:
@@ -1465,5 +1369,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -30,14 +30,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 
-LOADER_BACKED_DATASETS = [
-    "ascad_desync_0",
-    "ascad_desync_50",
-    "ascad_desync_100",
-    "aes_hd",
-    "aes_rd",
-    "dpav4",
-]
+LOADER_BACKED_DATASETS = ["ascad_desync_0", "ascad_desync_50", "ascad_desync_100", "aes_hd", "aes_rd", "dpav4"]
 
 CHECKPOINT_COLUMNS = [
     "dataset",
@@ -95,14 +88,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--bi-max-iter", type=int, default=250)
     parser.add_argument("--window-method", default="center", choices=["center", "start", "random"])
-    parser.add_argument(
-        "--tches20-dataset-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"),
-    )
-    parser.add_argument(
-        "--tches20-src-dir",
-        default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"),
-    )
+    parser.add_argument("--tches20-dataset-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets"))
+    parser.add_argument("--tches20-src-dir", default=str(repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA/src"))
     return parser.parse_args()
 
 
@@ -163,10 +150,7 @@ def suite_bracket(per_model_success: Dict[str, float], n: int, delta: float, n_c
     if not per_model_success:
         raise ValueError("empty attack suite")
     m = len(per_model_success)
-    counts = {
-        name: int(round(max(0.0, min(1.0, float(rate))) * n))
-        for name, rate in per_model_success.items()
-    }
+    counts = {name: int(round(max(0.0, min(1.0, float(rate))) * n)) for name, rate in per_model_success.items()}
     c = math.log((2.0 * m) / delta) / float(n)
     best_model, best_successes = max(counts.items(), key=lambda item: item[1])
     p_obs = best_successes / n
@@ -228,11 +212,7 @@ def read_task(manifest: Path, task_id: int) -> Dict[str, object]:
 def load_dataset_window(args: argparse.Namespace, dataset: str, dimension: int) -> Tuple[np.ndarray, np.ndarray, str]:
     from dimension_stability.multivariate_stability_driver import create_windowed_representation, try_load_tches20_data
 
-    traces, labels = try_load_tches20_data(
-        dataset,
-        args.tches20_dataset_dir,
-        args.tches20_src_dir,
-    )
+    traces, labels = try_load_tches20_data(dataset, args.tches20_dataset_dir, args.tches20_src_dir)
     n = min(int(args.n_samples_total), int(len(labels)))
     traces = np.asarray(traces[:n])
     labels = np.asarray(labels[:n], dtype=np.int64).reshape(-1)
@@ -242,10 +222,7 @@ def load_dataset_window(args: argparse.Namespace, dataset: str, dimension: int) 
 
 
 def split_train_holdout(
-    traces: np.ndarray,
-    labels: np.ndarray,
-    seed: int,
-    holdout_size: int,
+    traces: np.ndarray, labels: np.ndarray, seed: int, holdout_size: int
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     n_total = int(len(labels))
     n_holdout = min(int(holdout_size), n_total // 2)
@@ -258,10 +235,7 @@ def split_train_holdout(
 
 
 def train_projected_suite(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    seed: int,
-    max_iter: int,
+    X_train: np.ndarray, y_train: np.ndarray, seed: int, max_iter: int
 ) -> List[Tuple[str, object]]:
     models: List[Tuple[str, object]] = []
 
@@ -270,21 +244,10 @@ def train_projected_suite(
             "logistic_fast",
             make_pipeline(
                 StandardScaler(),
-                LogisticRegression(
-                    solver="saga",
-                    max_iter=max_iter,
-                    n_jobs=-1,
-                    random_state=int(seed),
-                ),
+                LogisticRegression(solver="saga", max_iter=max_iter, n_jobs=-1, random_state=int(seed)),
             ),
         ),
-        (
-            "lda_shrinkage",
-            make_pipeline(
-                StandardScaler(),
-                LinearDiscriminantAnalysis(solver="lsqr", shrinkage="auto"),
-            ),
-        ),
+        ("lda_shrinkage", make_pipeline(StandardScaler(), LinearDiscriminantAnalysis(solver="lsqr", shrinkage="auto"))),
         (
             "mlp_fast",
             make_pipeline(
@@ -316,7 +279,9 @@ def train_projected_suite(
     return models
 
 
-def evaluate_suite(models: Iterable[Tuple[str, object]], X_holdout: np.ndarray, y_holdout: np.ndarray) -> Dict[str, float]:
+def evaluate_suite(
+    models: Iterable[Tuple[str, object]], X_holdout: np.ndarray, y_holdout: np.ndarray
+) -> Dict[str, float]:
     per_model: Dict[str, float] = {}
     y_true = np.asarray(y_holdout).reshape(-1)
     for name, model in models:
@@ -430,9 +395,7 @@ def run_task(args: argparse.Namespace) -> None:
 
     try:
         traces, labels, source = load_dataset_window(args, dataset, dimension)
-        X_train, y_train, X_holdout, y_holdout = split_train_holdout(
-            traces, labels, seed, args.holdout_size
-        )
+        X_train, y_train, X_holdout, y_holdout = split_train_holdout(traces, labels, seed, args.holdout_size)
         models = train_projected_suite(X_train, y_train, seed, args.bi_max_iter)
         per_model = evaluate_suite(models, X_holdout, y_holdout)
         bracket = suite_bracket(per_model, len(y_holdout), args.delta, args.n_classes)

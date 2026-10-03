@@ -1,0 +1,8 @@
+dataset,traces_100,traces_500,traces_1000,traces_2000
+ascad_desync_0,0,0,0,1
+ascad_desync_50,49,100,100,100
+ascad_desync_100,67,100,100,100
+ascad_random_key,98,100,100,100
+aes_hd,1,4,13,30
+aes_rd,100,100,100,100
+dpav4,100,100,,

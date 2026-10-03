@@ -7,6 +7,10 @@ This directory contains evaluators for BI-suite rows that are computed from decl
 
 The evaluator computes single-target classification success on the attack split for every declared checkpoint. These success counts are the inputs to the KL-binomial `BI^{suite}` bracket. Key-rank and GE curves remain separate SCSCA/SASCA evidence and are not used as BI input.
 
+`paper_results/evaluate_estranet_suites.py` runs the EstraNet evaluator with the settings of both suites and
+of the CHES-CTF-2025 window suites; `estranet_support/` holds the CHES-CTF-2025 loader added to the EstraNet
+sources and the training settings of the checkpoints.
+
 Main Python entry points:
 
 - `evaluate_estranet_bi_suite.py`: evaluate EstraNet checkpoint suites.

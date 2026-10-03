@@ -19,7 +19,7 @@ import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -68,11 +68,7 @@ class RawPatchMLP(nn.Module):
     def __init__(self, input_dim: int, width: int):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, width),
-            nn.ReLU(),
-            nn.Linear(width, width),
-            nn.ReLU(),
-            nn.Linear(width, K),
+            nn.Linear(input_dim, width), nn.ReLU(), nn.Linear(width, width), nn.ReLU(), nn.Linear(width, K)
         )
 
     def forward(self, x):
@@ -207,8 +203,8 @@ def generate_split(
 
     idx = rng.permutation(n_samples)
     idx_train = idx[:n_train]
-    idx_val = idx[n_train:n_train + n_val]
-    idx_hold = idx[n_train + n_val:n_train + n_val + n_hold]
+    idx_val = idx[n_train : n_train + n_val]
+    idx_hold = idx[n_train + n_val : n_train + n_val + n_hold]
 
     mean = x[idx_train].mean(axis=0, keepdims=True)
     std = x[idx_train].std(axis=0, keepdims=True)
@@ -259,11 +255,7 @@ def product_lag_features(x: np.ndarray, receptive_field: int) -> np.ndarray:
     return feats
 
 
-def logistic_product_lag_success(
-    split: DataSplit,
-    receptive_field: int,
-    seed: int,
-) -> tuple[float, float, int, str]:
+def logistic_product_lag_success(split: DataSplit, receptive_field: int, seed: int) -> tuple[float, float, int, str]:
     x_train = product_lag_features(split.x_train, receptive_field)
     x_val = product_lag_features(split.x_val, receptive_field)
     x_hold = product_lag_features(split.x_hold, receptive_field)
@@ -273,25 +265,30 @@ def logistic_product_lag_success(
         if x_hold.shape[1] <= 1:
             pred_hold = np.full(len(split.y_hold), int(np.mean(split.y_train) >= 0.5), dtype=np.int64)
             pred_val = np.full(len(split.y_val), int(np.mean(split.y_train) >= 0.5), dtype=np.int64)
-            return float(np.mean(pred_val == split.y_val)), float(np.mean(pred_hold == split.y_hold)), 0, "majority_fallback"
+            return (
+                float(np.mean(pred_val == split.y_val)),
+                float(np.mean(pred_hold == split.y_hold)),
+                0,
+                "majority_fallback",
+            )
         score_val = x_val[:, min(lag, x_val.shape[1] - 1)]
         score_hold = x_hold[:, min(lag, x_hold.shape[1] - 1)]
         corr = np.corrcoef(score_val, split.y_val)[0, 1]
         sign = 1.0 if np.nan_to_num(corr) >= 0 else -1.0
         pred_val = (sign * score_val >= 0.0).astype(np.int64)
         pred_hold = (sign * score_hold >= 0.0).astype(np.int64)
-        return float(np.mean(pred_val == split.y_val)), float(np.mean(pred_hold == split.y_hold)), x_hold.shape[1], "numpy_threshold_fallback"
+        return (
+            float(np.mean(pred_val == split.y_val)),
+            float(np.mean(pred_hold == split.y_hold)),
+            x_hold.shape[1],
+            "numpy_threshold_fallback",
+        )
 
     scaler = StandardScaler()
     x_train_s = scaler.fit_transform(x_train)
     x_val_s = scaler.transform(x_val)
     x_hold_s = scaler.transform(x_hold)
-    model = LogisticRegression(
-        solver="lbfgs",
-        max_iter=300,
-        C=10.0,
-        random_state=seed,
-    )
+    model = LogisticRegression(solver="lbfgs", max_iter=300, C=10.0, random_state=seed)
     model.fit(x_train_s, split.y_train)
     val_success = float(np.mean(model.predict(x_val_s) == split.y_val))
     hold_success = float(np.mean(model.predict(x_hold_s) == split.y_hold))
@@ -317,7 +314,7 @@ def evaluate_torch(model, x: np.ndarray, y: np.ndarray, batch_size: int, device)
     preds = []
     with torch.no_grad():
         for start in range(0, len(x), batch_size):
-            xb = torch.as_tensor(x[start:start + batch_size], dtype=torch.float32).to(device, non_blocking=True)
+            xb = torch.as_tensor(x[start : start + batch_size], dtype=torch.float32).to(device, non_blocking=True)
             logits = model(xb)
             preds.append(logits.argmax(dim=1).cpu().numpy())
     pred = np.concatenate(preds) if preds else np.array([], dtype=np.int64)
@@ -412,10 +409,7 @@ def task_ids(args: argparse.Namespace) -> list[tuple[str, int, Optional[int], Op
             for width in args.widths:
                 for restart in range(args.restarts):
                     tasks.append(("width", seed, width, restart))
-    return [
-        task for idx, task in enumerate(tasks)
-        if idx % args.num_shards == args.shard_index
-    ]
+    return [task for idx, task in enumerate(tasks) if idx % args.num_shards == args.shard_index]
 
 
 def read_csv(path: Path) -> pd.DataFrame:
@@ -442,12 +436,7 @@ def append_row(path: Path, row: dict[str, object], key_cols: list[str]) -> None:
 
 
 def write_margin_rows(
-    path: Path,
-    *,
-    seed: int,
-    split: DataSplit,
-    oracle: dict[str, float],
-    args: argparse.Namespace,
+    path: Path, *, seed: int, split: DataSplit, oracle: dict[str, float], args: argparse.Namespace
 ) -> None:
     posterior = sigmoid(split.llr_hold)
     score_margin = np.abs(split.llr_hold)
@@ -487,30 +476,18 @@ def summarize_results(out_dir: Path) -> None:
         "BI_obs",
         "BI_plus_kl",
     ]
-    group_cols = [
-        "row_type",
-        "model_kind",
-        "receptive_field",
-        "width",
-    ]
+    group_cols = ["row_type", "model_kind", "receptive_field", "width"]
     present_metrics = [c for c in metric_cols if c in rows.columns]
-    summary = (
-        rows.groupby(group_cols, dropna=False)[present_metrics]
-        .agg(["mean", "std", "min", "max"])
-        .reset_index()
-    )
+    summary = rows.groupby(group_cols, dropna=False)[present_metrics].agg(["mean", "std", "min", "max"]).reset_index()
     summary.columns = [
-        "_".join(str(x) for x in col).rstrip("_") if isinstance(col, tuple) else col
-        for col in summary.columns
+        "_".join(str(x) for x in col).rstrip("_") if isinstance(col, tuple) else col for col in summary.columns
     ]
     summary.to_csv(out_dir / "bayes_oracle_summary.csv", index=False)
 
     if margin_path.exists():
         margins = pd.read_csv(margin_path)
         margin_summary = (
-            margins.groupby("gamma", dropna=False)[
-                ["score_margin_le_gamma", "posterior_margin_le_gamma"]
-            ]
+            margins.groupby("gamma", dropna=False)[["score_margin_le_gamma", "posterior_margin_le_gamma"]]
             .agg(["mean", "std"])
             .reset_index()
         )
@@ -582,18 +559,8 @@ def write_plots(out_dir: Path, rows: pd.DataFrame) -> None:
     if margin_summary_path.exists():
         margins = pd.read_csv(margin_summary_path)
         fig, ax = plt.subplots(figsize=(5.4, 3.4))
-        ax.plot(
-            margins["gamma"],
-            margins["score_margin_le_gamma_mean"],
-            marker="o",
-            label="score margin",
-        )
-        ax.plot(
-            margins["gamma"],
-            margins["posterior_margin_le_gamma_mean"],
-            marker="s",
-            label="posterior margin",
-        )
+        ax.plot(margins["gamma"], margins["score_margin_le_gamma_mean"], marker="o", label="score margin")
+        ax.plot(margins["gamma"], margins["posterior_margin_le_gamma_mean"], marker="s", label="posterior margin")
         ax.set_xscale("log")
         ax.set_xlabel("Margin threshold gamma")
         ax.set_ylabel("Fraction <= gamma")
@@ -793,7 +760,10 @@ def main() -> int:
                 **cert,
             }
             append_row(rows_path, row, ["row_type", "model_kind", "seed", "receptive_field", "width", "restart"])
-            print(f"[oracle] seed={seed} p_guess={oracle['oracle_p_guess']:.4f} mi={oracle['oracle_mi_bits']:.4f}", flush=True)
+            print(
+                f"[oracle] seed={seed} p_guess={oracle['oracle_p_guess']:.4f} mi={oracle['oracle_mi_bits']:.4f}",
+                flush=True,
+            )
             continue
 
         if task_type == "span":
@@ -823,8 +793,7 @@ def main() -> int:
             }
             append_row(rows_path, row, ["row_type", "model_kind", "seed", "receptive_field", "width", "restart"])
             print(
-                f"[span] seed={seed} R={rf} hold={hold_success:.4f} "
-                f"family_gap={row['family_expressivity_gap']:.4f}",
+                f"[span] seed={seed} R={rf} hold={hold_success:.4f} family_gap={row['family_expressivity_gap']:.4f}",
                 flush=True,
             )
             continue
@@ -858,11 +827,7 @@ def main() -> int:
                 **cert,
             }
             append_row(rows_path, row, ["row_type", "model_kind", "seed", "receptive_field", "width", "restart"])
-            print(
-                f"[width] seed={seed} W={width} restart={restart_i} "
-                f"hold={mlp['holdout_success']:.4f}",
-                flush=True,
-            )
+            print(f"[width] seed={seed} W={width} restart={restart_i} hold={mlp['holdout_success']:.4f}", flush=True)
 
     summarize_results(out_dir)
     print(f"[done] wrote {rows_path}", flush=True)

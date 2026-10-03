@@ -60,10 +60,7 @@ def summarize_file(path: Path, delta: float) -> dict[str, object]:
     m = int(len(df))
     c = math.log((2.0 * m) / delta) / float(n_te)
 
-    per_model_counts = {
-        str(row.model_id): int(row.successes)
-        for row in df.itertuples(index=False)
-    }
+    per_model_counts = {str(row.model_id): int(row.successes) for row in df.itertuples(index=False)}
     best_model, best_successes = max(per_model_counts.items(), key=lambda kv: kv[1])
     p_obs = best_successes / float(n_te)
     lowers = [endpoint(s, n_te, c, upper=False) for s in per_model_counts.values()]
@@ -90,10 +87,7 @@ def summarize_file(path: Path, delta: float) -> dict[str, object]:
         "best_model": best_model,
         "source_artifact": str(path),
         "status": "complete",
-        "per_model_success": json.dumps(
-            {k: v / float(n_te) for k, v in per_model_counts.items()},
-            sort_keys=True,
-        ),
+        "per_model_success": json.dumps({k: v / float(n_te) for k, v in per_model_counts.items()}, sort_keys=True),
     }
 
 
@@ -118,7 +112,9 @@ def main() -> None:
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(args.output_csv, index=False)
     print(f"Wrote {args.output_csv}")
-    print(pd.DataFrame(rows)[["dataset", "M", "n_te", "p_obs", "BI_obs", "BI_plus", "best_model"]].to_string(index=False))
+    print(
+        pd.DataFrame(rows)[["dataset", "M", "n_te", "p_obs", "BI_obs", "BI_plus", "best_model"]].to_string(index=False)
+    )
 
 
 if __name__ == "__main__":

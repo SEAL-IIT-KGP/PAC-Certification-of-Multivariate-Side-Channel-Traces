@@ -37,10 +37,7 @@ N_CLASSES = 256
 
 def detect_dataset_tag(filename: str) -> str | None:
     name = filename.lower()
-    for tag, keywords in sorted(
-        DATASET_KEYWORDS.items(),
-        key=lambda kv: -max(len(k) for k in kv[1]),
-    ):
+    for tag, keywords in sorted(DATASET_KEYWORDS.items(), key=lambda kv: -max(len(k) for k in kv[1])):
         if any(keyword in name for keyword in keywords):
             return tag
     return None
@@ -70,15 +67,9 @@ def load_data(dataset: str, dataset_dir: Path, tches20_src_dir: Path):
     from dataLoaders import load_aes_hd, load_aes_rd, load_ascad, load_dpav4  # type: ignore
 
     loader_map = {
-        "ascad_desync_0": lambda: load_ascad(
-            str(dataset_dir / "ASCAD_dataset" / "ASCAD.h5")
-        ),
-        "ascad_desync_50": lambda: load_ascad(
-            str(dataset_dir / "ASCAD_dataset" / "ASCAD_desync50.h5")
-        ),
-        "ascad_desync_100": lambda: load_ascad(
-            str(dataset_dir / "ASCAD_dataset" / "ASCAD_desync100.h5")
-        ),
+        "ascad_desync_0": lambda: load_ascad(str(dataset_dir / "ASCAD_dataset" / "ASCAD.h5")),
+        "ascad_desync_50": lambda: load_ascad(str(dataset_dir / "ASCAD_dataset" / "ASCAD_desync50.h5")),
+        "ascad_desync_100": lambda: load_ascad(str(dataset_dir / "ASCAD_dataset" / "ASCAD_desync100.h5")),
         "aes_hd": lambda: load_aes_hd(str(dataset_dir / "AES_HD_dataset") + os.sep),
         "aes_rd": lambda: load_aes_rd(str(dataset_dir / "AES_RD_dataset") + os.sep),
         "dpav4": lambda: load_dpav4(str(dataset_dir / "DPAv4_dataset") + os.sep),
@@ -89,12 +80,7 @@ def load_data(dataset: str, dataset_dir: Path, tches20_src_dir: Path):
     x_profile, y_profile, x_attack, attack_targets, real_key = loader_map[dataset]()
     y_profile = np.asarray(y_profile).reshape(-1).astype(np.int64)
     y_attack = np.asarray(attack_targets[:, int(real_key)]).reshape(-1).astype(np.int64)
-    return (
-        np.asarray(x_profile),
-        y_profile,
-        np.asarray(x_attack),
-        y_attack,
-    )
+    return (np.asarray(x_profile), y_profile, np.asarray(x_attack), y_attack)
 
 
 def choose_split(split: str, data) -> tuple[np.ndarray, np.ndarray]:
@@ -104,9 +90,7 @@ def choose_split(split: str, data) -> tuple[np.ndarray, np.ndarray]:
     if split == "attack":
         return x_attack, y_attack
     if split == "both":
-        return np.concatenate([x_profile, x_attack], axis=0), np.concatenate(
-            [y_profile, y_attack], axis=0
-        )
+        return np.concatenate([x_profile, x_attack], axis=0), np.concatenate([y_profile, y_attack], axis=0)
     raise ValueError(f"unsupported split: {split}")
 
 
@@ -235,10 +219,7 @@ def evaluate(args: argparse.Namespace) -> tuple[list[dict[str, object]], dict[st
         try:
             model = tf.keras.models.load_model(str(path), compile=False)
             x_model = prepare_input(model, x_eval)
-            preds = np.argmax(
-                model.predict(x_model, batch_size=args.batch_size, verbose=0),
-                axis=-1,
-            ).astype(np.int64)
+            preds = np.argmax(model.predict(x_model, batch_size=args.batch_size, verbose=0), axis=-1).astype(np.int64)
             successes = int(np.sum(preds == y_eval[: len(preds)]))
             status = "complete"
             error = ""

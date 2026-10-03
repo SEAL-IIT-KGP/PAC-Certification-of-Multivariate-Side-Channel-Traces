@@ -45,7 +45,7 @@ Other scripts here also read inputs that no script in this repository writes:
 - `build_audited_score_radius_points.py`: `score_radius_audit_table.csv`. It is optional; audit metadata is omitted when the file is missing.
 - `audit_bi_suite_margin_reduction.py`: `table1_bi_suite_eight_benchmarks.csv` (the BI-suite table, Table 6 in the paper) and `reusable_suite_success.csv`.
 
-The paper figure files `figure1_ches_dimension_sweep.pdf`, `figure2_biloc_all_datasets_selected_center_curves.pdf`, and `figure4_architecture_scope_diagnostic.pdf` are not written by these scripts. `plot_bi_loc_radius_curves.py` writes `bi_loc_radius_curves.pdf`/`.png`.
+The paper's Figure 1 and Figure 2 are written by `paper_results/figure1_dimension_sweep.py` and `paper_results/figure2_biloc_selected_centers.py`; the latter draws with `plot_bi_loc_radius_curves.py`. `plot_bi_loc_radius_curves.py` writes `bi_loc_radius_curves.pdf`/`.png` by default (`--output-stem` and `--point-label` change the file name and the legend text of the star markers). The full-version figure file `figure4_architecture_scope_diagnostic.pdf` is not written by these scripts.
 
 ## Challenger notes
 

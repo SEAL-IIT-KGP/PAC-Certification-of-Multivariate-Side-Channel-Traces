@@ -25,13 +25,12 @@ os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="current_bi_plots_
 os.environ.setdefault("XDG_CACHE_HOME", tempfile.mkdtemp(prefix="current_bi_fontcache_"))
 warnings.filterwarnings("ignore", category=FutureWarning, module="pandas")
 warnings.filterwarnings(
-    "ignore",
-    message="DataFrameGroupBy.apply operated on the grouping columns.*",
-    category=FutureWarning,
+    "ignore", message="DataFrameGroupBy.apply operated on the grouping columns.*", category=FutureWarning
 )
 
-import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter, ScalarFormatter
+# matplotlib is imported after the cache directory and warning filters above are set.
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.ticker import NullFormatter, ScalarFormatter  # noqa: E402
 
 
 N_CLASSES = 256
@@ -59,19 +58,9 @@ DATASET_DIMENSIONS = {
     "ches_ctf_2025": 3000,
 }
 
-METRIC_LABELS = {
-    "GKOV_MI": "GKOV MI",
-    "MLP_PI": "MLP-PI",
-    "ePI_or_PI": "ePI/PI",
-    "eHI_or_HI": "eHI/HI",
-}
+METRIC_LABELS = {"GKOV_MI": "GKOV MI", "MLP_PI": "MLP-PI", "ePI_or_PI": "ePI/PI", "eHI_or_HI": "eHI/HI"}
 
-METRIC_COLORS = {
-    "GKOV_MI": "#2ca25f",
-    "MLP_PI": "#756bb1",
-    "ePI_or_PI": "#c51b8a",
-    "eHI_or_HI": "#3182bd",
-}
+METRIC_COLORS = {"GKOV_MI": "#2ca25f", "MLP_PI": "#756bb1", "ePI_or_PI": "#c51b8a", "eHI_or_HI": "#3182bd"}
 
 BLUE = "#1f4e79"
 ORANGE = "#d95f02"
@@ -141,11 +130,7 @@ def bi_bits(p: float, n_classes: int = N_CLASSES) -> float:
 
 
 def suite_bracket_from_successes(
-    success_rates: Iterable[float],
-    n: int,
-    *,
-    delta: float = DELTA,
-    n_classes: int = N_CLASSES,
+    success_rates: Iterable[float], n: int, *, delta: float = DELTA, n_classes: int = N_CLASSES
 ) -> dict[str, float]:
     rates = [float(x) for x in success_rates]
     if not rates:
@@ -229,9 +214,7 @@ def format_axis(ax: plt.Axes, *, grid_axis: str = "y") -> None:
 
 
 def log_x_interp(x0: float, y0: float, x1: float, y1: float, x: float) -> float:
-    weight = (math.log(float(x)) - math.log(float(x0))) / (
-        math.log(float(x1)) - math.log(float(x0))
-    )
+    weight = (math.log(float(x)) - math.log(float(x0))) / (math.log(float(x1)) - math.log(float(x0)))
     return float(y0 + weight * (y1 - y0))
 
 
@@ -305,46 +288,8 @@ def apply_fixed_split_plot_overrides(paper: pd.DataFrame, summary_dir: Path) -> 
     return out
 
 
-def extract_nonbi_dimension_values(
-    nonbi_summary: pd.DataFrame | None,
-    dataset: str,
-    dimension: int,
-) -> dict[str, float]:
-    if nonbi_summary is None or nonbi_summary.empty:
-        return {}
-    rows = nonbi_summary[nonbi_summary["dataset"].astype(str).eq(dataset)].copy()
-    if "dimension" in rows:
-        rows = rows[pd.to_numeric(rows["dimension"], errors="coerce").eq(float(dimension))]
-    if rows.empty:
-        return {}
-
-    if {"metric", "value_mean"}.issubset(rows.columns):
-        out: dict[str, float] = {}
-        for metric, group in rows.groupby("metric"):
-            value = pd.to_numeric(group["value_mean"], errors="coerce").mean()
-            if np.isfinite(value):
-                out[str(metric)] = float(value)
-        return out
-
-    column_map = {
-        "GKOV_MI": "mi",
-        "MLP_PI": "mlp_pi",
-        "ePI_or_PI": "pi",
-        "eHI_or_HI": "hi",
-    }
-    out = {}
-    for metric, col in column_map.items():
-        if col in rows:
-            value = pd.to_numeric(rows[col], errors="coerce").mean()
-            if np.isfinite(value):
-                out[metric] = float(value)
-    return out
-
-
 def extract_nonbi_dimension_stats(
-    nonbi_summary: pd.DataFrame | None,
-    dataset: str,
-    dimension: int,
+    nonbi_summary: pd.DataFrame | None, dataset: str, dimension: int
 ) -> dict[str, tuple[float, float]]:
     if nonbi_summary is None or nonbi_summary.empty:
         return {}
@@ -358,21 +303,12 @@ def extract_nonbi_dimension_stats(
         out: dict[str, tuple[float, float]] = {}
         for metric, group in rows.groupby("metric"):
             value = pd.to_numeric(group["value_mean"], errors="coerce").mean()
-            std = (
-                pd.to_numeric(group["value_std"], errors="coerce").mean()
-                if "value_std" in group
-                else np.nan
-            )
+            std = pd.to_numeric(group["value_std"], errors="coerce").mean() if "value_std" in group else np.nan
             if np.isfinite(value):
                 out[str(metric)] = (float(value), float(std) if np.isfinite(std) else 0.0)
         return out
 
-    column_map = {
-        "GKOV_MI": "mi",
-        "MLP_PI": "mlp_pi",
-        "ePI_or_PI": "pi",
-        "eHI_or_HI": "hi",
-    }
+    column_map = {"GKOV_MI": "mi", "MLP_PI": "mlp_pi", "ePI_or_PI": "pi", "eHI_or_HI": "hi"}
     out = {}
     for metric, col in column_map.items():
         if col in rows:
@@ -384,18 +320,14 @@ def extract_nonbi_dimension_stats(
     return out
 
 
-def plot_a_bi_vs_metrics(
-    out_dir: Path, paper: pd.DataFrame, nonbi: pd.DataFrame
-) -> None:
+def plot_a_bi_vs_metrics(out_dir: Path, paper: pd.DataFrame, nonbi: pd.DataFrame) -> None:
     paper = paper[paper["status"].eq("complete")].copy()
     paper = paper.sort_values("BI_plus", ascending=False)
     datasets = paper["dataset"].tolist()
     x = np.arange(len(datasets))
 
     nonbi_100 = nonbi[nonbi["dimension"].eq(100)].copy()
-    pivot = nonbi_100.pivot_table(
-        index="dataset", columns="metric", values="value_mean", aggfunc="mean"
-    )
+    pivot = nonbi_100.pivot_table(index="dataset", columns="metric", values="value_mean", aggfunc="mean")
 
     fig, ax = plt.subplots(figsize=FIG_SIZE)
     width = 0.42
@@ -448,14 +380,7 @@ def plot_a_bi_vs_metrics(
     ax.set_ylabel("Bits (non-BI clipped below -3)", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylim(-3.35, 6.25)
     format_axis(ax)
-    ax.legend(
-        ncol=1,
-        loc="upper right",
-        fontsize=LEGEND_SIZE * 0.48,
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-    )
+    ax.legend(ncol=1, loc="upper right", fontsize=LEGEND_SIZE * 0.48, frameon=True, fancybox=True, edgecolor="gray")
     save(fig, out_dir, "plot_A_bi_vs_metrics.pdf")
 
 
@@ -476,9 +401,7 @@ def plot_b_stability_vs_dimension(
         plot_b_ches_transformer_dimension(
             out_dir, nonbi, ches_transformer, ches_nonbi_highdim, fill_missing_dimension_cells
         )
-        plot_b_ches_transformer_real_extrapolated(
-            out_dir, nonbi, ches_transformer, ches_nonbi_highdim, ches_nonbi_d100
-        )
+        plot_b_ches_transformer_real_extrapolated(out_dir, nonbi, ches_transformer, ches_nonbi_highdim, ches_nonbi_d100)
         return
 
     ds = "ascad_desync_0"
@@ -546,8 +469,7 @@ def plot_b_stability_vs_dimension(
 
     if projected_bi is not None and not projected_bi.empty:
         proj = projected_bi[
-            projected_bi["dataset"].astype(str).eq(ds)
-            & projected_bi["status"].astype(str).eq("complete")
+            projected_bi["dataset"].astype(str).eq(ds) & projected_bi["status"].astype(str).eq("complete")
         ].copy()
         if not proj.empty:
             proj = proj.sort_values("dimension")
@@ -591,14 +513,7 @@ def plot_b_stability_vs_dimension(
     ax.set_xlabel("Trace dimension $d'$", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylabel("Bits (values below -3 clipped)", fontsize=AXIS_TITLE_SIZE)
     format_axis(ax)
-    ax.legend(
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-        ncol=1,
-        loc="upper right",
-        fontsize=LEGEND_SIZE * 0.48,
-    )
+    ax.legend(frameon=True, fancybox=True, edgecolor="gray", ncol=1, loc="upper right", fontsize=LEGEND_SIZE * 0.48)
     save(fig, out_dir, "plot_B_stability_vs_dimension.pdf")
 
 
@@ -614,8 +529,7 @@ def plot_b_ches_transformer_dimension(
     plotted_metrics = ["GKOV_MI", "MLP_PI", "ePI_or_PI"]
     filled_keys: set[tuple[float, str]] = set()
     rows = nonbi[
-        nonbi["dataset"].astype(str).eq(ds)
-        & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50, 100])
+        nonbi["dataset"].astype(str).eq(ds) & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50, 100])
     ].copy()
     if ches_nonbi_highdim is not None and not ches_nonbi_highdim.empty:
         highdim = ches_nonbi_highdim[ches_nonbi_highdim["dataset"].astype(str).eq(ds)].copy()
@@ -623,7 +537,13 @@ def plot_b_ches_transformer_dimension(
             rows = pd.concat([rows, highdim], ignore_index=True, sort=False)
     expected_plot_values = pd.DataFrame(
         [
-            {"dataset": ds, "dimension": 10, "metric": "GKOV_MI", "value_mean": 0.8566736824820961, "status": "measured"},
+            {
+                "dataset": ds,
+                "dimension": 10,
+                "metric": "GKOV_MI",
+                "value_mean": 0.8566736824820961,
+                "status": "measured",
+            },
             {"dataset": ds, "dimension": 50, "metric": "GKOV_MI", "value_mean": 0.62, "status": "plot_expected"},
             {"dataset": ds, "dimension": 100, "metric": "GKOV_MI", "value_mean": 0.48, "status": "plot_expected"},
             {"dataset": ds, "dimension": 200, "metric": "GKOV_MI", "value_mean": 0.32, "status": "plot_expected"},
@@ -631,16 +551,70 @@ def plot_b_ches_transformer_dimension(
             {"dataset": ds, "dimension": 1000, "metric": "GKOV_MI", "value_mean": 0.02, "status": "plot_expected"},
             {"dataset": ds, "dimension": 3000, "metric": "GKOV_MI", "value_mean": -0.30, "status": "plot_expected"},
             {"dataset": ds, "dimension": 7000, "metric": "GKOV_MI", "value_mean": -0.65, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 10, "metric": "MLP_PI", "value_mean": -0.010726578125510101, "status": "measured"},
-            {"dataset": ds, "dimension": 50, "metric": "MLP_PI", "value_mean": -0.006006256298604125, "status": "measured"},
-            {"dataset": ds, "dimension": 100, "metric": "MLP_PI", "value_mean": -0.012458636445056327, "status": "log_interpolated"},
-            {"dataset": ds, "dimension": 200, "metric": "MLP_PI", "value_mean": -0.018911016591508532, "status": "log_interpolated"},
+            {
+                "dataset": ds,
+                "dimension": 10,
+                "metric": "MLP_PI",
+                "value_mean": -0.010726578125510101,
+                "status": "measured",
+            },
+            {
+                "dataset": ds,
+                "dimension": 50,
+                "metric": "MLP_PI",
+                "value_mean": -0.006006256298604125,
+                "status": "measured",
+            },
+            {
+                "dataset": ds,
+                "dimension": 100,
+                "metric": "MLP_PI",
+                "value_mean": -0.012458636445056327,
+                "status": "log_interpolated",
+            },
+            {
+                "dataset": ds,
+                "dimension": 200,
+                "metric": "MLP_PI",
+                "value_mean": -0.018911016591508532,
+                "status": "log_interpolated",
+            },
             {"dataset": ds, "dimension": 7000, "metric": "MLP_PI", "value_mean": -0.95, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 10, "metric": "ePI_or_PI", "value_mean": -0.024714658942190867, "status": "measured"},
-            {"dataset": ds, "dimension": 50, "metric": "ePI_or_PI", "value_mean": -0.06725349095005305, "status": "measured"},
-            {"dataset": ds, "dimension": 100, "metric": "ePI_or_PI", "value_mean": -0.13322691877464252, "status": "log_interpolated"},
-            {"dataset": ds, "dimension": 200, "metric": "ePI_or_PI", "value_mean": -0.19920034659923197, "status": "log_interpolated"},
-            {"dataset": ds, "dimension": 3000, "metric": "ePI_or_PI", "value_mean": -0.75, "status": "log_interpolated"},
+            {
+                "dataset": ds,
+                "dimension": 10,
+                "metric": "ePI_or_PI",
+                "value_mean": -0.024714658942190867,
+                "status": "measured",
+            },
+            {
+                "dataset": ds,
+                "dimension": 50,
+                "metric": "ePI_or_PI",
+                "value_mean": -0.06725349095005305,
+                "status": "measured",
+            },
+            {
+                "dataset": ds,
+                "dimension": 100,
+                "metric": "ePI_or_PI",
+                "value_mean": -0.13322691877464252,
+                "status": "log_interpolated",
+            },
+            {
+                "dataset": ds,
+                "dimension": 200,
+                "metric": "ePI_or_PI",
+                "value_mean": -0.19920034659923197,
+                "status": "log_interpolated",
+            },
+            {
+                "dataset": ds,
+                "dimension": 3000,
+                "metric": "ePI_or_PI",
+                "value_mean": -0.75,
+                "status": "log_interpolated",
+            },
             {"dataset": ds, "dimension": 7000, "metric": "ePI_or_PI", "value_mean": -1.05, "status": "plot_expected"},
             {"dataset": ds, "dimension": 10, "metric": "eHI_or_HI", "value_mean": -0.18, "status": "plot_expected"},
             {"dataset": ds, "dimension": 50, "metric": "eHI_or_HI", "value_mean": -0.32, "status": "plot_expected"},
@@ -661,10 +635,7 @@ def plot_b_ches_transformer_dimension(
             )
         )
         expected_plot_values = expected_plot_values[
-            ~expected_plot_values.apply(
-                lambda r: (float(r["dimension"]), str(r["metric"])) in existing_keys,
-                axis=1,
-            )
+            ~expected_plot_values.apply(lambda r: (float(r["dimension"]), str(r["metric"])) in existing_keys, axis=1)
         ].copy()
     if fill_missing_cells and not expected_plot_values.empty:
         filled = expected_plot_values[
@@ -673,9 +644,7 @@ def plot_b_ches_transformer_dimension(
         ]
         filled_keys = set(zip(filled["dimension"].astype(float), filled["metric"].astype(str)))
         if not filled.empty:
-            listing = "; ".join(
-                f"({int(r.dimension)}, {r.metric}, {r.status})" for r in filled.itertuples(index=False)
-            )
+            listing = "; ".join(f"({int(r.dimension)}, {r.metric}, {r.status})" for r in filled.itertuples(index=False))
             warnings.warn(
                 "plot_B_stability_vs_dimension.pdf: filling missing CHES (dimension, metric) cells with "
                 f"hard-coded non-measured values, drawn with hollow markers: {listing}",
@@ -795,8 +764,7 @@ def plot_b_ches_transformer_real_extrapolated(
 ) -> None:
     ds = "ches_ctf_2025"
     rows = nonbi[
-        nonbi["dataset"].astype(str).eq(ds)
-        & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50])
+        nonbi["dataset"].astype(str).eq(ds) & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50])
     ].copy()
     if ches_nonbi_d100 is not None and not ches_nonbi_d100.empty:
         d100 = ches_nonbi_d100[ches_nonbi_d100["dataset"].astype(str).eq(ds)].copy()
@@ -918,9 +886,7 @@ def plot_c_tau_sweep(out_dir: Path, tau_df: pd.DataFrame) -> None:
     rows = []
     for _, record in tau_df.iterrows():
         bracket = suite_bracket_from_p(
-            float(record["holdout_success"]),
-            int(record["n_holdout"]),
-            int(record["n_positions_tested"]),
+            float(record["holdout_success"]), int(record["n_holdout"]), int(record["n_positions_tested"])
         )
         rows.append({"tau": int(record["tau"]), "seed": int(record["seed"]), **bracket})
     cur = pd.DataFrame(rows)
@@ -937,7 +903,16 @@ def plot_c_tau_sweep(out_dir: Path, tau_df: pd.DataFrame) -> None:
     minus = summary["BI_minus"].to_numpy()
     ax.fill_between(tau, minus, plus, color=LIGHT_BLUE, alpha=0.65, label="BI interval")
     ax.plot(tau, plus, marker="o", color=BLUE, linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=r"$\mathrm{BI}^{+}$")
-    ax.plot(tau, obs, marker="o", color=BLUE, linestyle="--", linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=r"$\mathrm{BI}_{obs}$")
+    ax.plot(
+        tau,
+        obs,
+        marker="o",
+        color=BLUE,
+        linestyle="--",
+        linewidth=LINE_WIDTH,
+        markersize=MARKER_SIZE,
+        label=r"$\mathrm{BI}_{obs}$",
+    )
     ax.set_xscale("log")
     tau_ticks = [5, 20, 100, 350, 700]
     ax.set_xticks(tau_ticks)
@@ -947,13 +922,7 @@ def plot_c_tau_sweep(out_dir: Path, tau_df: pd.DataFrame) -> None:
     ax.set_ylabel("BI [bits]", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylim(-0.25, 5.75)
     format_axis(ax)
-    ax.legend(
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-        loc="upper left",
-        fontsize=LEGEND_SIZE * 0.58,
-    )
+    ax.legend(frameon=True, fancybox=True, edgecolor="gray", loc="upper left", fontsize=LEGEND_SIZE * 0.58)
     ax.text(
         0.03,
         0.48,
@@ -969,12 +938,12 @@ def plot_c_tau_sweep(out_dir: Path, tau_df: pd.DataFrame) -> None:
 
 def plot_d_attack_scope(out_dir: Path, scope_summary: pd.DataFrame) -> None:
     fig, ax = plt.subplots(figsize=FIG_SIZE)
-    datasets = [
-        ("ascad_desync_0", "#2ca25f", "o", -0.07),
-        ("aes_rd", BLUE, "s", 0.07),
-    ]
+    datasets = [("ascad_desync_0", "#2ca25f", "o", -0.07), ("aes_rd", BLUE, "s", 0.07)]
     label_source = scope_summary[scope_summary["dataset"].eq("ascad_desync_0")].sort_values("scope_level")
-    scope_labels = [str(x).replace("MLP-bottleneck", "MLP\nbottleneck").replace("CNN tau-local", "CNN\ntau-local") for x in label_source["scope_name"]]
+    scope_labels = [
+        str(x).replace("MLP-bottleneck", "MLP\nbottleneck").replace("CNN tau-local", "CNN\ntau-local")
+        for x in label_source["scope_name"]
+    ]
     x_base = np.arange(len(scope_labels))
 
     for ds, color, marker, offset in datasets:
@@ -1008,14 +977,7 @@ def plot_d_attack_scope(out_dir: Path, scope_summary: pd.DataFrame) -> None:
     ax.set_ylabel("BI [bits]", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylim(-0.45, 2.05)
     format_axis(ax)
-    ax.legend(
-        fontsize=LEGEND_SIZE * 0.45,
-        loc="lower center",
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-        ncol=2,
-    )
+    ax.legend(fontsize=LEGEND_SIZE * 0.45, loc="lower center", frameon=True, fancybox=True, edgecolor="gray", ncol=2)
     save(fig, out_dir, "plot_D_attack_scope.pdf")
 
 
@@ -1084,15 +1046,7 @@ def plot_e_bi_vs_holdout(out_dir: Path, paper: pd.DataFrame, ascad_estranet: pd.
             bracket = suite_bracket_from_p(p_obs, n, m)
             plus_vals.append(bracket["BI_plus"])
             minus_vals.append(bracket["BI_minus"])
-        ax.plot(
-            n_grid,
-            plus_vals,
-            marker="o",
-            linewidth=LINE_WIDTH,
-            markersize=MARKER_SIZE,
-            color=color,
-            label=label,
-        )
+        ax.plot(n_grid, plus_vals, marker="o", linewidth=LINE_WIDTH, markersize=MARKER_SIZE, color=color, label=label)
         scatter_bracket = suite_bracket_from_p(p_obs, n_te, m)
         ax.scatter(
             [float(n_te)],
@@ -1111,13 +1065,7 @@ def plot_e_bi_vs_holdout(out_dir: Path, paper: pd.DataFrame, ascad_estranet: pd.
     ax.set_ylabel("BI [bits]", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylim(0.0, 4.1)
     format_axis(ax)
-    ax.legend(
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-        loc="upper right",
-        fontsize=LEGEND_SIZE * 0.62,
-    )
+    ax.legend(frameon=True, fancybox=True, edgecolor="gray", loc="upper right", fontsize=LEGEND_SIZE * 0.62)
     ax.text(
         0.04,
         0.12,
@@ -1187,8 +1135,7 @@ def plot_f_scope_cost_decomposition(out_dir: Path, scope_summary: pd.DataFrame) 
         .tolist()
     )
     scope_labels = [
-        s.replace("MLP-bottleneck", "MLP\nbottleneck").replace("CNN tau-local", "CNN\ntau-local")
-        for s in scope_names
+        s.replace("MLP-bottleneck", "MLP\nbottleneck").replace("CNN tau-local", "CNN\ntau-local") for s in scope_names
     ]
     ax.set_xticks(x_base)
     ax.set_xticklabels(scope_labels, fontsize=TICK_SIZE * 0.82)
@@ -1243,7 +1190,16 @@ def plot_g_suite_growth(out_dir: Path, seed_rows: pd.DataFrame) -> None:
     minus = summary["BI_minus"].to_numpy()
     ax.fill_between(m, minus, plus, color=LIGHT_BLUE, alpha=0.7, label="BI interval")
     ax.plot(m, plus, marker="o", color=BLUE, linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=r"$\mathrm{BI}^{+}$")
-    ax.plot(m, obs, marker="o", linestyle="--", color=BLUE, linewidth=LINE_WIDTH, markersize=MARKER_SIZE, label=r"$\mathrm{BI}_{obs}$")
+    ax.plot(
+        m,
+        obs,
+        marker="o",
+        linestyle="--",
+        color=BLUE,
+        linewidth=LINE_WIDTH,
+        markersize=MARKER_SIZE,
+        label=r"$\mathrm{BI}_{obs}$",
+    )
     ax.set_xscale("log", base=2)
     ax.set_xticks(m)
     ax.set_xticklabels([str(int(v)) for v in m])
@@ -1251,13 +1207,7 @@ def plot_g_suite_growth(out_dir: Path, seed_rows: pd.DataFrame) -> None:
     ax.set_ylabel("BI [bits]", fontsize=AXIS_TITLE_SIZE)
     ax.set_ylim(-0.05, 1.45)
     format_axis(ax)
-    ax.legend(
-        frameon=True,
-        fancybox=True,
-        edgecolor="gray",
-        loc="upper left",
-        fontsize=LEGEND_SIZE * 0.58,
-    )
+    ax.legend(frameon=True, fancybox=True, edgecolor="gray", loc="upper left", fontsize=LEGEND_SIZE * 0.58)
     ax.text(
         0.97,
         0.08,
@@ -1273,81 +1223,50 @@ def plot_g_suite_growth(out_dir: Path, seed_rows: pd.DataFrame) -> None:
 
 def main() -> None:
     repo = Path(__file__).resolve().parents[1]
-    default_nonbi = (
-        repo
-        / "results"
-        / "paper_artifacts"
-        / "real_nonbi_dimcap_combined_summary.csv"
-    )
+    default_nonbi = repo / "results" / "paper_artifacts" / "real_nonbi_dimcap_combined_summary.csv"
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", default=str(repo / "results/paper_plots/Figures"))
     parser.add_argument("--paper-table", default=str(repo / "results/bi_suite_8datasets/bi_suite_paper_table.csv"))
     parser.add_argument("--seed-rows", default=str(repo / "results/bi_suite_8datasets/bi_suite_seed_rows.csv"))
     parser.add_argument(
-        "--fixed-split-summary-dir",
-        default=str(repo / "results/bi_margin_reduction_audit/tches20_fixed_split"),
+        "--fixed-split-summary-dir", default=str(repo / "results/bi_margin_reduction_audit/tches20_fixed_split")
     )
     parser.add_argument("--nonbi-summary", default=str(default_nonbi))
     parser.add_argument(
         "--projected-bi-summary",
-        default=str(
-            repo
-            / "results/dimension_stability/projected_bi/real_projected_bi_dimcap_summary.csv"
-        ),
+        default=str(repo / "results/dimension_stability/projected_bi/real_projected_bi_dimcap_summary.csv"),
     )
     parser.add_argument(
         "--nonbi-d200-summary",
-        default=str(
-            repo
-            / "results/dimension_stability/nonbi_200/real_nonbi_dimcap_summary.csv"
-        ),
+        default=str(repo / "results/dimension_stability/nonbi_200/real_nonbi_dimcap_summary.csv"),
     )
     parser.add_argument(
         "--nonbi-d700-summary",
-        default=str(
-            repo
-            / "results/dimension_stability/nonbi_700/real_nonbi_dimcap_summary.csv"
-        ),
+        default=str(repo / "results/dimension_stability/nonbi_700/real_nonbi_dimcap_summary.csv"),
     )
     parser.add_argument(
-        "--gkov-d700-summary",
-        default=str(
-            repo
-            / "results/dimension_stability/gkov_700/real_nonbi_dimcap_summary.csv"
-        ),
+        "--gkov-d700-summary", default=str(repo / "results/dimension_stability/gkov_700/real_nonbi_dimcap_summary.csv")
     )
     parser.add_argument(
         "--ches-transformer-summary",
-        default=str(
-            repo
-            / "results/ches_transformer_bi_dim_sweep/ches_transformer_bi_dim_sweep_summary.csv"
-        ),
+        default=str(repo / "results/ches_transformer_bi_dim_sweep/ches_transformer_bi_dim_sweep_summary.csv"),
     )
     parser.add_argument(
-        "--ches-nonbi-highdim-summary",
-        default=str(
-            repo
-            / "results/ches_nonbi_highdim/ches_nonbi_highdim_summary.csv"
-        ),
+        "--ches-nonbi-highdim-summary", default=str(repo / "results/ches_nonbi_highdim/ches_nonbi_highdim_summary.csv")
     )
     parser.add_argument(
-        "--ches-nonbi-d100-summary",
-        default=str(
-            repo
-            / "results/real_nonbi_dimcap_d100/real_nonbi_dimcap_summary.csv"
-        ),
+        "--ches-nonbi-d100-summary", default=str(repo / "results/real_nonbi_dimcap_d100/real_nonbi_dimcap_summary.csv")
     )
     parser.add_argument(
         "--ascad-estranet-summary",
         default=str(repo / "results/ascad_estranet_bi_baseline/ascad_estranet_bi_summary.csv"),
     )
-    parser.add_argument(
-        "--nonbi-d700-checkpoint",
-        default="",
-    )
+    parser.add_argument("--nonbi-d700-checkpoint", default="")
     parser.add_argument("--tau-results", default=str(repo / "results/locality_diagnostics/tau_sweep_results.csv"))
     parser.add_argument("--scope-results", default=str(repo / "results/attacker_scope_diagnostic/scope_checkpoint.csv"))
-    parser.add_argument("--scope-budget-results", default=str(repo / "results/attacker_scope_diagnostic/aesrd_budget_checkpoint.csv"))
+    parser.add_argument(
+        "--scope-budget-results", default=str(repo / "results/attacker_scope_diagnostic/aesrd_budget_checkpoint.csv")
+    )
     parser.add_argument(
         "--fill-missing-dimension-cells",
         action="store_true",
@@ -1382,11 +1301,7 @@ def main() -> None:
         if args.nonbi_d700_summary and Path(args.nonbi_d700_summary).exists()
         else args.nonbi_d700_checkpoint
     )
-    nonbi_d700 = (
-        pd.read_csv(nonbi_d700_path)
-        if nonbi_d700_path and Path(nonbi_d700_path).exists()
-        else None
-    )
+    nonbi_d700 = pd.read_csv(nonbi_d700_path) if nonbi_d700_path and Path(nonbi_d700_path).exists() else None
     gkov_d700 = (
         pd.read_csv(args.gkov_d700_summary)
         if args.gkov_d700_summary and Path(args.gkov_d700_summary).exists()

@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import os
 import tempfile
 import warnings
@@ -36,12 +35,7 @@ DATASET_PATTERNS = {
     "ascad_desync_100": "*ascad_desync_100*.hdf5",
 }
 
-DEFAULT_MAX_ATTACK = {
-    "aes_rd": 12500,
-    "ascad_desync_0": 25000,
-    "ascad_desync_50": 10000,
-    "ascad_desync_100": 10000,
-}
+DEFAULT_MAX_ATTACK = {"aes_rd": 12500, "ascad_desync_0": 25000, "ascad_desync_50": 10000, "ascad_desync_100": 10000}
 
 
 def read_suite_plus(path: Path, dataset: str) -> float:
@@ -138,12 +132,7 @@ def summarize_dataset(
 
     for eps in eps_grid:
         candidates = [
-            (
-                int(np.sum(margins >= -2.0 * eps)),
-                center_id,
-                margins,
-            )
-            for center_id, margins in margins_by_center.items()
+            (int(np.sum(margins >= -2.0 * eps)), center_id, margins) for center_id, margins in margins_by_center.items()
         ]
         best_s, active_center, active_margins = max(candidates, key=lambda item: item[0])
         p_hat = best_s / n
@@ -188,12 +177,10 @@ def main() -> None:
     repo = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=sorted(DATASET_PATTERNS), required=True)
+    parser.add_argument("--tches-root", type=Path, default=repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA")
     parser.add_argument(
-        "--tches-root",
-        type=Path,
-        default=repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA",
+        "--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv"
     )
-    parser.add_argument("--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv")
     parser.add_argument("--output-dir", type=Path, default=repo / "results/bi_scope_certificates/full_suite_loc")
     parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--eps-grid", default="0,1e-5,3e-5,1e-4,3e-4,1e-3,3e-3,1e-2,3e-2")

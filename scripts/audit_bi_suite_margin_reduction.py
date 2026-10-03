@@ -80,12 +80,7 @@ def r_margin(p_obs: float, p_plus: float, n_classes: int = N_CLASSES) -> float:
 
 
 def suite_row_from_counts(
-    dataset: str,
-    scope_id: str,
-    counts: dict[str, int],
-    n_te: int,
-    delta: float,
-    n_classes: int,
+    dataset: str, scope_id: str, counts: dict[str, int], n_te: int, delta: float, n_classes: int
 ) -> dict[str, Any]:
     m = len(counts)
     c = math.log((2.0 * m) / delta) / float(n_te)
@@ -121,10 +116,7 @@ def parse_success_json(value: Any) -> dict[str, float]:
 
 
 def pooled_reusable_rows(
-    reusable_suite_path: Path,
-    datasets: set[str],
-    delta: float,
-    n_classes: int,
+    reusable_suite_path: Path, datasets: set[str], delta: float, n_classes: int
 ) -> list[dict[str, Any]]:
     df = pd.read_csv(reusable_suite_path)
     rows: list[dict[str, Any]] = []
@@ -165,9 +157,7 @@ def pooled_reusable_rows(
         )
         row.update(
             {
-                "pooled_status": (
-                    "diagnostic_only_random_splits_reuse_same_underlying_dataset"
-                ),
+                "pooled_status": ("diagnostic_only_random_splits_reuse_same_underlying_dataset"),
                 "n_seed_rows": int(len(group)),
                 "per_seed_n_te_values": ";".join(map(str, n_values)),
                 "model_intersection": len(common_models),
@@ -221,12 +211,8 @@ def build_comparison(current: pd.DataFrame, pooled: pd.DataFrame, delta: float, 
             "current_p_plus": float(record.p_plus),
             "current_BI_plus": float(record.BI_plus),
             "current_R_margin": float(record.R_margin),
-            "n_for_R_le_1_at_current_p": needed_n(
-                float(record.p_obs), int(record.M), delta, 1.0, n_classes
-            ),
-            "n_for_R_le_0p5_at_current_p": needed_n(
-                float(record.p_obs), int(record.M), delta, 0.5, n_classes
-            ),
+            "n_for_R_le_1_at_current_p": needed_n(float(record.p_obs), int(record.M), delta, 1.0, n_classes),
+            "n_for_R_le_0p5_at_current_p": needed_n(float(record.p_obs), int(record.M), delta, 0.5, n_classes),
         }
         pooled_row = pooled_by_dataset.get(dataset)
         if pooled_row is not None and "R_margin" in pooled_row and not pd.isna(pooled_row["R_margin"]):
@@ -251,9 +237,7 @@ def build_comparison(current: pd.DataFrame, pooled: pd.DataFrame, delta: float, 
                         if pooled_row is not None
                         else "no_reusable_seed_pool"
                     ),
-                    "pooled_seed_rows": (
-                        int(pooled_row.get("n_seed_rows", 0)) if pooled_row is not None else 0
-                    ),
+                    "pooled_seed_rows": (int(pooled_row.get("n_seed_rows", 0)) if pooled_row is not None else 0),
                     "pooled_n_te": math.nan,
                     "pooled_p_obs": math.nan,
                     "pooled_p_plus": math.nan,
@@ -301,9 +285,9 @@ def write_markdown(path: Path, comparison: pd.DataFrame) -> None:
         "or prove that the pooled seed rows correspond to independent/disjoint attack",
         "examples.",
     ]
-    needed = high.assign(
-        _n_r1=pd.to_numeric(high["n_for_R_le_1_at_current_p"], errors="coerce")
-    ).dropna(subset=["_n_r1"])
+    needed = high.assign(_n_r1=pd.to_numeric(high["n_for_R_le_1_at_current_p"], errors="coerce")).dropna(
+        subset=["_n_r1"]
+    )
     if not needed.empty:
         target = needed.sort_values("_n_r1").iloc[0]
         lines.append(
@@ -318,22 +302,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--current-table",
-        default=(
-            "results/bi_scope_certificates/mainpaper_package/"
-            "data/table1_bi_suite_eight_benchmarks.csv"
-        ),
+        default=("results/bi_scope_certificates/mainpaper_package/data/table1_bi_suite_eight_benchmarks.csv"),
         type=Path,
     )
     parser.add_argument(
-        "--reusable-suite-rows",
-        default="results/reusable_suite_rows/reusable_suite_success.csv",
-        type=Path,
+        "--reusable-suite-rows", default="results/reusable_suite_rows/reusable_suite_success.csv", type=Path
     )
-    parser.add_argument(
-        "--out-dir",
-        default="results/bi_margin_reduction_audit",
-        type=Path,
-    )
+    parser.add_argument("--out-dir", default="results/bi_margin_reduction_audit", type=Path)
     parser.add_argument("--delta", default=1e-6, type=float)
     parser.add_argument("--n-classes", default=256, type=int)
     args = parser.parse_args()
@@ -349,13 +324,7 @@ def main() -> None:
     comparison.to_csv(args.out_dir / "margin_reduction_comparison.csv", index=False, quoting=csv.QUOTE_MINIMAL)
     write_markdown(args.out_dir / "MARGIN_REDUCTION_AUDIT.md", comparison)
 
-    display_cols = [
-        "dataset",
-        "current_R_margin",
-        "pooled_R_margin",
-        "pooled_status",
-        "n_for_R_le_1_at_current_p",
-    ]
+    display_cols = ["dataset", "current_R_margin", "pooled_R_margin", "pooled_status", "n_for_R_le_1_at_current_p"]
     print(comparison[display_cols].to_string(index=False))
     print(f"Wrote {args.out_dir}")
 

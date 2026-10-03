@@ -138,7 +138,9 @@ def build_rows(paths: SourcePaths) -> pd.DataFrame:
     arch = load_required(paths.ascad_arch)
     for (category, category_label), g in arch.groupby(["category", "category_label"], dropna=False):
         best = g.sort_values("attack_success", ascending=False).iloc[0]
-        arch_n_te = next((int(best[col]) for col in ("n_te", "n_holdout") if col in best.index and pd.notna(best[col])), None)
+        arch_n_te = next(
+            (int(best[col]) for col in ("n_te", "n_holdout") if col in best.index and pd.notna(best[col])), None
+        )
         rows.append(
             make_row(
                 suite,
@@ -346,8 +348,12 @@ def write_markdown(rows: pd.DataFrame, summary: pd.DataFrame, out_path: Path) ->
 
     point_exceed = int(rows["exceeds_suite_p_obs"].sum())
     plus_exceed = int(rows["exceeds_suite_p_plus"].sum())
-    increase_families = sorted(rows.loc[rows["exceeds_suite_p_obs"].astype(bool), "challenger_family"].astype(str).unique())
-    plus_families = sorted(rows.loc[rows["exceeds_suite_p_plus"].astype(bool), "challenger_family"].astype(str).unique())
+    increase_families = sorted(
+        rows.loc[rows["exceeds_suite_p_obs"].astype(bool), "challenger_family"].astype(str).unique()
+    )
+    plus_families = sorted(
+        rows.loc[rows["exceeds_suite_p_plus"].astype(bool), "challenger_family"].astype(str).unique()
+    )
     if plus_exceed:
         increase_claim = (
             f"- Rows exceeding the frozen suite upper certificate `p_plus` come from: {'; '.join(plus_families)}. "
