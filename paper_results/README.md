@@ -28,6 +28,12 @@ models of Figure 2 that are public TCHES20 models. Level C covers the two
 EstraNet rows of Table 7, the ASCAD random-key row of Table 8, and the
 `BI_suite,+` line of Figure 1.
 
+All four levels run on CPU only: they evaluate pretrained models and count
+successes. No GPU is needed, and none of the levels trains a model. A GPU is
+required only to retrain the EstraNet Transformer checkpoints (see
+`bi_suite_8datasets/estranet_support/README.md`), which the released
+checkpoints make unnecessary.
+
 ## Setup
 
 With Docker (from the repository root):

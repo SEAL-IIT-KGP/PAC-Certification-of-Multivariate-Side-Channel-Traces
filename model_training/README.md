@@ -7,6 +7,10 @@ This directory contains small illustrative training examples for the three attac
 - `train_transformer_example.py`: Transformer-style attacker for longer traces.
 - `common.py`: shared dataset loading, splitting, standardization, and metadata helpers.
 
+Hardware: the MLP example and the CNN example at the default sizes run on CPU in
+minutes. The Transformer example uses PyTorch and picks a CUDA GPU when one is
+available; on CPU, reduce the number of epochs or the window length.
+
 Example commands:
 
 ```bash
