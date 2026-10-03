@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
-"""Re-evaluate ASCAD d0 challengers on the fixed profiling split.
+"""Re-evaluate ASCAD d0 challengers on the full profiling set and the old holdout.
 
 The original challenger row for ASCAD d0 came from the
 train/validation/holdout split over the ASCAD profiling traces. This script
-keeps that challenger construction fixed, but evaluates each trained challenger
-on the declared fixed profiling population used by the corrected Table 1 row.
+keeps that challenger construction fixed (challengers are fit on the
+train+validation indices, 80% of the profiling traces) and reports two
+success rates per challenger:
+
+- p_fixed: success on ALL profiling traces. This population includes the
+  challengers' own training traces (about 80% in-sample), so p_fixed is NOT a
+  valid out-of-sample challenger estimate and is not evaluated on the attack
+  partition used by the paper's BI-suite table (Table 6).
+- p_old_holdout: success on the held-out profiling traces that are disjoint
+  from training. This is the out-of-sample challenger estimate.
+
 It writes a separate artifact instead of overwriting the scope-diagnostic
 checkpoint.
 """
@@ -132,13 +141,7 @@ def filter_suite(suite, model_family: str):
 
 
 def scope_model_names(scope: int, n_features: int, args: argparse.Namespace) -> list[str]:
-    suite = scope_module.build_scope(
-        scope,
-        n_features,
-        args.n_classes,
-        args.target_cnn_params,
-        args.device,
-    )
+    suite = scope_module.build_scope(scope, n_features, args.n_classes, args.target_cnn_params, args.device)
     suite = filter_suite(suite, args.model_family)
     return [name for name, model in suite if not (scope_module.HAS_TORCH and isinstance(model, scope_module.nn.Module))]
 
@@ -149,11 +152,7 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
     if args.disable_cnn:
         scope_module.HAS_TORCH = False
 
-    x, y = load_dataset(
-        args.dataset,
-        data_dir=args.dataset_dir,
-        tches20_src_dir=args.tches20_src_dir,
-    )
+    x, y = load_dataset(args.dataset, data_dir=args.dataset_dir, tches20_src_dir=args.tches20_src_dir)
     x = select_features(np.asarray(x), args.max_features, args.feature_select)
     y = np.asarray(y).reshape(-1).astype(np.int64)
     if len(x) != len(y):
@@ -166,8 +165,11 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
     old_holdout_size = min(args.holdout_size, n_total - train_size - val_size)
     protocol = (
         "Scope-diagnostic challenger construction over ASCAD profiling traces; "
-        "train+val subset used for fitting, old holdout retained for "
-        "reproduction check, fixed_eval is the full corrected profiling split."
+        "train+val subset (80%) used for fitting. p_fixed is success on the "
+        "full profiling set, which includes the challengers' training traces "
+        "(in-sample; not a valid out-of-sample challenger estimate). "
+        "p_old_holdout is success on the old holdout, disjoint from training "
+        "(the out-of-sample estimate)."
     )
     if args.model_family != "all":
         protocol += f" Targeted model-family rerun: {args.model_family}."
@@ -187,22 +189,10 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
 
         if args.disable_cnn:
             t0 = time.time()
-            full_suite = scope_module.build_scope(
-                2,
-                x.shape[1],
-                args.n_classes,
-                args.target_cnn_params,
-                args.device,
-            )
+            full_suite = scope_module.build_scope(2, x.shape[1], args.n_classes, args.target_cnn_params, args.device)
             full_suite = filter_suite(full_suite, args.model_family)
             full_fixed_success, full_holdout_success = evaluate_models(
-                full_suite,
-                x_train,
-                y_train,
-                x,
-                y,
-                x_hold,
-                y_hold,
+                full_suite, x_train, y_train, x, y, x_hold, y_hold
             )
             print(
                 f"seed={seed} trained matched linear+MLP challenger pool "
@@ -221,28 +211,14 @@ def run(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
                 fixed_success = {name: full_fixed_success[name] for name in names if name in full_fixed_success}
                 holdout_success = {name: full_holdout_success[name] for name in names if name in full_holdout_success}
             else:
-                suite = scope_module.build_scope(
-                    scope,
-                    x.shape[1],
-                    args.n_classes,
-                    args.target_cnn_params,
-                    args.device,
-                )
+                suite = scope_module.build_scope(scope, x.shape[1], args.n_classes, args.target_cnn_params, args.device)
                 suite = filter_suite(suite, args.model_family)
-                fixed_success, holdout_success = evaluate_models(
-                    suite,
-                    x_train,
-                    y_train,
-                    x,
-                    y,
-                    x_hold,
-                    y_hold,
-                )
+                fixed_success, holdout_success = evaluate_models(suite, x_train, y_train, x, y, x_hold, y_hold)
             best_fixed_model, p_fixed = best_item(fixed_success)
             best_hold_model, p_hold = best_item(holdout_success)
             print(
                 f"seed={seed} scope={scope} M={len(fixed_success)} "
-                f"fixed={p_fixed:.6f} ({best_fixed_model}) "
+                f"fixed_in_sample={p_fixed:.6f} ({best_fixed_model}) "
                 f"old_holdout={p_hold:.6f} ({best_hold_model}) "
                 f"time={time.time() - t0:.1f}s",
                 flush=True,
@@ -300,14 +276,15 @@ def write_summary_md(summary: pd.DataFrame, rows: pd.DataFrame, path: Path) -> N
         "# ASCAD d0 Challenger Fixed-Split Rerun",
         "",
         f"Rows evaluated: {int(best['n_rows'])}",
-        f"Fixed evaluation population: {int(best['n_fixed_eval'])} profiling traces",
+        f"Fixed evaluation population: {int(best['n_fixed_eval'])} profiling traces "
+        "(includes the challengers' training traces; in-sample)",
         "",
-        "## Best Fixed-Split Challenger",
+        "## Best Fixed-Split Challenger (in-sample, not an out-of-sample estimate)",
         "",
         f"- Scope: {best['best_scope_name']} (level {int(best['best_scope_level'])})",
         f"- Seed: {int(best['best_seed'])}",
         f"- Model: `{best['best_model']}`",
-        f"- Matched fixed-split success: `{float(best['best_challenger_p_hat']):.6f}`",
+        f"- Fixed-split success on full profiling set (in-sample): `{float(best['best_challenger_p_hat']):.6f}`",
         f"- Observed BI from point success: `{float(best['best_challenger_BI_obs']):.6f}` bits",
         "",
         "## Old-Holdout Reproduction Check",

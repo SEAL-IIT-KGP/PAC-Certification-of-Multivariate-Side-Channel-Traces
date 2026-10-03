@@ -40,8 +40,30 @@ For the TCHES20-style loaders used by `ascad_desync_0`, `ascad_desync_50`, `asca
 
 ```bash
 python -m dimension_stability.real_nonbi_dimcap_baselines \
-  --data-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets \
+  --tches20-dataset-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets \
   --tches20-src-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/src
 ```
 
 `ascad_random_key` and `ches_ctf_2025` are evaluated through checkpoint-suite scripts. Store the dataset and checkpoint roots locally and pass them with the corresponding script arguments.
+
+## Fetch scripts
+
+`paper_results/fetch_tches20.sh` clones the TCHES20 benchmark at a fixed commit into
+`datasets/raw/tches20/TCHES20V3_CNN_SCA` and unpacks its datasets and the 480 pretrained models (about
+2.3 GB). This covers `ascad_desync_0`, `ascad_desync_50`, `ascad_desync_100`, `aes_hd`, `aes_rd`, and
+`dpav4`. `paper_results/fetch_estranet.sh` clones the EstraNet sources into `external/EstraNet`.
+
+The two remaining benchmarks are downloaded from their publishers:
+
+- `ascad_random_key`: the `ASCAD.h5` database (1,400-sample window) of the ANSSI variable-key release,
+  https://github.com/ANSSI-FR/ASCAD (`ATMEGA_AES_v1/ATM_AES_v1_variable_key`), stored as
+  `datasets/raw/ascad_random_key/ASCAD.h5`.
+- `ches_ctf_2025`: the public `CHES_Challenge.h5` file of the CHES Challenge 2025,
+  https://pace-tl.gitbook.io/ches-challenge-2025, stored as `datasets/raw/ches_ctf_2025/CHES_Challenge.h5`.
+
+## External sources
+
+- TCHES20 dataset loaders (`src/`) and pretrained models: https://github.com/KULeuven-COSIC/TCHES20V3_CNN_SCA. Scripts expect a checkout at `datasets/raw/tches20/TCHES20V3_CNN_SCA`.
+- EstraNet code (the scripts import `data_utils`, `data_utils_ches25`, and `transformer`): https://github.com/suvadeep-iitb/EstraNet. The default location is `external/EstraNet`.
+
+Other default dataset paths read by the scripts: `datasets/raw/ascad_random_key/ASCAD.h5`, `datasets/raw/aes_rd/AES_RD_estranet.h5`, and `datasets/raw/ches_ctf_2025/CHES_Challenge.h5`.

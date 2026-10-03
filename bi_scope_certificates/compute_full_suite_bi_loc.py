@@ -6,9 +6,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import os
 import tempfile
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -35,12 +35,7 @@ DATASET_PATTERNS = {
     "ascad_desync_100": "*ascad_desync_100*.hdf5",
 }
 
-DEFAULT_MAX_ATTACK = {
-    "aes_rd": 12500,
-    "ascad_desync_0": 25000,
-    "ascad_desync_50": 10000,
-    "ascad_desync_100": 10000,
-}
+DEFAULT_MAX_ATTACK = {"aes_rd": 12500, "ascad_desync_0": 25000, "ascad_desync_50": 10000, "ascad_desync_100": 10000}
 
 
 def read_suite_plus(path: Path, dataset: str) -> float:
@@ -84,6 +79,7 @@ def summarize_dataset(
         raise ValueError(f"no margins for {dataset}")
     n = len(next(iter(margins_by_center.values())))
     alpha = delta / max(1, m_count * len(eps_grid))
+    scope = f"{'full' if m_count == 80 else 'partial'} TCHES20-M{m_count} score-local suite"
 
     per_center_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
@@ -112,7 +108,7 @@ def summarize_dataset(
             per_center_rows.append(
                 {
                     "dataset": dataset,
-                    "scope": "full TCHES20-M80 score-local suite",
+                    "scope": scope,
                     "center_id": center_id,
                     "architecture": model_arch(center_id),
                     "M": m_count,
@@ -136,12 +132,7 @@ def summarize_dataset(
 
     for eps in eps_grid:
         candidates = [
-            (
-                int(np.sum(margins >= -2.0 * eps)),
-                center_id,
-                margins,
-            )
-            for center_id, margins in margins_by_center.items()
+            (int(np.sum(margins >= -2.0 * eps)), center_id, margins) for center_id, margins in margins_by_center.items()
         ]
         best_s, active_center, active_margins = max(candidates, key=lambda item: item[0])
         p_hat = best_s / n
@@ -149,7 +140,7 @@ def summarize_dataset(
         summary_rows.append(
             {
                 "dataset": dataset,
-                "scope": "full TCHES20-M80 score-local suite",
+                "scope": scope,
                 "M": m_count,
                 "epsilon": eps,
                 "n_te": n,
@@ -186,12 +177,10 @@ def main() -> None:
     repo = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=sorted(DATASET_PATTERNS), required=True)
+    parser.add_argument("--tches-root", type=Path, default=repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA")
     parser.add_argument(
-        "--tches-root",
-        type=Path,
-        default=repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA",
+        "--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv"
     )
-    parser.add_argument("--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv")
     parser.add_argument("--output-dir", type=Path, default=repo / "results/bi_scope_certificates/full_suite_loc")
     parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--eps-grid", default="0,1e-5,3e-5,1e-4,3e-4,1e-3,3e-3,1e-2,3e-2")
@@ -233,6 +222,11 @@ def main() -> None:
         write_rows(err_path, errors)
         if not margins_by_center:
             raise SystemExit(1)
+    if len(margins_by_center) < 80:
+        warnings.warn(
+            f"{args.dataset}: only {len(margins_by_center)} of 80 TCHES20 models were evaluated; "
+            f"the certificate covers M={len(margins_by_center)} models, not the full TCHES20-M80 suite"
+        )
     per_center_path, summary_path, tie_path = summarize_dataset(
         dataset=args.dataset,
         margins_by_center=margins_by_center,

@@ -1,0 +1,4 @@
+claim,value_bits,location
+bi_suite_plus_minimum,0.47,Section 5.2
+bi_suite_plus_maximum,0.55,Section 5.2
+bi_suite_plus_at_3000,0.521,BI-suite table (CHES-CTF-2025 row)

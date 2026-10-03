@@ -50,16 +50,12 @@ REUSABLE_DATASETS = {
 PENDING_BI_ROWS = {
     "ascad_random_key": {
         "scope_id": "ascad_random_estranet_checkpoint_suite",
-        "source_artifact": (
-            "checkpoints/estranet/ascadr"
-        ),
+        "source_artifact": ("checkpoints/estranet/ascadr"),
         "status": "pending_remote_bi_suite_success_counts",
     },
     "ches_ctf_2025": {
         "scope_id": "ches_ctf_2025_estranet_w3000_checkpoint_suite",
-        "source_artifact": (
-            "checkpoints/estranet/ches25_lx_w3000"
-        ),
+        "source_artifact": ("checkpoints/estranet/ches25_lx_w3000"),
         "status": "pending_remote_bi_suite_success_counts",
     },
 }
@@ -159,8 +155,7 @@ def compute_bi_row(
     m = len(per_model_success)
     c = math.log((2.0 * m) / delta) / float(n_te)
     per_model_counts = {
-        model_id: int(round(float(success_rate) * n_te))
-        for model_id, success_rate in per_model_success.items()
+        model_id: int(round(float(success_rate) * n_te)) for model_id, success_rate in per_model_success.items()
     }
 
     best_model, best_successes = max(per_model_counts.items(), key=lambda kv: kv[1])
@@ -195,12 +190,7 @@ def compute_bi_row(
     }
 
 
-def load_reusable_suite_rows(
-    reusable_suite_path: Path,
-    *,
-    delta: float,
-    n_classes: int,
-) -> List[Dict[str, Any]]:
+def load_reusable_suite_rows(reusable_suite_path: Path, *, delta: float, n_classes: int) -> List[Dict[str, Any]]:
     df = pd.read_csv(reusable_suite_path)
     rows: List[Dict[str, Any]] = []
     for _, record in df.iterrows():
@@ -261,10 +251,7 @@ def load_extra_raw_success(path: Path) -> List[Dict[str, Any]]:
     group_cols = ["dataset", "scope_id", "seed", "n_te"]
     for key, group in df.groupby(group_cols, dropna=False):
         dataset, scope_id, seed, n_te = key
-        per_model_success = {
-            str(row["model_id"]): float(row["success_rate"])
-            for _, row in group.iterrows()
-        }
+        per_model_success = {str(row["model_id"]): float(row["success_rate"]) for _, row in group.iterrows()}
         out.append(
             {
                 "dataset": str(dataset),
@@ -319,16 +306,7 @@ def summarize_seed_rows(seed_df: pd.DataFrame) -> pd.DataFrame:
             "status": "complete",
             "n_runs": int(len(group)),
         }
-        for col in [
-            "p_obs",
-            "p_minus",
-            "p_plus",
-            "BI_minus",
-            "BI_obs",
-            "BI_plus",
-            "slack",
-            "R_margin",
-        ]:
+        for col in ["p_obs", "p_minus", "p_plus", "BI_minus", "BI_obs", "BI_plus", "slack", "R_margin"]:
             row[col] = float(group[col].mean())
             row[f"{col}_std"] = float(group[col].std(ddof=1)) if len(group) > 1 else 0.0
         rows.append(row)
@@ -340,12 +318,7 @@ def status_from_metric(group: pd.DataFrame, metric: str) -> Dict[str, Any]:
     error_col = f"{metric}_error"
     values = pd.to_numeric(group.get(metric, pd.Series(dtype=float)), errors="coerce")
     successes = group.get(success_col, pd.Series([False] * len(group))).fillna(False)
-    errors = (
-        group.get(error_col, pd.Series([""] * len(group)))
-        .fillna("")
-        .astype(str)
-        .str.strip()
-    )
+    errors = group.get(error_col, pd.Series([""] * len(group))).fillna("").astype(str).str.strip()
 
     numeric_mask = values.notna()
     success_mask = successes.astype(bool) & numeric_mask
@@ -373,16 +346,9 @@ def status_from_metric(group: pd.DataFrame, metric: str) -> Dict[str, Any]:
 
 
 def build_baseline_status(
-    target_datasets: Iterable[str],
-    baseline_checkpoint: Path,
-    reusable_suite_rows: Path,
+    target_datasets: Iterable[str], baseline_checkpoint: Path, reusable_suite_rows: Path
 ) -> pd.DataFrame:
-    metrics = [
-        ("pi", "ePI_or_PI"),
-        ("hi", "eHI_or_HI"),
-        ("mlp_pi", "MLP_PI"),
-        ("mi", "GKOV_MI"),
-    ]
+    metrics = [("pi", "ePI_or_PI"), ("hi", "eHI_or_HI"), ("mlp_pi", "MLP_PI"), ("mi", "GKOV_MI")]
     rows = []
     checkpoint_df = pd.read_csv(baseline_checkpoint) if baseline_checkpoint.exists() else pd.DataFrame()
     pretrained_df = pd.read_csv(reusable_suite_rows) if reusable_suite_rows.exists() else pd.DataFrame()
@@ -640,17 +606,9 @@ def write_markdown_summary(
         "are present in the artifact. Dimension-capped failures are explicitly marked.",
         "",
         dataframe_to_markdown(
-            baseline_status[
-                [
-                    "dataset",
-                    "metric",
-                    "status",
-                    "value_mean",
-                    "success_count",
-                    "run_count",
-                    "note",
-                ]
-            ].head(40)
+            baseline_status[["dataset", "metric", "status", "value_mean", "success_count", "run_count", "note"]].head(
+                40
+            )
         ),
         "",
         "## SCSCA/SASCA Evidence",
@@ -734,10 +692,7 @@ def write_figures(out_dir: Path, paper_table: pd.DataFrame, baseline_status: pd.
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--reusable-suite-rows",
-        default="results/reusable_suite_rows/reusable_suite_success.csv",
-    )
+    parser.add_argument("--reusable-suite-rows", default="results/reusable_suite_rows/reusable_suite_success.csv")
     parser.add_argument("--baseline-checkpoint", default="results/baseline_metrics/baseline_checkpoint.csv")
     parser.add_argument("--out-dir", default="results/bi_suite_8datasets")
     parser.add_argument("--extra-raw", action="append", default=[])
@@ -752,11 +707,7 @@ def main() -> None:
     remote_dir.mkdir(parents=True, exist_ok=True)
 
     reusable_suite_rows = Path(args.reusable_suite_rows)
-    seed_rows = load_reusable_suite_rows(
-        reusable_suite_rows,
-        delta=args.delta,
-        n_classes=args.n_classes,
-    )
+    seed_rows = load_reusable_suite_rows(reusable_suite_rows, delta=args.delta, n_classes=args.n_classes)
 
     extra_paths = [Path(p) for p in args.extra_raw]
     extra_paths += sorted(remote_dir.glob("*.csv"))
@@ -784,11 +735,7 @@ def main() -> None:
     paper_table.to_csv(out_dir / "bi_suite_dataset_summary.csv", index=False)
     paper_table[BI_TABLE_COLUMNS].to_csv(out_dir / "bi_suite_paper_table.csv", index=False)
 
-    baseline_status = build_baseline_status(
-        TARGET_DATASETS,
-        Path(args.baseline_checkpoint),
-        reusable_suite_rows,
-    )
+    baseline_status = build_baseline_status(TARGET_DATASETS, Path(args.baseline_checkpoint), reusable_suite_rows)
     baseline_status.to_csv(out_dir / "baseline_status.csv", index=False)
 
     scsca_status = build_scsca_status(repo_root)
@@ -798,11 +745,7 @@ def main() -> None:
 
     write_figures(out_dir, paper_table, baseline_status)
     write_markdown_summary(
-        out_dir / "BI_SUITE_8DATASETS_SUMMARY.md",
-        paper_table,
-        baseline_status,
-        scsca_status,
-        scsca_inventory,
+        out_dir / "BI_SUITE_8DATASETS_SUMMARY.md", paper_table, baseline_status, scsca_status, scsca_inventory
     )
 
     print(f"Wrote {seed_csv}")

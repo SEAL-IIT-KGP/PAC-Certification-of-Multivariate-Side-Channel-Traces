@@ -25,12 +25,7 @@ DATASET_LABELS = {
     "ascad_desync_100": "ASCAD d100",
 }
 
-COLORS = {
-    "aes_rd": "#1f4e79",
-    "ascad_desync_0": "#d95f02",
-    "ascad_desync_50": "#2ca25f",
-    "ascad_desync_100": "#756bb1",
-}
+COLORS = {"aes_rd": "#1f4e79", "ascad_desync_0": "#d95f02", "ascad_desync_50": "#2ca25f", "ascad_desync_100": "#756bb1"}
 
 ZERO_PROXY = 3e-6
 
@@ -69,7 +64,7 @@ def read_summaries(input_dir: Path) -> pd.DataFrame:
 
 
 def build_compact_table(df: pd.DataFrame) -> pd.DataFrame:
-    selected = df[df["epsilon"].astype(float).isin([0.0, 1e-4, 1e-3, 1e-2])].copy()
+    selected = df[df["epsilon"].astype(float).isin([0.0, 1e-4, 3e-4, 1e-3, 1e-2])].copy()
     cols = [
         "dataset",
         "M",

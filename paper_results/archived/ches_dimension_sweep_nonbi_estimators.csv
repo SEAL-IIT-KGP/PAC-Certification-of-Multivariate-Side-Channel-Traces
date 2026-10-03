@@ -1,0 +1,25 @@
+dataset,dimension,metric,value_bits,status,note
+ches_ctf_2025,100,GKOV_MI,-0.3940164227083405,measured,"camera-ready value from the 2026-05-17 d=100 campaign with the MI estimator subsampled to 4000 of the 24000 training traces; the d >= 200 cells and dimension_stability/ches_nonbi_metric_cell.py subsample 8000, which places the recomputed d=100 cell about 0.1 bit lower"
+ches_ctf_2025,200,GKOV_MI,-0.1783597232797895,measured,
+ches_ctf_2025,500,GKOV_MI,0.5294755804954357,measured,
+ches_ctf_2025,1000,GKOV_MI,0.499990735584993,measured,
+ches_ctf_2025,3000,GKOV_MI,0.3423357759488461,measured,
+ches_ctf_2025,7000,GKOV_MI,-0.4107235780909,measured,
+ches_ctf_2025,100,MLP_PI,-0.0160870668533045,measured,
+ches_ctf_2025,200,MLP_PI,-0.0399308714516557,measured,
+ches_ctf_2025,500,MLP_PI,-0.0274405991859971,measured,
+ches_ctf_2025,1000,MLP_PI,-0.2938786461063589,measured,
+ches_ctf_2025,3000,MLP_PI,-0.3482306985748386,measured,
+ches_ctf_2025,7000,MLP_PI,-0.1347833700755931,measured,
+ches_ctf_2025,100,ePI_or_PI,-0.0912906165883751,measured,
+ches_ctf_2025,200,ePI_or_PI,-0.1454971878575985,measured,
+ches_ctf_2025,500,ePI_or_PI,-0.2864124743565804,measured,
+ches_ctf_2025,1000,ePI_or_PI,-0.4697061832117762,measured,
+ches_ctf_2025,3000,ePI_or_PI,-0.8995413826,measured,"measured on 2026-10-01 (mean of 3 seeds, see ches_dimension_sweep_epi_measurements.csv); the camera-ready figure shows the log-extrapolated value -0.760"
+ches_ctf_2025,7000,ePI_or_PI,-1.1677450446,measured,"measured on 2026-10-01 (mean of 3 seeds, see ches_dimension_sweep_epi_measurements.csv); the camera-ready figure shows the log-extrapolated value -0.984"
+ches_ctf_2025,100,eHI_or_HI,-3.0,measured_capped,
+ches_ctf_2025,200,eHI_or_HI,-3.0,measured_capped,
+ches_ctf_2025,500,eHI_or_HI,-3.0,measured_capped,
+ches_ctf_2025,1000,eHI_or_HI,-3.0,measured_capped,
+ches_ctf_2025,3000,eHI_or_HI,-3.0,log_extrapolated,
+ches_ctf_2025,7000,eHI_or_HI,-3.0,log_extrapolated,

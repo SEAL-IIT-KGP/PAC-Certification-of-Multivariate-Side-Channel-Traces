@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import importlib.util
 import math
 import os
 import sys
@@ -329,10 +328,7 @@ def run_estranet_center(spec: dict[str, Any], eps_grid: list[float], delta: floa
     project_root = Path(spec["project_root"])
     data_utils, Transformer = import_estranet(project_root)
     dataset = data_utils.Dataset(
-        data_path=str(spec["data_path"]),
-        split="test",
-        input_length=int(spec["input_length"]),
-        data_desync=0,
+        data_path=str(spec["data_path"]), split="test", input_length=int(spec["input_length"]), data_desync=0
     )
     labels = labels_from_dataset(dataset)
     model = build_transformer(spec, Transformer)
@@ -345,7 +341,9 @@ def run_estranet_center(spec: dict[str, Any], eps_grid: list[float], delta: floa
             raise FileNotFoundError(f"no checkpoint found in {spec['checkpoint_dir']}")
     else:
         checkpoint_path = str(Path(spec["checkpoint_dir"]) / f"trans_long-{int(checkpoint_index)}")
-    checkpoint.restore(checkpoint_path, options=tf.train.CheckpointOptions(experimental_io_device="/job:localhost")).expect_partial()
+    checkpoint.restore(
+        checkpoint_path, options=tf.train.CheckpointOptions(experimental_io_device="/job:localhost")
+    ).expect_partial()
 
     score_mode = str(spec.get("score_mode", "posterior_simplex"))
     score_normalization = "probability_simplex_A=1"
@@ -433,8 +431,14 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=repo / "results/bi_scope_certificates")
     parser.add_argument("--tches-root", type=Path, default=repo / "datasets/raw/tches20/TCHES20V3_CNN_SCA")
     parser.add_argument("--estranet-root", type=Path, default=repo / "external/EstraNet")
-    parser.add_argument("--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv")
-    parser.add_argument("--estranet-summary", type=Path, default=repo / "results/ascad_estranet_bi_baseline/ascad_estranet_bi_summary.csv")
+    parser.add_argument(
+        "--suite-csv", type=Path, default=repo / "results/bi_suite_8datasets/bi_suite_dataset_summary.csv"
+    )
+    parser.add_argument(
+        "--estranet-summary",
+        type=Path,
+        default=repo / "results/ascad_estranet_bi_baseline/ascad_estranet_bi_summary.csv",
+    )
     parser.add_argument("--ascad-random-h5", type=Path, default=repo / "datasets/raw/ascad_random_key/ASCAD.h5")
     parser.add_argument("--aesrd-estranet-h5", type=Path, default=repo / "datasets/raw/aes_rd/AES_RD_estranet.h5")
     parser.add_argument("--aesrd-checkpoint-dir", type=Path, default=repo / "checkpoints/estranet/aes_rd")
@@ -457,6 +461,14 @@ def main() -> None:
         with estranet_summary.open(newline="") as f:
             for row in csv.DictReader(f):
                 estranet_suite_plus[row["dataset"]] = float(row["BI_plus"])
+    for fallback_dataset in ("ascad_desync_50", "ascad_desync_100"):
+        if fallback_dataset not in estranet_suite_plus:
+            print(
+                f"WARNING: {fallback_dataset} not found in {estranet_summary}; using a hard-coded "
+                "reference EstraNet BI_suite_plus value instead of a computed summary",
+                file=sys.stderr,
+                flush=True,
+            )
     estranet_suite_plus.setdefault("ascad_desync_50", 1.5609413912724257)
     estranet_suite_plus.setdefault("ascad_desync_100", 1.6907041265379728)
     estranet_suite_plus.setdefault("ascad_random_key", suite_plus["ascad_random_key"])

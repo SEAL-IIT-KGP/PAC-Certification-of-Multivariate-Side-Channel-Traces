@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import math
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -16,26 +18,13 @@ DATASET_LABELS = {
     "aes_rd": "AES-RD",
 }
 
-DATASET_ORDER = {
-    "ascad_desync_50": 0,
-    "ascad_desync_100": 1,
-    "ascad_random_key": 2,
-    "aes_rd": 3,
-}
+DATASET_ORDER = {"ascad_desync_50": 0, "ascad_desync_100": 1, "ascad_random_key": 2, "aes_rd": 3}
 ARCH_ORDER = {"MLP": 0, "CNN": 1, "Transformer": 2}
 
 
 def esc(value: object) -> str:
     text = str(value)
-    replacements = {
-        "\\": r"\textbackslash{}",
-        "_": r"\_",
-        "%": r"\%",
-        "&": r"\&",
-        "#": r"\#",
-        "{": r"\{",
-        "}": r"\}",
-    }
+    replacements = {"\\": r"\textbackslash{}", "_": r"\_", "%": r"\%", "&": r"\&", "#": r"\#", "{": r"\{", "}": r"\}"}
     return "".join(replacements.get(ch, ch) for ch in text)
 
 
@@ -70,6 +59,12 @@ def nearest_epsilon_rows(curves: pd.DataFrame, epsilon: float) -> pd.DataFrame:
     for key, group in curves.groupby(["dataset", "architecture", "center_id"], sort=False):
         idx = (group["epsilon"].astype(float) - float(epsilon)).abs().idxmin()
         row = group.loc[idx].copy()
+        if not math.isclose(float(row["epsilon"]), float(epsilon), rel_tol=1e-9, abs_tol=0.0):
+            warnings.warn(
+                f"{key}: requested epsilon={float(epsilon):g} is not on the curve grid; "
+                f"using nearest available epsilon={float(row['epsilon']):g}",
+                stacklevel=2,
+            )
         row["audited_epsilon"] = float(row["epsilon"])
         row["requested_epsilon"] = float(epsilon)
         rows.append(row)
@@ -80,14 +75,7 @@ def add_audit_metadata(points: pd.DataFrame, audit: pd.DataFrame) -> pd.DataFram
     if audit.empty:
         return points.copy()
     keys = ["dataset", "architecture", "center_id"]
-    keep = [
-        "dataset",
-        "architecture",
-        "center_id",
-        "audit_route",
-        "bounded_domain",
-        "certified_statement",
-    ]
+    keep = ["dataset", "architecture", "center_id", "audit_route", "bounded_domain", "certified_statement"]
     merged = points.merge(audit[[c for c in keep if c in audit.columns]], on=keys, how="left")
     merged["audited_radius_source"] = "declared score-radius grid point from Figure 2 relaxed-margin audit"
     merged["claim"] = (
@@ -97,7 +85,12 @@ def add_audit_metadata(points: pd.DataFrame, audit: pd.DataFrame) -> pd.DataFram
     return merged
 
 
+def selected_epsilons(df: pd.DataFrame) -> list[float]:
+    return sorted({float(x) for x in df["audited_epsilon"]}) if "audited_epsilon" in df else []
+
+
 def make_tex_table(df: pd.DataFrame, epsilon: float) -> str:
+    eps_tex = ", ".join(fmt_eps(e) for e in (selected_epsilons(df) or [float(epsilon)]))
     rows = []
     for _, r in sort_points(df).iterrows():
         rows.append(
@@ -119,7 +112,7 @@ def make_tex_table(df: pd.DataFrame, epsilon: float) -> str:
     body = "\n    ".join(rows)
     return rf"""\begin{{table}}[t]
     \centering
-    \caption{{Concrete audited score-radius points from the Figure~\ref{{fig:biloc-curve}} source data at $\varepsilon={fmt_eps(epsilon)}$. These rows instantiate the local-family certificate for one MLP, one CNN, and one Transformer center on the same benchmark; each endpoint is the KL-binomial relaxed-margin $\mathrm{{BI}}^{{\mathrm{{loc}},+}}$ value at the audited radius.}}
+    \caption{{Concrete audited score-radius points from the Figure~\ref{{fig:biloc-curve}} source data at $\varepsilon={eps_tex}$. These rows instantiate the local-family certificate for one MLP, one CNN, and one Transformer center on the same benchmark; each endpoint is the KL-binomial relaxed-margin $\mathrm{{BI}}^{{\mathrm{{loc}},+}}$ value at the audited radius.}}
     \label{{tab:audited-score-radius-biloc}}
     \scriptsize
     \setlength{{\tabcolsep}}{{3pt}}
@@ -135,12 +128,18 @@ def make_tex_table(df: pd.DataFrame, epsilon: float) -> str:
 """
 
 
-def write_summary(path: Path, all_points: pd.DataFrame, main_points: pd.DataFrame, epsilon: float, main_dataset: str) -> None:
+def write_summary(
+    path: Path, all_points: pd.DataFrame, main_points: pd.DataFrame, epsilon: float, main_dataset: str
+) -> None:
+    selected = selected_epsilons(all_points) or [float(epsilon)]
+    radius_line = f"Audited radius: `epsilon={', '.join(f'{e:g}' for e in selected)}`."
+    if any(not math.isclose(e, float(epsilon), rel_tol=1e-9, abs_tol=0.0) for e in selected):
+        radius_line += f" Requested `epsilon={epsilon:g}` is not on the curve grid; the nearest grid value was used."
     lines = [
         "# Audited Score-Radius BI_loc Points",
         "",
-        f"Audited radius: `epsilon={epsilon:g}`.",
-        f"Main reviewer-facing benchmark: `{main_dataset}`.",
+        radius_line,
+        f"Main benchmark: `{main_dataset}`.",
         "",
         "These rows are concrete points on the Figure 2 score-radius sweep. They report the KL-binomial relaxed-margin endpoint at the declared audited score radius, not a parameter-space architecture radius.",
         "",
@@ -193,8 +192,14 @@ def update_manifest(package_dir: Path, entries: list[dict[str, str]]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv"))
-    parser.add_argument("--audit-csv", type=Path, default=Path("results/bi_scope_certificates/nonoptional_audit/score_radius_audit_table.csv"))
+    parser.add_argument(
+        "--curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv")
+    )
+    parser.add_argument(
+        "--audit-csv",
+        type=Path,
+        default=Path("results/bi_scope_certificates/nonoptional_audit/score_radius_audit_table.csv"),
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("results/bi_scope_certificates"))
     parser.add_argument("--package-dir", type=Path, default=Path("results/bi_scope_certificates/mainpaper_package"))
     parser.add_argument("--epsilon", type=float, default=1e-4)
@@ -213,7 +218,13 @@ def main() -> None:
     main_path = args.output_dir / "audited_score_radius_biloc_points_main.csv"
     all_points.to_csv(all_path, index=False)
     main_points.to_csv(main_path, index=False)
-    write_summary(args.output_dir / "AUDITED_SCORE_RADIUS_BILOC_POINTS.md", all_points, main_points, args.epsilon, args.main_dataset)
+    write_summary(
+        args.output_dir / "AUDITED_SCORE_RADIUS_BILOC_POINTS.md",
+        all_points,
+        main_points,
+        args.epsilon,
+        args.main_dataset,
+    )
 
     if args.package_dir:
         (args.package_dir / "data").mkdir(parents=True, exist_ok=True)
@@ -221,8 +232,7 @@ def main() -> None:
         all_points.to_csv(args.package_dir / "data" / "audited_score_radius_biloc_points.csv", index=False)
         main_points.to_csv(args.package_dir / "data" / "audited_score_radius_biloc_points_main.csv", index=False)
         (args.package_dir / "tables" / "audited_score_radius_biloc_points.tex").write_text(
-            make_tex_table(main_points, args.epsilon),
-            encoding="utf-8",
+            make_tex_table(main_points, args.epsilon), encoding="utf-8"
         )
         update_manifest(
             args.package_dir,
@@ -230,12 +240,14 @@ def main() -> None:
                 {
                     "slot": "Audited score-radius points",
                     "artifact": "data/audited_score_radius_biloc_points.csv",
-                    "purpose": "Concrete epsilon=1e-4 BI_loc points for Figure 2",
+                    "purpose": "Concrete epsilon="
+                    + ", ".join(f"{e:g}" for e in (selected_epsilons(all_points) or [float(args.epsilon)]))
+                    + " BI_loc points for Figure 2",
                 },
                 {
                     "slot": "Audited score-radius main table",
                     "artifact": "tables/audited_score_radius_biloc_points.tex",
-                    "purpose": "Reviewer-facing MLP/CNN/Transformer audited-radius table",
+                    "purpose": "Main-benchmark MLP/CNN/Transformer audited-radius table",
                 },
             ],
         )

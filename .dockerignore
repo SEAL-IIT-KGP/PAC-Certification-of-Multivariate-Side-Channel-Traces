@@ -1,0 +1,12 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+.DS_Store
+results
+logs
+datasets/raw
+external
+checkpoints

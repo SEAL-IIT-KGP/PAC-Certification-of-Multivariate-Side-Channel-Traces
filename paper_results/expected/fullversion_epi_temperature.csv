@@ -1,0 +1,7 @@
+dataset,raw_pi_variation,epi_variation
+ascad_desync_0,4.23,3.05e-10
+ascad_desync_50,23.07,2.51e-10
+ascad_desync_100,22.48,9.43e-11
+aes_hd,5.30,1.78e-10
+aes_rd,27.31,7.02e-11
+dpav4,20.71,8.57e-10

@@ -69,10 +69,7 @@ def checkpoint_keys(checkpoint: Path) -> Set[Key]:
     required = {"dataset", "scope_level", "seed"}
     if not required.issubset(df.columns):
         return set()
-    return {
-        (str(row.dataset), int(row.scope_level), int(row.seed))
-        for row in df.itertuples(index=False)
-    }
+    return {(str(row.dataset), int(row.scope_level), int(row.seed)) for row in df.itertuples(index=False)}
 
 
 def append_checkpoint(result: scope_module.ExperimentResult, checkpoint: Path) -> None:
@@ -114,8 +111,7 @@ def patch_loader(max_features: int, feature_select: str) -> None:
         n_features_after = X.shape[1] if X.ndim == 2 else 0
         if n_features_after != n_features_before:
             print(
-                f"[feature-select] {dataset}: {n_features_before} -> {n_features_after} "
-                f"features via {feature_select}",
+                f"[feature-select] {dataset}: {n_features_before} -> {n_features_after} features via {feature_select}",
                 flush=True,
             )
         return X, y
@@ -133,16 +129,7 @@ def patch_torch_training() -> None:
     TensorDataset = scope_module.TensorDataset
     DataLoader = scope_module.DataLoader
 
-    def train_torch_model_fixed(
-        model,
-        X_train,
-        y_train,
-        epochs=30,
-        batch_size=256,
-        lr=1e-3,
-        patience=5,
-        device="cpu",
-    ):
+    def train_torch_model_fixed(model, X_train, y_train, epochs=30, batch_size=256, lr=1e-3, patience=5, device="cpu"):
         if str(device).startswith("cuda") and not torch.cuda.is_available():
             device = "cpu"
         use_cuda = str(device).startswith("cuda")
@@ -161,21 +148,9 @@ def patch_torch_training() -> None:
         y_v_t = torch.as_tensor(y_train[idx_val], dtype=torch.long)
 
         train_ds = TensorDataset(X_tr_t, y_tr_t)
-        train_dl = DataLoader(
-            train_ds,
-            batch_size=batch_size,
-            shuffle=True,
-            pin_memory=use_cuda,
-            num_workers=0,
-        )
+        train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, pin_memory=use_cuda, num_workers=0)
         val_ds = TensorDataset(X_v_t, y_v_t)
-        val_dl = DataLoader(
-            val_ds,
-            batch_size=max(batch_size, 512),
-            shuffle=False,
-            pin_memory=use_cuda,
-            num_workers=0,
-        )
+        val_dl = DataLoader(val_ds, batch_size=max(batch_size, 512), shuffle=False, pin_memory=use_cuda, num_workers=0)
 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         criterion = nn.CrossEntropyLoss()

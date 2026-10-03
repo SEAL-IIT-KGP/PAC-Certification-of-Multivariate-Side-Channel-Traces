@@ -26,11 +26,7 @@ class TraceCNN(nn.Module):
             nn.AdaptiveAvgPool1d(16),
         )
         self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 16, 256),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(256, n_classes),
+            nn.Flatten(), nn.Linear(64 * 16, 256), nn.ReLU(), nn.Dropout(0.2), nn.Linear(256, n_classes)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

@@ -21,18 +21,19 @@ from pathlib import Path
 # Try to import h5py (only needed for ASCAD)
 try:
     import h5py
+
     HAS_H5PY = True
 except ImportError:
     HAS_H5PY = False
-from typing import Tuple, Optional, Dict, List, Union, Any
+from typing import Tuple, Optional, Dict, List, Union
 from dataclasses import dataclass
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import warnings
 
 
 # AES S-box and inverse
+# fmt: off
 AES_SBOX = [
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -49,9 +50,11 @@ AES_SBOX = [
     0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
     0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
     0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
-    0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
+    0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 ]
+# fmt: on
 
+# fmt: off
 AES_SBOX_INV = [
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
     0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
@@ -68,24 +71,26 @@ AES_SBOX_INV = [
     0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
     0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
     0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
-    0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
+    0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
 ]
+# fmt: on
 
 
 def hamming_weight(x: Union[int, np.ndarray]) -> Union[int, np.ndarray]:
     """Compute Hamming weight (number of 1 bits)."""
     if isinstance(x, np.ndarray):
-        return np.array([bin(int(v)).count('1') for v in x])
-    return bin(x).count('1')
+        return np.array([bin(int(v)).count("1") for v in x])
+    return bin(x).count("1")
 
 
 # =============================================================================
 # Dataset Path Discovery
 # =============================================================================
 
+
 def get_default_data_dir() -> Path:
     """Get the default data directory."""
-    return Path(__file__).resolve().parents[1] / 'datasets' / 'raw'
+    return Path(__file__).resolve().parents[1] / "datasets" / "raw"
 
 
 def find_dataset(dataset_name: str, search_paths: List[str] = None) -> Optional[Path]:
@@ -108,20 +113,16 @@ def find_dataset(dataset_name: str, search_paths: List[str] = None) -> Optional[
     # Default data directory
     data_dir = get_default_data_dir()
 
-    if dataset_name.lower() == 'ascad':
-        filenames = ['ASCAD.h5', 'ASCAD_data/ASCAD.h5', 'ATMega8515_raw_traces.h5']
-        paths_to_check.extend([
-            data_dir / 'ascad' / fn for fn in filenames
-        ])
-    elif dataset_name.lower() in ['aes_hd', 'aes-hd', 'aeshd']:
+    if dataset_name.lower() == "ascad":
+        filenames = ["ASCAD.h5", "ASCAD_data/ASCAD.h5", "ATMega8515_raw_traces.h5"]
+        paths_to_check.extend([data_dir / "ascad" / fn for fn in filenames])
+    elif dataset_name.lower() in ["aes_hd", "aes-hd", "aeshd"]:
         # Check for CSV directory first (from GitHub), then npz files
-        csv_dir = data_dir / 'aes_hd' / 'AES_HD_Dataset'
-        if csv_dir.exists() and (csv_dir / 'traces_1.csv').exists():
+        csv_dir = data_dir / "aes_hd" / "AES_HD_Dataset"
+        if csv_dir.exists() and (csv_dir / "traces_1.csv").exists():
             return csv_dir
-        filenames = ['aes_hd.npz', 'aes_hd_ext.npz', 'AES_HD_ext/aes_hd_ext.npz']
-        paths_to_check.extend([
-            data_dir / 'aes_hd' / fn for fn in filenames
-        ])
+        filenames = ["aes_hd.npz", "aes_hd_ext.npz", "AES_HD_ext/aes_hd_ext.npz"]
+        paths_to_check.extend([data_dir / "aes_hd" / fn for fn in filenames])
 
     # Add user-specified search paths
     for sp in search_paths:
@@ -129,9 +130,9 @@ def find_dataset(dataset_name: str, search_paths: List[str] = None) -> Optional[
 
     # Check current directory and parent
     cwd = Path.cwd()
-    for fn in filenames if 'filenames' in dir() else []:
+    for fn in filenames if "filenames" in dir() else []:
         paths_to_check.append(cwd / fn)
-        paths_to_check.append(cwd / 'data' / fn)
+        paths_to_check.append(cwd / "data" / fn)
 
     # Search for the file
     for path in paths_to_check:
@@ -168,12 +169,12 @@ def get_dataset_path(dataset_name: str, provided_path: str = None) -> Path:
     # Dataset not found - provide helpful error
     data_dir = get_default_data_dir()
 
-    if dataset_name.lower() == 'ascad':
-        expected_path = data_dir / 'ascad' / 'ASCAD.h5'
+    if dataset_name.lower() == "ascad":
+        expected_path = data_dir / "ascad" / "ASCAD.h5"
         download_cmd = "python -m datasets.setup_datasets --ascad"
         manual_url = "https://github.com/ANSSI-FR/ASCAD"
     else:
-        expected_path = data_dir / 'aes_hd' / 'aes_hd.npz'
+        expected_path = data_dir / "aes_hd" / "aes_hd.npz"
         download_cmd = "python -m datasets.setup_datasets --aes-hd"
         manual_url = "https://github.com/AISyLab/AES_HD_Ext"
 
@@ -195,6 +196,7 @@ Then place the file at the expected location.
 @dataclass
 class DataSplit:
     """Container for train/validation/holdout data splits."""
+
     X_train: np.ndarray
     y_train: np.ndarray
     X_val: np.ndarray
@@ -207,6 +209,7 @@ class DataSplit:
 @dataclass
 class DatasetInfo:
     """Dataset metadata container."""
+
     name: str
     n_samples: int
     n_features: int
@@ -218,6 +221,7 @@ class DatasetInfo:
 # =============================================================================
 # ASCAD Dataset Loader
 # =============================================================================
+
 
 class ASCADLoader:
     """
@@ -250,7 +254,7 @@ class ASCADLoader:
             target_byte: Target key byte index (default 2 for standard ASCAD)
         """
         if filepath is None:
-            filepath = get_dataset_path('ascad')
+            filepath = get_dataset_path("ascad")
 
         self.filepath = Path(filepath)
         self.target_byte = target_byte
@@ -273,7 +277,7 @@ class ASCADLoader:
         self,
         n_profiling: Optional[int] = None,
         n_attack: Optional[int] = None,
-        window: Optional[Tuple[int, int]] = None
+        window: Optional[Tuple[int, int]] = None,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Load ASCAD traces and labels.
@@ -286,22 +290,22 @@ class ASCADLoader:
         Returns:
             X_profiling, y_profiling, X_attack, y_attack
         """
-        with h5py.File(self.filepath, 'r') as f:
+        with h5py.File(self.filepath, "r") as f:
             # Load profiling set
             if n_profiling is None:
-                X_prof = np.array(f['Profiling_traces/traces'])
-                metadata_prof = np.array(f['Profiling_traces/metadata'])
+                X_prof = np.array(f["Profiling_traces/traces"])
+                metadata_prof = np.array(f["Profiling_traces/metadata"])
             else:
-                X_prof = np.array(f['Profiling_traces/traces'][:n_profiling])
-                metadata_prof = np.array(f['Profiling_traces/metadata'][:n_profiling])
+                X_prof = np.array(f["Profiling_traces/traces"][:n_profiling])
+                metadata_prof = np.array(f["Profiling_traces/metadata"][:n_profiling])
 
             # Load attack set
             if n_attack is None:
-                X_attack = np.array(f['Attack_traces/traces'])
-                metadata_attack = np.array(f['Attack_traces/metadata'])
+                X_attack = np.array(f["Attack_traces/traces"])
+                metadata_attack = np.array(f["Attack_traces/metadata"])
             else:
-                X_attack = np.array(f['Attack_traces/traces'][:n_attack])
-                metadata_attack = np.array(f['Attack_traces/metadata'][:n_attack])
+                X_attack = np.array(f["Attack_traces/traces"][:n_attack])
+                metadata_attack = np.array(f["Attack_traces/metadata"][:n_attack])
 
         # Apply window selection
         if window is not None:
@@ -323,32 +327,17 @@ class ASCADLoader:
         """
         # ASCAD metadata format: plaintext and key are stored in metadata
         # Adjust based on actual ASCAD format
-        plaintexts = metadata['plaintext'][:, self.target_byte]
-        keys = metadata['key'][:, self.target_byte]
+        plaintexts = metadata["plaintext"][:, self.target_byte]
+        keys = metadata["key"][:, self.target_byte]
 
         labels = np.array([AES_SBOX[p ^ k] for p, k in zip(plaintexts, keys)])
         return labels
-
-    def get_info(self) -> DatasetInfo:
-        """Get dataset information."""
-        with h5py.File(self.filepath, 'r') as f:
-            n_prof = f['Profiling_traces/traces'].shape[0]
-            n_attack = f['Attack_traces/traces'].shape[0]
-            n_features = f['Profiling_traces/traces'].shape[1]
-
-        return DatasetInfo(
-            name="ASCAD",
-            n_samples=n_prof + n_attack,
-            n_features=n_features,
-            n_classes=256,
-            target_byte=self.target_byte,
-            description="ANSSI ASCAD electromagnetic traces"
-        )
 
 
 # =============================================================================
 # AES-HD Dataset Loader
 # =============================================================================
+
 
 class AESHDLoader:
     """
@@ -381,7 +370,7 @@ class AESHDLoader:
             target_byte: Target byte index (default 11)
         """
         if filepath is None:
-            filepath = get_dataset_path('aes_hd')
+            filepath = get_dataset_path("aes_hd")
 
         self.filepath = Path(filepath)
         self.target_byte = target_byte
@@ -399,18 +388,15 @@ class AESHDLoader:
             raise FileNotFoundError(f"Dataset not found at {self.filepath}")
         if self._is_csv_format:
             # Check for CSV files
-            if not (self.filepath / 'traces_1.csv').exists():
+            if not (self.filepath / "traces_1.csv").exists():
                 raise FileNotFoundError(f"traces_1.csv not found in {self.filepath}")
 
-    def _load_csv_format(
-        self,
-        n_samples: Optional[int] = None
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def _load_csv_format(self, n_samples: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
         """Load traces and labels from CSV files."""
         import pandas as pd
 
         # Find all trace files (traces_1.csv to traces_5.csv)
-        trace_files = sorted(self.filepath.glob('traces_*.csv'))
+        trace_files = sorted(self.filepath.glob("traces_*.csv"))
 
         if not trace_files:
             raise FileNotFoundError(f"No trace CSV files found in {self.filepath}")
@@ -436,10 +422,10 @@ class AESHDLoader:
             traces = traces[:n_samples]
 
         # Load labels
-        labels_file = self.filepath / 'labels.csv'
+        labels_file = self.filepath / "labels.csv"
         if not labels_file.exists():
             # Try alternative names
-            for alt_name in ['label.csv', 'Labels.csv', 'Label.csv']:
+            for alt_name in ["label.csv", "Labels.csv", "Label.csv"]:
                 alt_file = self.filepath / alt_name
                 if alt_file.exists():
                     labels_file = alt_file
@@ -453,22 +439,19 @@ class AESHDLoader:
                 labels = labels[:n_samples]
         else:
             # If no labels file, generate dummy labels (user will need to provide)
-            print(f"  Warning: No labels file found. Using placeholder labels.")
+            print("  Warning: No labels file found. Using placeholder labels.")
             labels = np.zeros(len(traces), dtype=np.int32)
 
         print(f"  Loaded {len(traces)} traces with {traces.shape[1]} features")
 
         return traces, labels
 
-    def _load_npz_format(
-        self,
-        n_samples: Optional[int] = None
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _load_npz_format(self, n_samples: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Load traces and metadata from NPZ file."""
         data = np.load(self.filepath)
 
-        traces = np.array(data['traces'], dtype=np.float32)
-        metadata = np.array(data['data'], dtype=np.uint8)
+        traces = np.array(data["traces"], dtype=np.float32)
+        metadata = np.array(data["data"], dtype=np.uint8)
 
         if n_samples is not None:
             traces = traces[:n_samples]
@@ -480,7 +463,7 @@ class AESHDLoader:
         self,
         n_samples: Optional[int] = None,
         poi_indices: Optional[List[int]] = None,
-        window: Optional[Tuple[int, int]] = None
+        window: Optional[Tuple[int, int]] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Load AES-HD traces and labels.
@@ -525,55 +508,29 @@ class AESHDLoader:
         key_byte = key[:, self.target_byte]
 
         # Compute HD target: Sbox_inv[input_1 ^ key] ^ input_2
-        labels = np.array([
-            AES_SBOX_INV[input_1[i] ^ key_byte[0]] ^ input_2[i]
-            for i in range(len(input_1))
-        ], dtype=np.uint16)
+        labels = np.array(
+            [AES_SBOX_INV[input_1[i] ^ key_byte[0]] ^ input_2[i] for i in range(len(input_1))], dtype=np.uint16
+        )
 
         return labels
-
-    def get_info(self) -> DatasetInfo:
-        """Get dataset information."""
-        if self._is_csv_format:
-            # For CSV, we need to check one file
-            import pandas as pd
-            sample_file = self.filepath / 'traces_1.csv'
-            df = pd.read_csv(sample_file, header=None, nrows=1)
-            n_features = df.shape[1]
-            # Count total samples
-            trace_files = list(self.filepath.glob('traces_*.csv'))
-            n_samples = sum(
-                sum(1 for _ in open(f)) for f in trace_files
-            )
-        else:
-            data = np.load(self.filepath)
-            traces = data['traces']
-            n_samples = traces.shape[0]
-            n_features = traces.shape[1]
-
-        return DatasetInfo(
-            name="AES-HD",
-            n_samples=n_samples,
-            n_features=n_features,
-            n_classes=256,
-            target_byte=self.target_byte,
-            description="AES Hamming Distance power traces"
-        )
 
 
 # =============================================================================
 # Unified Data Loading Interface
 # =============================================================================
 
+
 def _try_load_via_tches20(
-    dataset_tag: str,
-    data_dir: str = '',
-    tches20_src_dir: str = '',
+    dataset_tag: str, data_dir: str = "", tches20_src_dir: str = ""
 ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
     """
     Attempt to load a TCHES20 dataset using the TCHES20 repo's own dataLoaders.
 
-    Returns (traces, labels) on success, or None if the loaders are not available.
+    Returns (profiling_traces, profiling_labels) on success, or None if the
+    loaders are not available. Only the profiling partition is returned. The
+    TCHES20 pretrained models were trained on it, so it must not be used to
+    certify those models; use
+    bi_suite_8datasets/evaluate_tches20_pretrained_fixed_split.py --split attack.
     """
     import sys as _sys
 
@@ -581,27 +538,19 @@ def _try_load_via_tches20(
         _sys.path.insert(0, tches20_src_dir)
 
     try:
-        from dataLoaders import (
-            load_ascad, load_aes_hd, load_aes_rd, load_dpav4,
-        )
+        from dataLoaders import load_ascad, load_aes_hd, load_aes_rd, load_dpav4
     except ImportError:
         return None
 
     import os as _os
 
     loader_map = {
-        'ascad_desync_0':   lambda: load_ascad(
-            _os.path.join(data_dir, 'ASCAD_dataset', 'ASCAD.h5')),
-        'ascad_desync_50':  lambda: load_ascad(
-            _os.path.join(data_dir, 'ASCAD_dataset', 'ASCAD_desync50.h5')),
-        'ascad_desync_100': lambda: load_ascad(
-            _os.path.join(data_dir, 'ASCAD_dataset', 'ASCAD_desync100.h5')),
-        'aes_hd':           lambda: load_aes_hd(
-            _os.path.join(data_dir, 'AES_HD_dataset/')),
-        'aes_rd':           lambda: load_aes_rd(
-            _os.path.join(data_dir, 'AES_RD_dataset/')),
-        'dpav4':            lambda: load_dpav4(
-            _os.path.join(data_dir, 'DPAv4_dataset/')),
+        "ascad_desync_0": lambda: load_ascad(_os.path.join(data_dir, "ASCAD_dataset", "ASCAD.h5")),
+        "ascad_desync_50": lambda: load_ascad(_os.path.join(data_dir, "ASCAD_dataset", "ASCAD_desync50.h5")),
+        "ascad_desync_100": lambda: load_ascad(_os.path.join(data_dir, "ASCAD_dataset", "ASCAD_desync100.h5")),
+        "aes_hd": lambda: load_aes_hd(_os.path.join(data_dir, "AES_HD_dataset/")),
+        "aes_rd": lambda: load_aes_rd(_os.path.join(data_dir, "AES_RD_dataset/")),
+        "dpav4": lambda: load_dpav4(_os.path.join(data_dir, "DPAv4_dataset/")),
     }
 
     if dataset_tag not in loader_map:
@@ -612,12 +561,20 @@ def _try_load_via_tches20(
         # TCHES20 loaders return:
         #   (profiling_traces, profiling_labels,
         #    attack_traces, attack_labels_per_key, correct_key)
-        # We use the profiling set for BI certification (train + holdout).
+        # This helper returns ONLY the profiling partition (result[0:2]); the
+        # caller splits it for its own train/holdout experiments. The TCHES20
+        # pretrained models were trained on this profiling partition, so it
+        # must NOT be used to certify those pretrained models. The paper
+        # certifies them on the official attack partition; use
+        # bi_suite_8datasets/evaluate_tches20_pretrained_fixed_split.py
+        # --split attack for that.
         profiling_traces = result[0]
         profiling_labels = result[1]
-        print(f"  Loaded via TCHES20 dataLoaders: "
-              f"{profiling_traces.shape[0]} profiling traces, "
-              f"{profiling_traces.shape[1]} features")
+        print(
+            f"  Loaded via TCHES20 dataLoaders: "
+            f"{profiling_traces.shape[0]} profiling traces, "
+            f"{profiling_traces.shape[1]} features"
+        )
         return profiling_traces, profiling_labels
     except Exception as e:
         warnings.warn(f"TCHES20 loader failed for {dataset_tag}: {e}")
@@ -625,17 +582,10 @@ def _try_load_via_tches20(
 
 
 # TCHES20 dataset tags that require the external dataLoaders
-TCHES20_TAGS = {
-    'ascad_desync_0', 'ascad_desync_50', 'ascad_desync_100',
-    'aes_rd', 'dpav4',
-}
+TCHES20_TAGS = {"ascad_desync_0", "ascad_desync_50", "ascad_desync_100", "aes_rd", "dpav4"}
 
 
-def load_dataset(
-    dataset_name: str,
-    filepath: str = None,
-    **kwargs
-) -> Tuple[np.ndarray, np.ndarray]:
+def load_dataset(dataset_name: str, filepath: str = None, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
     """
     Unified dataset loading interface.
 
@@ -669,8 +619,8 @@ def load_dataset(
     dataset_name = dataset_name.lower()
 
     # Extract TCHES20-specific kwargs
-    data_dir = kwargs.pop('data_dir', '')
-    tches20_src_dir = kwargs.pop('tches20_src_dir', '')
+    data_dir = kwargs.pop("data_dir", "")
+    tches20_src_dir = kwargs.pop("tches20_src_dir", "")
 
     # --- TCHES20 datasets: try external dataLoaders first ---
     if dataset_name in TCHES20_TAGS:
@@ -685,33 +635,29 @@ def load_dataset(
         )
 
     # --- aes_hd can also be loaded via TCHES20 or locally ---
-    if dataset_name in ['aes_hd', 'aes-hd', 'aeshd']:
+    if dataset_name in ["aes_hd", "aes-hd", "aeshd"]:
         # Try TCHES20 loader first if data_dir is provided
         if data_dir:
-            result = _try_load_via_tches20('aes_hd', data_dir, tches20_src_dir)
+            result = _try_load_via_tches20("aes_hd", data_dir, tches20_src_dir)
             if result is not None:
                 return result
 
         # Fallback to local loader
-        if filepath is None or filepath == '':
+        if filepath is None or filepath == "":
             filepath = get_dataset_path(dataset_name)
-        loader = AESHDLoader(filepath, target_byte=kwargs.get('target_byte', 11))
+        loader = AESHDLoader(filepath, target_byte=kwargs.get("target_byte", 11))
         traces, labels = loader.load(
-            n_samples=kwargs.get('n_samples'),
-            poi_indices=kwargs.get('poi_indices'),
-            window=kwargs.get('window')
+            n_samples=kwargs.get("n_samples"), poi_indices=kwargs.get("poi_indices"), window=kwargs.get("window")
         )
         return traces, labels
 
     # --- ASCAD (local fixed-key) ---
-    if dataset_name == 'ascad':
-        if filepath is None or filepath == '':
+    if dataset_name == "ascad":
+        if filepath is None or filepath == "":
             filepath = get_dataset_path(dataset_name)
-        loader = ASCADLoader(filepath, target_byte=kwargs.get('target_byte', 2))
+        loader = ASCADLoader(filepath, target_byte=kwargs.get("target_byte", 2))
         X_prof, y_prof, X_attack, y_attack = loader.load(
-            n_profiling=kwargs.get('n_profiling'),
-            n_attack=kwargs.get('n_attack'),
-            window=kwargs.get('window')
+            n_profiling=kwargs.get("n_profiling"), n_attack=kwargs.get("n_attack"), window=kwargs.get("window")
         )
         # Combine profiling and attack sets
         traces = np.vstack([X_prof, X_attack])
@@ -732,7 +678,7 @@ def create_data_split(
     val_size: float = 0.2,
     holdout_size: float = 0.2,
     random_state: int = 42,
-    stratify: bool = True
+    stratify: bool = True,
 ) -> DataSplit:
     """
     Create train/validation/holdout splits with proper protocol.
@@ -751,8 +697,7 @@ def create_data_split(
     Returns:
         DataSplit object with all splits
     """
-    assert abs(train_size + val_size + holdout_size - 1.0) < 1e-6, \
-        "Split fractions must sum to 1.0"
+    assert abs(train_size + val_size + holdout_size - 1.0) < 1e-6, "Split fractions must sum to 1.0"
 
     n_samples = len(labels)
 
@@ -760,10 +705,7 @@ def create_data_split(
     stratify_arr = labels if stratify else None
 
     X_temp, X_holdout, y_temp, y_holdout = train_test_split(
-        traces, labels,
-        test_size=holdout_size,
-        random_state=random_state,
-        stratify=stratify_arr
+        traces, labels, test_size=holdout_size, random_state=random_state, stratify=stratify_arr
     )
 
     # Second split: train vs validation
@@ -771,21 +713,18 @@ def create_data_split(
     stratify_arr = y_temp if stratify else None
 
     X_train, X_val, y_train, y_val = train_test_split(
-        X_temp, y_temp,
-        test_size=val_ratio,
-        random_state=random_state,
-        stratify=stratify_arr
+        X_temp, y_temp, test_size=val_ratio, random_state=random_state, stratify=stratify_arr
     )
 
     metadata = {
-        'n_total': n_samples,
-        'n_train': len(y_train),
-        'n_val': len(y_val),
-        'n_holdout': len(y_holdout),
-        'train_size': train_size,
-        'val_size': val_size,
-        'holdout_size': holdout_size,
-        'random_state': random_state
+        "n_total": n_samples,
+        "n_train": len(y_train),
+        "n_val": len(y_val),
+        "n_holdout": len(y_holdout),
+        "train_size": train_size,
+        "val_size": val_size,
+        "holdout_size": holdout_size,
+        "random_state": random_state,
     }
 
     return DataSplit(
@@ -795,7 +734,7 @@ def create_data_split(
         y_val=y_val,
         X_holdout=X_holdout,
         y_holdout=y_holdout,
-        metadata=metadata
+        metadata=metadata,
     )
 
 
@@ -803,11 +742,8 @@ def create_data_split(
 # Representation Transformations
 # =============================================================================
 
-def select_poi_by_snr(
-    traces: np.ndarray,
-    labels: np.ndarray,
-    n_poi: int = 10
-) -> Tuple[np.ndarray, List[int]]:
+
+def select_poi_by_snr(traces: np.ndarray, labels: np.ndarray, n_poi: int = 10) -> Tuple[np.ndarray, List[int]]:
     """
     Select Points of Interest by Signal-to-Noise Ratio.
 
@@ -822,15 +758,17 @@ def select_poi_by_snr(
         Selected trace subset, POI indices
     """
     n_samples, n_features = traces.shape
-    n_classes = len(np.unique(labels))
+    # Iterate over the label values actually present (they need not be 0..K-1)
+    classes = np.unique(labels)
+    n_classes = len(classes)
 
     # Compute class-conditional means
     means = np.zeros((n_classes, n_features))
     vars = np.zeros((n_classes, n_features))
     counts = np.zeros(n_classes)
 
-    for k in range(n_classes):
-        idx = np.where(labels == k)[0]
+    for k, label in enumerate(classes):
+        idx = np.where(labels == label)[0]
         if len(idx) > 1:
             means[k] = np.mean(traces[idx], axis=0)
             vars[k] = np.var(traces[idx], axis=0)
@@ -838,7 +776,7 @@ def select_poi_by_snr(
 
     # Compute SNR
     weights = counts / np.sum(counts)
-    signal = np.var(means, axis=0)  # Variance of means
+    signal = np.var(means[counts > 0], axis=0)  # Variance of class means
     noise = np.sum(weights.reshape(-1, 1) * vars, axis=0)  # Mean of variances
     snr = signal / (noise + 1e-10)
 
@@ -848,11 +786,7 @@ def select_poi_by_snr(
     return traces[:, poi_indices], poi_indices
 
 
-def apply_pca(
-    traces: np.ndarray,
-    n_components: int,
-    fit_traces: Optional[np.ndarray] = None
-) -> Tuple[np.ndarray, PCA]:
+def apply_pca(traces: np.ndarray, n_components: int, fit_traces: Optional[np.ndarray] = None) -> Tuple[np.ndarray, PCA]:
     """
     Apply PCA dimensionality reduction.
 
@@ -876,9 +810,7 @@ def apply_pca(
 
 
 def create_representations(
-    data_split: DataSplit,
-    methods: List[str],
-    params: Optional[Dict] = None
+    data_split: DataSplit, methods: List[str], params: Optional[Dict] = None
 ) -> Dict[str, DataSplit]:
     """
     Create multiple representations of the data.
@@ -899,16 +831,14 @@ def create_representations(
     representations = {}
 
     for method in methods:
-        if method == 'raw':
-            representations['raw'] = data_split
+        if method == "raw":
+            representations["raw"] = data_split
 
-        elif method.startswith('poi_'):
-            n_poi = int(method.split('_')[1])
+        elif method.startswith("poi_"):
+            n_poi = int(method.split("_")[1])
 
             # Select POI based on training data
-            X_train_poi, poi_idx = select_poi_by_snr(
-                data_split.X_train, data_split.y_train, n_poi
-            )
+            X_train_poi, poi_idx = select_poi_by_snr(data_split.X_train, data_split.y_train, n_poi)
 
             representations[method] = DataSplit(
                 X_train=X_train_poi,
@@ -917,16 +847,14 @@ def create_representations(
                 y_val=data_split.y_val,
                 X_holdout=data_split.X_holdout[:, poi_idx],
                 y_holdout=data_split.y_holdout,
-                metadata={**data_split.metadata, 'poi_indices': poi_idx}
+                metadata={**data_split.metadata, "poi_indices": poi_idx},
             )
 
-        elif method.startswith('pca_'):
-            n_components = int(method.split('_')[1])
+        elif method.startswith("pca_"):
+            n_components = int(method.split("_")[1])
 
             # Fit PCA on training data only
-            X_train_pca, pca = apply_pca(
-                data_split.X_train, n_components
-            )
+            X_train_pca, pca = apply_pca(data_split.X_train, n_components)
 
             representations[method] = DataSplit(
                 X_train=X_train_pca,
@@ -935,11 +863,11 @@ def create_representations(
                 y_val=data_split.y_val,
                 X_holdout=pca.transform(data_split.X_holdout),
                 y_holdout=data_split.y_holdout,
-                metadata={**data_split.metadata, 'pca_variance_ratio': pca.explained_variance_ratio_.tolist()}
+                metadata={**data_split.metadata, "pca_variance_ratio": pca.explained_variance_ratio_.tolist()},
             )
 
-        elif method.startswith('window_'):
-            parts = method.split('_')
+        elif method.startswith("window_"):
+            parts = method.split("_")
             start, end = int(parts[1]), int(parts[2])
 
             representations[method] = DataSplit(
@@ -949,7 +877,7 @@ def create_representations(
                 y_val=data_split.y_val,
                 X_holdout=data_split.X_holdout[:, start:end],
                 y_holdout=data_split.y_holdout,
-                metadata={**data_split.metadata, 'window': (start, end)}
+                metadata={**data_split.metadata, "window": (start, end)},
             )
 
     return representations
@@ -959,13 +887,14 @@ def create_representations(
 # Synthetic Data Generation (for testing)
 # =============================================================================
 
+
 def generate_synthetic_data(
     n_samples: int = 50000,
     n_features: int = 100,
     n_classes: int = 256,
     snr: float = 1.0,
     n_leaky_points: int = 10,
-    random_state: int = 42
+    random_state: int = 42,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate synthetic side-channel data for testing.
@@ -1010,27 +939,19 @@ def check_datasets() -> Dict[str, Dict]:
     """
     results = {}
 
-    for name in ['ascad', 'aes_hd']:
+    for name in ["ascad", "aes_hd"]:
         try:
             path = find_dataset(name)
             if path:
-                results[name] = {
-                    'available': True,
-                    'path': str(path),
-                    'size_mb': path.stat().st_size / (1024 * 1024)
-                }
+                results[name] = {"available": True, "path": str(path), "size_mb": path.stat().st_size / (1024 * 1024)}
             else:
                 results[name] = {
-                    'available': False,
-                    'path': None,
-                    'message': 'Not found. Run: python -m datasets.setup_datasets --' + name.replace('_', '-')
+                    "available": False,
+                    "path": None,
+                    "message": "Not found. Run: python -m datasets.setup_datasets --" + name.replace("_", "-"),
                 }
         except Exception as e:
-            results[name] = {
-                'available': False,
-                'path': None,
-                'message': str(e)
-            }
+            results[name] = {"available": False, "path": None, "message": str(e)}
 
     return results
 
@@ -1043,12 +964,12 @@ def print_dataset_status():
     status = check_datasets()
 
     for name, info in status.items():
-        if info['available']:
+        if info["available"]:
             print(f"  ✓ {name}: {info['path']}")
             print(f"      Size: {info['size_mb']:.1f} MB")
         else:
             print(f"  ✗ {name}: NOT FOUND")
-            if 'message' in info:
+            if "message" in info:
                 print(f"      {info['message']}")
 
     print()
@@ -1064,33 +985,19 @@ if __name__ == "__main__":
 
     # Generate synthetic data
     print("\nGenerating synthetic data...")
-    traces, labels = generate_synthetic_data(
-        n_samples=10000,
-        n_features=50,
-        n_classes=256,
-        snr=0.5,
-        n_leaky_points=5
-    )
+    traces, labels = generate_synthetic_data(n_samples=10000, n_features=50, n_classes=256, snr=0.5, n_leaky_points=5)
     print(f"  Traces shape: {traces.shape}")
     print(f"  Labels shape: {labels.shape}")
 
     # Create data split
     print("\nCreating train/val/holdout split...")
-    split = create_data_split(
-        traces, labels,
-        train_size=0.6,
-        val_size=0.2,
-        holdout_size=0.2
-    )
+    split = create_data_split(traces, labels, train_size=0.6, val_size=0.2, holdout_size=0.2)
     print(f"  Training: {len(split.y_train)}")
     print(f"  Validation: {len(split.y_val)}")
     print(f"  Holdout: {len(split.y_holdout)}")
 
     # Create representations
     print("\nCreating representations...")
-    reps = create_representations(
-        split,
-        methods=['raw', 'poi_5', 'pca_10', 'window_10_30']
-    )
+    reps = create_representations(split, methods=["raw", "poi_5", "pca_10", "window_10_30"])
     for name, rep in reps.items():
         print(f"  {name}: shape = {rep.X_train.shape}")

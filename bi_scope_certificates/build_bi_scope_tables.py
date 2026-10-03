@@ -19,12 +19,7 @@ import pandas as pd
 
 K = 256
 CHANCE = 1.0 / K
-DATASET_ORDER = {
-    "ascad_desync_50": 0,
-    "ascad_desync_100": 1,
-    "ascad_random_key": 2,
-    "aes_rd": 3,
-}
+DATASET_ORDER = {"ascad_desync_50": 0, "ascad_desync_100": 1, "ascad_random_key": 2, "aes_rd": 3}
 ARCH_ORDER = {"MLP": 0, "CNN": 1, "Transformer": 2}
 
 
@@ -100,15 +95,7 @@ def compact_loc_table(loc_table: pd.DataFrame) -> pd.DataFrame:
 
 
 def compact_loc_curves(loc_curves: pd.DataFrame) -> pd.DataFrame:
-    columns = [
-        "dataset",
-        "architecture",
-        "epsilon",
-        "S_loc",
-        "p_hat_loc",
-        "p_loc_plus",
-        "BI_loc_plus",
-    ]
+    columns = ["dataset", "architecture", "epsilon", "S_loc", "p_hat_loc", "p_loc_plus", "BI_loc_plus"]
     if loc_curves.empty:
         return pd.DataFrame(columns=columns)
     return sort_loc_rows(loc_curves)[columns].copy()
@@ -180,7 +167,9 @@ def markdown_table(df: pd.DataFrame, columns: list[str], formats: dict[str, str]
     return out
 
 
-def write_summary(out_dir: Path, singleton: pd.DataFrame, suite: pd.DataFrame, loc_table: pd.DataFrame, loc_curves: pd.DataFrame) -> None:
+def write_summary(
+    out_dir: Path, singleton: pd.DataFrame, suite: pd.DataFrame, loc_table: pd.DataFrame, loc_curves: pd.DataFrame
+) -> None:
     lines = [
         "# BI Scope Certificate Results",
         "",
@@ -261,8 +250,12 @@ def write_summary(out_dir: Path, singleton: pd.DataFrame, suite: pd.DataFrame, l
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite-csv", type=Path, default=Path("results/bi_suite_8datasets/bi_suite_dataset_summary.csv"))
-    parser.add_argument("--loc-curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv"))
+    parser.add_argument(
+        "--suite-csv", type=Path, default=Path("results/bi_suite_8datasets/bi_suite_dataset_summary.csv")
+    )
+    parser.add_argument(
+        "--loc-curves-csv", type=Path, default=Path("results/bi_scope_certificates/bi_loc_radius_curves.csv")
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("results/bi_scope_certificates"))
     parser.add_argument("--delta", type=float, default=1e-6)
     parser.add_argument("--preferred-eps", default="1e-4,3e-4,1e-3,0")

@@ -9,14 +9,30 @@ from pathlib import Path
 import pandas as pd
 
 
+# KL-binomial suite endpoint of ASCAD d0 on the PROFILING split (S=301 successes,
+# n=50,000, M=80, delta=1e-6). It is not the paper's attack-split endpoint
+# (n=10,000, p_hat=0.0063, p_plus=0.01247); pass --suite-p-plus to compare against another endpoint.
 DEFAULT_SUITE_P_PLUS = 0.00840171215280455
-DEFAULT_BASE = Path("results/ascad_fixed_split_mlp_challenger")
+# Same default as --output-dir of attacker_scope_diagnostics/evaluate_ascad_d0_challenger_fixed_split.py.
+# That evaluator writes directly into --output-dir; this merge expects one evaluator run per seed
+# in <base-dir>/seed_<k>/ (for example --seeds <k> --output-dir <base-dir>/seed_<k>).
+DEFAULT_BASE = Path("results/ascad_fixed_split_challenger")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-dir", type=Path, default=DEFAULT_BASE)
-    parser.add_argument("--suite-p-plus", type=float, default=DEFAULT_SUITE_P_PLUS)
+    parser.add_argument(
+        "--base-dir",
+        type=Path,
+        default=DEFAULT_BASE,
+        help="Directory containing seed_*/ascad_d0_challenger_fixed_split_rows.csv (one evaluator run per seed).",
+    )
+    parser.add_argument(
+        "--suite-p-plus",
+        type=float,
+        default=DEFAULT_SUITE_P_PLUS,
+        help="Suite endpoint to compare against (default: ASCAD d0 profiling-split endpoint, not the attack-split endpoint).",
+    )
     return parser.parse_args()
 
 
@@ -31,6 +47,14 @@ def main() -> int:
     rows.to_csv(base / "ascad_d0_challenger_fixed_split_rows_all.csv", index=False)
 
     best = rows.sort_values("p_fixed", ascending=False).iloc[0]
+    exceeds_suite_p_plus = bool(float(best["p_fixed"]) > suite_p_plus)
+    if suite_p_plus == DEFAULT_SUITE_P_PLUS:
+        endpoint_note = (
+            "default ASCAD d0 profiling-split endpoint: S=301, n=50,000, M=80, delta=1e-6; "
+            "not the attack-split endpoint used in the paper"
+        )
+    else:
+        endpoint_note = "user-supplied via --suite-p-plus"
     summary = pd.DataFrame(
         [
             {
@@ -47,7 +71,7 @@ def main() -> int:
                 "old_holdout_reproduction_p_hat": float(best["p_old_holdout"]),
                 "old_holdout_best_model": best["best_model_old_holdout"],
                 "suite_p_plus": suite_p_plus,
-                "exceeds_suite_p_plus": bool(float(best["p_fixed"]) > suite_p_plus),
+                "exceeds_suite_p_plus": exceeds_suite_p_plus,
                 "protocol": best["protocol"],
             }
         ]
@@ -65,14 +89,16 @@ def main() -> int:
         f"- Scope: {best['scope_name']} (level {int(best['scope_level'])})",
         f"- Seed: {int(best['seed'])}",
         f"- Model: `{best['best_model_fixed']}`",
-        f"- Matched fixed-profiling success: `{float(best['p_fixed']):.6f}`",
+        f"- Matched fixed-profiling success (in-sample): `{float(best['p_fixed']):.6f}`",
         f"- Observed BI from point success: `{float(best['bi_fixed_obs']):.6f}` bits",
         f"- Old-holdout reproduction success for this fitted pool: `{float(best['p_old_holdout']):.6f}`",
         "",
-        "## Outcome Against Corrected ASCAD d0 Suite Endpoint",
+        "## Outcome Against ASCAD d0 Suite Endpoint",
         "",
-        f"- Corrected suite endpoint: `p_suite^+ = {suite_p_plus:.15f}`",
-        "- The matched MLP challenger exceeds this endpoint.",
+        f"- Suite endpoint ({endpoint_note}): `p_suite^+ = {suite_p_plus:.15f}`",
+        f"- The matched MLP challenger {'exceeds' if exceeds_suite_p_plus else 'does not exceed'} this endpoint.",
+        "- `p_fixed` from `evaluate_ascad_d0_challenger_fixed_split.py` is scored on the full profiling set, "
+        "including the challengers' own training traces (in-sample), so this is not an out-of-sample comparison.",
         "",
         "## Protocol",
         "",
