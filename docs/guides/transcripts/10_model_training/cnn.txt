@@ -1,11 +1,12 @@
 $ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m model_training.train_cnn_example --dataset ascad_desync_0 --data-dir $T/datasets --tches20-src-dir $T/src --epochs 3
 Creating all target labels for the attack traces:
   Loaded via TCHES20 dataLoaders: 50000 profiling traces, 700 features
-epoch=1 loss=5.546150 val_accuracy=0.004000
-epoch=2 loss=5.541989 val_accuracy=0.004000
-epoch=3 loss=5.538558 val_accuracy=0.004250
-holdout_accuracy=0.003250
+epoch=1 loss=5.546170 val_accuracy=0.003500
+epoch=2 loss=5.541369 val_accuracy=0.003750
+epoch=3 loss=5.539213 val_accuracy=0.003750
+holdout_accuracy=0.002750
 wrote checkpoints/model_training/ascad_desync_0/cnn
 
-100%|██████████| 10000/10000 [00:02<00:00, 4572.40it/s]
-[exit code 0, 27 s]
+100%|█████████▉| 9960/10000 [00:02<00:00, 4276.06it/s]
+100%|██████████| 10000/10000 [00:02<00:00, 4301.33it/s]
+[exit code 0, 8 s]

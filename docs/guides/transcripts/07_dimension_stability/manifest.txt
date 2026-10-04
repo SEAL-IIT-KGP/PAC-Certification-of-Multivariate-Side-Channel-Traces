@@ -4,4 +4,4 @@ Wrote 2 tasks to results/dimension_stability/manifest.csv
 task_id,dataset,dimension,seed,metric,status,note
 0,ches_ctf_2025,100,0,GKOV_MI,scheduled,CHES high-dimensional non-BI metric-split Plot B pass
 1,ches_ctf_2025,100,0,MLP_PI,scheduled,CHES high-dimensional non-BI metric-split Plot B pass
-[exit code 0, 2 s]
+[exit code 0, 1 s]

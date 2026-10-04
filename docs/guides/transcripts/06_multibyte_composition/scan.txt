@@ -8,4 +8,4 @@ processed columns 61440:63488
 processed columns 81920:83968
 processed columns 98304:100000
 Done. Wrote results/multibyte_composition/poi_scan
-[exit code 0, 57 s]
+[exit code 0, 20 s]

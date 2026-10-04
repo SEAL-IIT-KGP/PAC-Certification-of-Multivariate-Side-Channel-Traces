@@ -1,15 +1,9 @@
 $ paper_results/fetch_tches20.sh
-[... earlier output omitted ...]
-Updating files:  28% (4/14)
-Updating files:  35% (5/14)
-Updating files:  42% (6/14)
-Updating files:  50% (7/14)
-Updating files:  57% (8/14)
-Updating files:  64% (9/14)
-Updating files:  71% (10/14)
-Updating files:  78% (11/14)
-Updating files:  85% (12/14)
-Updating files:  92% (13/14)
-Updating files: 100% (14/14)
-Updating files: 100% (14/14), done.
-[exit code 0, 48 s]
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/ASCAD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/AES_HD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/AES_RD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/DPAv4_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models.zip
+TCHES20 benchmark ready in datasets/raw/tches20/TCHES20V3_CNN_SCA (480 pretrained models)
+Cloning into 'datasets/raw/tches20/TCHES20V3_CNN_SCA'...
+[exit code 0, 14 s]

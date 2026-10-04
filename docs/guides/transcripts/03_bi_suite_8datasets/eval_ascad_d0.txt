@@ -30,5 +30,5 @@ $ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m bi_suite_8datasets.evaluat
 [80/80] zaid_ascad_desync_0_no_preprocessing_9.hdf5
 {'dataset': 'ascad_desync_0', 'split': 'attack', 'scope_id': 'ascad_desync_0_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0063, 'p_minus': 0.0025954814754893776, 'p_plus': 0.012 …
 
-100%|██████████| 10000/10000 [00:01<00:00, 5911.31it/s]
-[exit code 0, 20 s]
+100%|██████████| 10000/10000 [00:02<00:00, 4451.59it/s]
+[exit code 0, 15 s]

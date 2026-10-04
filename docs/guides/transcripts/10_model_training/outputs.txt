@@ -27,8 +27,8 @@ scaler.pkl
     "window_start": null
   },
   "metrics": {
-    "holdout_accuracy": 0.00575,
-    "val_accuracy": 0.004
+    "holdout_accuracy": 0.00275,
+    "val_accuracy": 0.0025
   }
 }
 [exit code 0, 0 s]

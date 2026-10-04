@@ -6,25 +6,24 @@ ches_ctf_2025_estranet_ckpt2: successes=382 n_te=100000 success_rate=0.00382000 
 ches_ctf_2025_estranet_ckpt3: successes=376 n_te=100000 success_rate=0.00376000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-3
 ches_ctf_2025_estranet_ckpt4: successes=402 n_te=100000 success_rate=0.00402000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-4
 ches_ctf_2025_estranet_ckpt5: successes=429 n_te=100000 success_rate=0.00429000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-5
-ches_ctf_2025_estranet_ckpt10: successes=388 n_te=100000 success_rate=0.00388000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-10
 [...]
 
-6250/6250 [==============================] - ETA: 0s
-6250/6250 [==============================] - 107s 17ms/step
+6250/6250 [==============================] - 30s 5ms/step
+ches_ctf_2025_estranet_ckpt10: successes=388 n_te=100000 success_rate=0.00388000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-10
+
+6250/6250 [==============================] - 30s 5ms/step
 ches_ctf_2025_estranet_ckpt20: successes=406 n_te=100000 success_rate=0.00406000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-20
 
-6250/6250 [==============================] - ETA: 0s
-6250/6250 [==============================] - 106s 17ms/step
+6250/6250 [==============================] - 30s 5ms/step
 ches_ctf_2025_estranet_ckpt50: successes=423 n_te=100000 success_rate=0.00423000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-50
 
-6250/6250 [==============================] - 106s 17ms/step
+6250/6250 [==============================] - 30s 5ms/step
 ches_ctf_2025_estranet_ckpt100: successes=415 n_te=100000 success_rate=0.00415000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-100
 
-6250/6250 [==============================] - 111s 18ms/step
+6250/6250 [==============================] - 30s 5ms/step
 ches_ctf_2025_estranet_ckpt150: successes=406 n_te=100000 success_rate=0.00406000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-150
 
-6250/6250 [==============================] - ETA: 0s
-6250/6250 [==============================] - 107s 17ms/step
+6250/6250 [==============================] - 30s 5ms/step
 ches_ctf_2025_estranet_ckpt201: successes=413 n_te=100000 success_rate=0.00413000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-201
 Wrote results/bi_suite_8datasets/estranet/estranet/ches_ctf_2025_estranet_w3000_success.csv
 Wrote results/bi_suite_8datasets/estranet/estranet/ches_ctf_2025_estranet_w3000_success.summary.json
@@ -32,4 +31,4 @@ external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did yo
   ks = 11 if l is 0 else self.conv_kernel_size
 /usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
   warnings.warn(
-[exit code 0, 20 min 40 s]
+[exit code 0, 5 min 55 s]

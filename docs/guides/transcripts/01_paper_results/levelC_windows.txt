@@ -11,28 +11,29 @@ window 7000: 11/11 recomputed per-checkpoint counts equal the archived counts (l
 dimension  BI_suite,+      GKOV MI       MLP-PI       ePI/PI
       100       0.467      -0.394       -0.016       -0.091 
       200       0.544      -0.178       -0.040       -0.145 
-[... 6 lines omitted ...]
+[... 81 lines omitted ...]
 [PASS] Figure 1 (dimension sweep): 5 values match the paper, 0 differ
 $ python -m paper_results.figure2_biloc_selected_centers --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
 [PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
 $ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
 [PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
-| ASCAD d0 | 4.23 | 3.05e-10 | yes | archived |
-| ASCAD d50 | 23.07 | 2.51e-10 | yes | archived |
-| ASCAD d100 | 22.48 | 9.43e-11 | yes | archived |
-| AES-HD | 5.30 | 1.78e-10 | yes | archived |
-| AES-RD | 27.31 | 7.02e-11 | yes | archived |
-| DPAv4 | 20.71 | 8.57e-10 | yes | archived |
-
 [PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
-[paper_results.fullversion_tables: 0 s, exit code 0]
-
-================ summary ================
-Table 7   matches the paper
-Table 8   matches the paper
-Table 9   matches the paper
-Figure 1  matches the paper
-Figure 2  matches the paper
-Full-version tables matches the paper
-tables and figures: results/paper_results
-[exit code 0, 116 min 40 s]
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 29 min 42 s]

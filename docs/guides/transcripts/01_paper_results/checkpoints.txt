@@ -17,4 +17,4 @@ ches25_lx_w500
 checkpoints/keras_ascad_random_key:
 ascad_random_key_cnn_seed0_best.hdf5
 ascad_random_key_mlp_seed0_best.hdf5
-[exit code 0, 6 s]
+[exit code 0, 3 s]
