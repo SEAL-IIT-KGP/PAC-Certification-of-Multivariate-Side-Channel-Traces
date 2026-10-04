@@ -1,17 +1,23 @@
-# Model Training Examples
+# model_training
 
-This directory contains small illustrative training examples for the three attacker families discussed in the paper (MLP, CNN, and Transformer). They are not the paper's reference models: the reported certificates use the pretrained TCHES20 Keras models and the EstraNet checkpoints.
+**What this folder does.** Small training examples for the three attacker families of the paper (MLP, CNN, Transformer). They are not the paper's reference models: the reported certificates use the pretrained TCHES20 Keras models and the EstraNet checkpoints, and nothing in the reproduction trains a model.
 
-- `train_mlp_example.py`: MLP profiled attacker.
-- `train_cnn_example.py`: 1D CNN profiled attacker.
-- `train_transformer_example.py`: Transformer-style attacker for longer traces.
-- `common.py`: shared dataset loading, splitting, standardization, and metadata helpers.
+## Files
 
-Hardware: the MLP example and the CNN example at the default sizes run on CPU in
-minutes. The Transformer example uses PyTorch and picks a CUDA GPU when one is
-available; on CPU, reduce the number of epochs or the window length.
+| File | Purpose | Framework |
+|---|---|---|
+| `train_mlp_example.py` | MLP profiled attacker | scikit-learn |
+| `train_cnn_example.py` | 1D CNN profiled attacker | PyTorch |
+| `train_transformer_example.py` | Transformer-style attacker for longer traces | PyTorch |
+| `common.py` | shared loading, splitting, standardization and metadata helpers | |
 
-Example commands:
+## Before you run
+
+- `requirements.txt` for the MLP; `requirements-ml.txt` for the CNN and the Transformer.
+- Traces: `datasets/raw/ascad/ASCAD.h5` (`--dataset ascad`, see `datasets/README.md`), `datasets/raw/aes_hd/aes_hd_ext.npz` (`--dataset aes_hd`), or the TCHES20 checkout with the tags `ascad_desync_0`, `ascad_desync_50`, `ascad_desync_100`, `aes_rd`, `dpav4` (pass `--data-dir <checkout>/datasets --tches20-src-dir <checkout>/src`).
+- Hardware: the MLP and the CNN at the default sizes run on CPU in minutes. The Transformer example uses a CUDA GPU when one is available; on CPU, reduce the number of epochs or the window length.
+
+## Run
 
 ```bash
 python -m model_training.train_mlp_example \
@@ -28,8 +34,12 @@ python -m model_training.train_transformer_example \
   --tches20-src-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/src
 ```
 
-The optional `--window-start` and `--window-end` flags select a sample range, which must lie within the trace length of the loaded file. For example, `ASCAD.h5` traces have 700 samples.
+`--window-start` and `--window-end` select a sample range, which must lie within the trace length of the file (`ASCAD.h5` traces have 700 samples).
 
-The examples write checkpoints and metadata under `checkpoints/model_training/`, which is ignored by git. The MLP example saves a scikit-learn pickle (`model.pkl`). The CNN and Transformer examples save a PyTorch state dict (`model.pt`) and a scaler pickle. These files are not directly loadable by the BI evaluators in `bi_suite_8datasets/` and `bi_scope_certificates/`, which load TCHES20 Keras `.hdf5` models or EstraNet TensorFlow checkpoints.
+## Outputs
 
-Data split caveat: each example draws a random train/validation/holdout split (60/20/20 by default) from the traces returned by `core.data_loader.load_dataset`. For `--dataset ascad`, that loader pools the ASCAD profiling and attack traces before the split, so attack traces can appear in the training set. The printed holdout accuracy is therefore not an attack-partition result. For the TCHES20 dataset tags (`ascad_desync_0`, `ascad_desync_50`, `ascad_desync_100`, `aes_rd`, `dpav4`), the loader returns only the profiling traces.
+Checkpoints and `metadata.json` under `checkpoints/model_training/<dataset>/`, which git ignores: the MLP saves a scikit-learn pickle (`model.pkl`), the CNN and Transformer save a PyTorch state dict (`model.pt`) and a scaler pickle. These files are not loadable by the BI evaluators in `bi_suite_8datasets/` and `bi_scope_certificates/`, which load TCHES20 Keras `.hdf5` models or EstraNet TensorFlow checkpoints.
+
+## Notes
+
+Each example draws a random train/validation/holdout split (60/20/20 by default) from the traces returned by `core.data_loader.load_dataset`. For `--dataset ascad` that loader pools the ASCAD profiling and attack traces before the split, so attack traces can appear in the training set and the printed holdout accuracy is not an attack-partition result. For the TCHES20 tags the loader returns only the profiling traces.

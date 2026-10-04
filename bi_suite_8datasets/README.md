@@ -1,52 +1,55 @@
-# BI Suite Evaluation
+# bi_suite_8datasets
 
-This directory contains evaluators for BI-suite rows that are computed from declared checkpoint suites:
+**What this folder does.** Every BI value starts from one integer per model: how many attack traces it classifies correctly (its top guess equals the true S-box output byte). This folder produces those counts for the eight benchmarks of Table 7. Key-rank curves are separate evidence and are not used as BI input.
 
-- `ascad_random_key`: EstraNet checkpoint suite from `checkpoints/ascadr`
-- `ches_ctf_2025`: EstraNet 3000-window checkpoint suite from `checkpoints/ches25_lx_w3000`
+## Files
 
-The evaluator computes single-target classification success on the attack split for every declared checkpoint. These success counts are the inputs to the KL-binomial `BI^{suite}` bracket. Key-rank and GE curves remain separate SCSCA/SASCA evidence and are not used as BI input.
+| File | Purpose |
+|---|---|
+| `evaluate_tches20_pretrained_fixed_split.py` | all 80 pretrained TCHES20 Keras models of one benchmark on one split; the six TCHES20 rows of Table 7 |
+| `evaluate_estranet_bi_suite.py` | a folder of EstraNet Transformer checkpoints; the ASCAD random-key and CHES-CTF-2025 rows |
+| `summarize_ascad_estranet_bi_baselines.py`, `summarize_ches_transformer_bi_sweep.py` | turn EstraNet counts into certificate rows |
+| `estranet_support/` | the CHES-CTF-2025 loader added to the EstraNet sources, the training patch, and the settings of every released checkpoint (see its README) |
 
-`paper_results/evaluate_estranet_suites.py` runs the EstraNet evaluator with the settings of both suites and
-of the CHES-CTF-2025 window suites; `estranet_support/` holds the CHES-CTF-2025 loader added to the EstraNet
-sources and the training settings of the checkpoints.
+`paper_results/evaluate_estranet_suites.py` runs the EstraNet evaluator with the paper's settings for both Table 7 suites and for the CHES-CTF-2025 window suites of Figure 1.
 
-Main Python entry points:
+## Before you run
 
-- `evaluate_estranet_bi_suite.py`: evaluate EstraNet checkpoint suites.
-- `evaluate_tches20_pretrained_fixed_split.py`: evaluate TCHES20-style pretrained fixed-split suites.
-- `summarize_ascad_estranet_bi_baselines.py`: summarize ASCAD EstraNet BI rows.
-- `summarize_ches_transformer_bi_sweep.py`: summarize CHES Transformer BI rows.
+- `requirements-ml.txt` (TensorFlow).
+- The TCHES20 benchmark: `paper_results/fetch_tches20.sh` clones it into `datasets/raw/tches20/TCHES20V3_CNN_SCA` and unpacks the split model archive into `models/pretrained_models/models`.
+- For EstraNet: the sources (`paper_results/fetch_estranet.sh`), the checkpoint archive, and the trace files (see `paper_results/README.md`, Level C).
 
-## TCHES20 pretrained suites
+## Run: TCHES20 models
 
-`evaluate_tches20_pretrained_fixed_split.py` evaluates every pretrained `.hdf5` model for one dataset on one split and writes `<dataset>_<split>_success.csv` and `<dataset>_<split>_summary.csv`. Certificates use the official attack partition, so pass `--split attack`.
-
-The pretrained models ship in https://github.com/KULeuven-COSIC/TCHES20V3_CNN_SCA as a split archive (`models/pretrained_models.zip` and `models/pretrained_models.z01`). Extract it first and point `--models-dir` at the directory that contains the `.hdf5` files; the examples below assume it was extracted to `models/pretrained_models/models` inside the TCHES20 checkout.
-
-```bash
-python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split \
-  --dataset ascad_desync_0 \
-  --split attack \
-  --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models \
-  --dataset-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets \
-  --tches20-src-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/src \
-  --output-dir results/bi_margin_reduction_audit/tches20_fixed_split
-```
-
-For AES-RD, the paper uses the first 12,500 attack records. Add `--max-eval-traces 12500`:
+Certificates use the official attack partition, so always pass `--split attack`:
 
 ```bash
+T=datasets/raw/tches20/TCHES20V3_CNN_SCA
 python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split \
-  --dataset aes_rd \
-  --split attack \
-  --max-eval-traces 12500 \
-  --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models \
-  --dataset-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets \
-  --tches20-src-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/src \
-  --output-dir results/bi_margin_reduction_audit/tches20_fixed_split
+  --dataset ascad_desync_0 --split attack \
+  --models-dir $T/models/pretrained_models/models --dataset-dir $T/datasets --tches20-src-dir $T/src \
+  --output-dir results/bi_suite_8datasets/tches20_fixed_split
 ```
 
-`--split profiling` and `--split both` evaluate the pretrained models on their own training (profiling) traces. They are in-sample diagnostics only, not valid certificates, and the script prints a warning when either is used.
+For AES-RD the paper uses the first 12,500 attack records: add `--dataset aes_rd --max-eval-traces 12500`.
 
-Generated outputs should be written under a local `results/` directory or another ignored output path.
+## Run: EstraNet checkpoints
+
+```bash
+python -m bi_suite_8datasets.evaluate_estranet_bi_suite --help
+python -m paper_results.evaluate_estranet_suites --suites ches_ctf_2025 --skip-selected --out-dir results/bi_suite_8datasets/estranet
+```
+
+## Outputs
+
+| File | Content |
+|---|---|
+| `<dataset>_<split>_success.csv` | one row per model: successes and number of traces |
+| `<dataset>_<split>_summary.csv` | the suite certificate: best rate `p_obs`, KL-binomial endpoints at `delta = 1e-6` with the union bound over `M = 80` models, and bits |
+| EstraNet: the `--output-csv` file and `<stem>.summary.json` | one row per checkpoint |
+
+## Notes
+
+- `--split profiling` and `--split both` evaluate the models on their own training traces. They are in-sample diagnostics, not certificates; the script prints a warning.
+- Near-chance EstraNet checkpoints (about 390 of 100,000) can differ by one trace between machines. The suite maximum does not.
+- Write outputs under `results/` or another ignored path.
