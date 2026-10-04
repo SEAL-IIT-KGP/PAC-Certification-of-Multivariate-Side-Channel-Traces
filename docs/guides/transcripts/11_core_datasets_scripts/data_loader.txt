@@ -1,0 +1,27 @@
+$ python -m core.data_loader
+
+Dataset Status
+==================================================
+  ✗ ascad: NOT FOUND
+      Not found. Run: python -m datasets.setup_datasets --ascad
+  ✗ aes_hd: NOT FOUND
+      Not found. Run: python -m datasets.setup_datasets --aes-hd
+
+Data Loader Module - Example Usage
+==================================================
+
+Generating synthetic data...
+  Traces shape: (10000, 50)
+  Labels shape: (10000,)
+
+Creating train/val/holdout split...
+  Training: 6000
+  Validation: 2000
+  Holdout: 2000
+
+Creating representations...
+  raw: shape = (6000, 50)
+  poi_5: shape = (6000, 5)
+  pca_10: shape = (6000, 10)
+  window_10_30: shape = (6000, 20)
+[exit code 0, 1 s]

@@ -1,0 +1,31 @@
+$ mkdir -p results datasets/raw checkpoints external && \
+    docker run --rm -v "$PWD/results:/artifact/results" -v "$PWD/datasets/raw:/artifact/datasets/raw" -v "$PWD/checkpoints:/artifact/checkpoints" -v "$PWD/external:/artifact/external" bi-certification bash -c "pwd && \
+    ls"
+/artifact
+Dockerfile
+LICENSE
+README.md
+SHA256SUMS
+attacker_scope_diagnostics
+bayes_oracle
+bi_certification_checkpoints.tar.gz
+bi_scope_certificates
+bi_suite_8datasets
+checkpoints
+core
+datasets
+dimension_stability
+docs
+epi_comparison
+external
+locality_diagnostics
+model_training
+multibyte_composition
+paper_results
+pyproject.toml
+requirements-lock.txt
+requirements-ml.txt
+requirements.txt
+results
+scripts
+[exit code 0, 0 s]

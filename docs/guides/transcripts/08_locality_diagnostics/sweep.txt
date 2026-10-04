@@ -1,0 +1,34 @@
+$ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m locality_diagnostics.ascad_temporal_window_sweep --ascad-h5 $T/datasets/ASCAD_dataset/ASCAD.h5 --cnn-model $T/models/pretrained_models/models/zaid_ascad_desync_0_no_preprocessing_0.hdf5 --tau-values 50,700 --n-seeds 1 --strategy center --output-dir results/locality_diagnostics
+[... earlier output omitted; key lines kept ...]
+[...]
+
+  Monotonicity check: PASSED
+  Random guess: 0.003906
+
+======================================================================
+COMPLETE: 2 new pairs computed, 2 total
+======================================================================
+  Summary saved to: results/locality_diagnostics/tau_sweep_summary.csv
+  Saved: results/locality_diagnostics/figures/tau_sweep_bi.pdf
+  Saved: results/locality_diagnostics/figures/tau_sweep_success.pdf
+  Saved: results/locality_diagnostics/figures/tau_sweep_positions.pdf
+
+================================================================================
+TAU-SWEEP SUMMARY
+================================================================================
+     tau     BI mean     BI std     Success   Succ std   Seeds   Positions
+  ------  ----------  ---------  ----------  ---------  ------  ----------
+      50      0.0000     0.0000    0.004280   0.000000       1           1
+     700      0.0000     0.0000    0.004600   0.000000       1           1
+
+  Monotonicity check: PASSED
+  Random guess: 0.003906
+
+  Results CSV:   results/locality_diagnostics/tau_sweep_results.csv
+  Summary CSV:   results/locality_diagnostics/tau_sweep_summary.csv
+  Figures:       results/locality_diagnostics/figures
+
+======================================================================
+Done.
+======================================================================
+[exit code 0, 6 s]

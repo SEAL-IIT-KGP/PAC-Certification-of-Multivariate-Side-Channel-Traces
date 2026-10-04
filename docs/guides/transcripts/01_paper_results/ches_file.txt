@@ -1,0 +1,6 @@
+$ ls -l datasets/raw/ches_ctf_2025 && \
+    sha256sum datasets/raw/ches_ctf_2025/CHES_Challenge.h5
+total 4120904
+-rw-r--r-- 1 root root 4219804480 Oct  4 00:11 CHES_Challenge.h5
+132ae2e9a8213c983bf3b63449e9572d5d71d3b376a75b236415d4a728b9379f  datasets/raw/ches_ctf_2025/CHES_Challenge.h5
+[exit code 0, 45 s]

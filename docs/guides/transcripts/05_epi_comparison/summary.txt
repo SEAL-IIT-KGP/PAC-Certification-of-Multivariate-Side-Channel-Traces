@@ -1,0 +1,34 @@
+$ python -m epi_comparison.summarize_epi_head_to_head --input-dir results/paper_results/recomputed/epi_comparison/main --output-dir results/epi_comparison/summary && \
+    cat results/epi_comparison/summary/summary.csv
+# BI versus IUH+22 EPI at native long dimensions
+
+Selection, beta calibration, and evaluation are class-balanced and mutually disjoint. BI and EPI use the same selected frozen model. BI is an exact finite-benchmark min-entropy lower bound; EPI is hel …
+
+| Dataset | Native d | Eval n | Accuracy (Wilson 95%) | finite BI | raw PI | EPI | beta |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ascad_desync_0 | 700 | 24064 | 0.005361 [0.004514, 0.006366] | 0.4566 | 0.0047 | 0.0062 | 0.778 |
+| ascad_desync_100 | 700 | 24064 | 0.014919 [0.013462, 0.016529] | 1.9333 | 0.3816 | 0.3816 | 1.001 |
+| ascad_desync_50 | 700 | 24064 | 0.014378 [0.012950, 0.015962] | 1.8800 | 0.4206 | 0.4206 | 0.986 |
+| aes_hd | 1250 | 24576 | 0.005493 [0.004643, 0.006498] | 0.4919 | 0.0158 | 0.0159 | 0.8754 |
+| aes_rd | 3500 | 11520 | 0.173958 [0.167145, 0.180989] | 5.4768 | 3.5024 | 3.5054 | 1.059 |
+| dpav4 | 4000 | 1280 | 0.039844 [0.030433, 0.052008] | 3.3505 | 2.4078 | 2.4133 | 1.146 |
+[... 9 lines omitted ...]
+| ascad_desync_50 | 23.0741 | 5.06606e-10 | 0.00138606 | 0.00179074 |
+| dpav4 | 20.7069 | 1.69916e-09 | 0 | 4.55626e-16 |
+
+## Bounded conclusion
+
+Datasets with a positive finite BI lower bound but an EPI interval touching zero: none.
+
+Datasets where finite-benchmark BI is numerically above EPI and the hard-label accuracy's Wilson 95% lower endpoint is above random guessing: aes_hd, aes_rd, ascad_desync_0, ascad_desync_100, ascad_de …
+
+Dimension by itself is not an EPI failure mode after model scores exist: EPI optimizes one scalar beta. BI is better only in the narrower sense supported by the artifacts: it is calibration-free and i …
+
+dataset,native_dimension,suite_size,selected_model,selection_records,calibration_records,evaluation_records,evaluation_successes,evaluation_accuracy,evaluation_accuracy_wilson95,accuracy_wilson_above_ …
+ascad_desync_0,700,80,zaid_ascad_desync_0_no_preprocessing_6.hdf5,7680,7680,24064,129,0.005360704787234043,"(0.0045137672329648255, 0.006365540712814046)",True,0.45663840374561676,0.004733566415856139 …
+ascad_desync_100,700,80,zaid_ascad_desync_100_no_preprocessing_5.hdf5,7680,7680,24064,359,0.014918550531914893,"(0.013462476473456388, 0.016529471913595342)",True,1.933251182145414,0.3815748693785437, …
+ascad_desync_50,700,80,zaid_ascad_desync_50_no_preprocessing_0.hdf5,7680,7680,24064,346,0.014378324468085107,"(0.012949869722054237, 0.015961798987882074)",True,1.8800393759590872,0.4205990255053953,0 …
+aes_hd,1250,80,zaid_aes_hd_no_preprocessing_2.hdf5,8192,8192,24576,135,0.0054931640625,"(0.004643217905503678, 0.0064976781527344716)",True,0.4918530963296747,0.015758142147568,0.8753502236996572,0.01 …
+aes_rd,3500,80,zaid_aes_rd_no_preprocessing_9.hdf5,3584,3584,11520,2004,0.17395833333333333,"(0.16714509866829977, 0.18098893920063583)",True,5.476813696865533,3.5024282266360975,1.058802492731552,3.5 …
+dpav4,4000,80,zaid_dpav4_no_preprocessing_9.hdf5,256,256,1280,51,0.03984375,"(0.03043337380474899, 0.05200784827411856)",True,3.350497247084133,2.4078183212696844,1.1459884794114636,2.4133203715582665 …
+[exit code 0, 5 s]

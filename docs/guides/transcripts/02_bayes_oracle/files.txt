@@ -1,0 +1,6 @@
+$ ls results/bayes_gaussian_oracle_suite
+README.md
+figures
+gaussian_oracle_suite_rows.csv
+gaussian_oracle_suite_summary.csv
+[exit code 0, 0 s]

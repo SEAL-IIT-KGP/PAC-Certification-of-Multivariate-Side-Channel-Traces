@@ -1,0 +1,43 @@
+$ python -m paper_results.reproduce fullversion
+[... earlier output omitted ...]
+          aes_rd          MLP                 noConv1_aes_rd_no_preprocessing_2           0.0003 10000        225        3.067
+          aes_rd  Transformer aes_rd_estranet_fstd_pool5_lr5e4_6977529_2_ckpt11           0.0003 20000       8447        6.828
+ascad_desync_100          CNN          zaid_ascad_desync_100_no_preprocessing_5           0.0003  8000         95        2.413
+ascad_desync_100          MLP       noConv1_ascad_desync_100_no_preprocessing_6           0.0003  8000         98        2.447
+ascad_desync_100  Transformer                  ascad_desync_100_estranet_ckpt40           0.0003  8000         54        1.834
+ ascad_desync_50          CNN           zaid_ascad_desync_50_no_preprocessing_3           0.0003  8000         97        2.436
+ ascad_desync_50          MLP        noConv1_ascad_desync_50_no_preprocessing_0           0.0003  8000         77        2.192
+ ascad_desync_50  Transformer                   ascad_desync_50_estranet_ckpt60           0.0003  8000         50        1.759
+ascad_random_key          CNN                        ascad_random_key_cnn_seed0           0.0003 80000       2112        2.941
+ascad_random_key          MLP                        ascad_random_key_mlp_seed0           0.0003 80000       3145        3.482
+ascad_random_key  Transformer                  ascad_random_key_estranet_ckpt80           0.0003 80000       1428        2.416
+[... 11 lines omitted ...]
+[PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
+$ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
+[PASS] Four-byte composition (full version): 6 values match the paper, 0 differ
+| ASCAD d0 | 4.23 | 2.70e-10 | yes | recomputed |
+| ASCAD d50 | 23.07 | 5.07e-10 | yes | recomputed |
+| ASCAD d100 | 22.48 | 4.25e-10 | yes | recomputed |
+| AES-HD | 5.30 | 1.66e-10 | yes | recomputed |
+| AES-RD | 27.31 | 7.40e-11 | yes | recomputed |
+| DPAv4 | 20.71 | 1.70e-09 | yes | recomputed |
+[PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
+
+100%|██████████| 10000/10000 [00:01<00:00, 6789.37it/s]
+
+100%|██████████| 10000/10000 [00:01<00:00, 6697.92it/s]
+
+100%|█████████▉| 24894/25000 [00:07<00:00, 3474.66it/s]
+100%|██████████| 25000/25000 [00:07<00:00, 3421.60it/s]
+
+100%|█████████▉| 24905/25000 [00:03<00:00, 6786.28it/s]
+100%|██████████| 25000/25000 [00:03<00:00, 6602.65it/s]
+WARNING:tensorflow:5 out of the last 9 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff54ad8a40> triggered tf.function retracing. Tracing is expensive and the excessi …
+WARNING:tensorflow:6 out of the last 11 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff54ad8a40> triggered tf.function retracing. Tracing is expensive and the excess …
+
+100%|██████████| 500/500 [00:00<00:00, 3568.67it/s]
+WARNING:tensorflow:5 out of the last 5 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff28e97f60> triggered tf.function retracing. Tracing is expensive and the excessi …
+WARNING:tensorflow:6 out of the last 6 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff28e971a0> triggered tf.function retracing. Tracing is expensive and the excessi …
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 25 min 57 s]

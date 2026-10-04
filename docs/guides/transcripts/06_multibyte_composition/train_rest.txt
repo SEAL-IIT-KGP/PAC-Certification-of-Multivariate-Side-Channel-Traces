@@ -1,0 +1,34 @@
+$ for b in 1 2 3 4 5 8 15; do python -m multibyte_composition.train_raw_ascad_byte_attacker --target-byte $b; done
+[... earlier output omitted; key lines kept ...]
+[...]
+{'epoch': 4, 'train_loss': 5.526374110412598, 'train_acc': 0.007125, 'val_loss': 5.616174697875977, 'val_acc': 0.0034000000450760126}
+{'epoch': 5, 'train_loss': 5.495504537963868, 'train_acc': 0.00895, 'val_loss': 5.616761684417725, 'val_acc': 0.003800000064074993}
+{'epoch': 6, 'train_loss': 5.456371211242676, 'train_acc': 0.012175, 'val_loss': 5.633718013763428, 'val_acc': 0.0020000000949949026}
+{'epoch': 7, 'train_loss': 5.414058724975586, 'train_acc': 0.015075, 'val_loss': 5.644437313079834, 'val_acc': 0.003599999938160181}
+{'epoch': 8, 'train_loss': 5.368957651519775, 'train_acc': 0.0183, 'val_loss': 5.6615214347839355, 'val_acc': 0.0038999998942017555}
+{'epoch': 9, 'train_loss': 5.31204873046875, 'train_acc': 0.023525, 'val_loss': 5.683440685272217, 'val_acc': 0.004000000189989805}
+{'epoch': 10, 'train_loss': 5.2614487968444825, 'train_acc': 0.0281, 'val_loss': 5.716784954071045, 'val_acc': 0.0032999999821186066}
+early stopping at epoch 10
+{'target_byte': 8, 'correct_key': 167, 'device': 'cpu', 'features': 513, 'base_pois': 24, 'val_top1': 0.0051, 'attack_top1': 0.0043, 'val_rank_at_5000': 230, 'val_top_key_at_5000': 211, 'attack_rank_a …
+byte=15 device=cpu
+raw=datasets/raw/ascad_raw/ATMega8515_raw_traces.h5 n_total=60000 trace_len=100000 base_pois=24 expanded_features=467
+{'epoch': 1, 'train_loss': 5.616971869659424, 'train_acc': 0.004175, 'val_loss': 5.598978519439697, 'val_acc': 0.004800000227987766}
+{'epoch': 2, 'train_loss': 5.574897273254394, 'train_acc': 0.004675, 'val_loss': 5.593192100524902, 'val_acc': 0.003700000001117587}
+{'epoch': 3, 'train_loss': 5.549068795776368, 'train_acc': 0.0063, 'val_loss': 5.5904154777526855, 'val_acc': 0.004999999888241291}
+{'epoch': 4, 'train_loss': 5.510014268493652, 'train_acc': 0.008425, 'val_loss': 5.586073875427246, 'val_acc': 0.00430000014603138}
+{'epoch': 5, 'train_loss': 5.464591016387939, 'train_acc': 0.01025, 'val_loss': 5.585899829864502, 'val_acc': 0.004900000058114529}
+{'epoch': 6, 'train_loss': 5.417757390594482, 'train_acc': 0.013025, 'val_loss': 5.5845417976379395, 'val_acc': 0.005200000014156103}
+{'epoch': 7, 'train_loss': 5.36630477142334, 'train_acc': 0.016525, 'val_loss': 5.601146697998047, 'val_acc': 0.004900000058114529}
+{'epoch': 8, 'train_loss': 5.315443386077881, 'train_acc': 0.0203, 'val_loss': 5.606040000915527, 'val_acc': 0.004800000227987766}
+{'epoch': 9, 'train_loss': 5.260475843811035, 'train_acc': 0.0251, 'val_loss': 5.614712715148926, 'val_acc': 0.006500000134110451}
+{'epoch': 10, 'train_loss': 5.204805307006836, 'train_acc': 0.0282, 'val_loss': 5.6346540451049805, 'val_acc': 0.005400000140070915}
+{'epoch': 11, 'train_loss': 5.1384163757324215, 'train_acc': 0.0352, 'val_loss': 5.68211030960083, 'val_acc': 0.004999999888241291}
+{'epoch': 12, 'train_loss': 5.0756769973754885, 'train_acc': 0.040225, 'val_loss': 5.6839799880981445, 'val_acc': 0.005799999926239252}
+{'epoch': 13, 'train_loss': 5.005690699768066, 'train_acc': 0.046775, 'val_loss': 5.718158721923828, 'val_acc': 0.005900000222027302}
+{'epoch': 14, 'train_loss': 4.925694054412841, 'train_acc': 0.056475, 'val_loss': 5.763463497161865, 'val_acc': 0.00559999980032444}
+{'epoch': 15, 'train_loss': 4.845280448150635, 'train_acc': 0.06405, 'val_loss': 5.7883830070495605, 'val_acc': 0.004600000102072954}
+{'epoch': 16, 'train_loss': 4.7587927658081055, 'train_acc': 0.07315, 'val_loss': 5.88934326171875, 'val_acc': 0.00559999980032444}
+{'epoch': 17, 'train_loss': 4.679345816040039, 'train_acc': 0.08345, 'val_loss': 5.912873268127441, 'val_acc': 0.004999999888241291}
+early stopping at epoch 17
+{'target_byte': 15, 'correct_key': 105, 'device': 'cpu', 'features': 467, 'base_pois': 24, 'val_top1': 0.0065, 'attack_top1': 0.0044, 'val_rank_at_5000': 0, 'val_top_key_at_5000': 105, 'attack_rank_at …
+[exit code 0, 11 min 40 s]

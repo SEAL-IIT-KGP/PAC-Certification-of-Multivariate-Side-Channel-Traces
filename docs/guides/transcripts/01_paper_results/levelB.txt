@@ -1,0 +1,53 @@
+$ python -m paper_results.reproduce tches20
+[... earlier output omitted; key lines kept ...]
+$ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_0 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --dat …
+{'dataset': 'ascad_desync_0', 'split': 'attack', 'scope_id': 'ascad_desync_0_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0063, 'p_minus': 0.0025954814754893776, 'p_plus': 0.012 …
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 20 s, exit code 0]
+$ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_50 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --da …
+{'dataset': 'ascad_desync_50', 'split': 'attack', 'scope_id': 'ascad_desync_50_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0097, 'p_minus': 0.0048463177805206144, 'p_plus': 0.0 …
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 76 s, exit code 0]
+$ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_100 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --d …
+{'dataset': 'ascad_desync_100', 'split': 'attack', 'scope_id': 'ascad_desync_100_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0098, 'p_minus': 0.004915831105724693, 'p_plus': 0. …
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 102 s, exit code 0]
+$ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset aes_hd --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --dataset-dir …
+{'dataset': 'aes_hd', 'split': 'attack', 'scope_id': 'aes_hd_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 25000, 'p_obs': 0.0052, 'p_minus': 0.0028794913844254534, 'p_plus': 0.008513928525316905, …
+[... 21 lines omitted ...]
+$ python -m paper_results.table7_bi_suite --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
+ascad_desync_0: 80/80 recomputed per-model counts equal the archived counts
+ascad_desync_50: 80/80 recomputed per-model counts equal the archived counts
+ascad_desync_100: 80/80 recomputed per-model counts equal the archived counts
+aes_hd: 80/80 recomputed per-model counts equal the archived counts
+aes_rd: 80/80 recomputed per-model counts equal the archived counts
+dpav4: 80/80 recomputed per-model counts equal the archived counts
+| ASCAD d0 | 700 | 80 | 10,000 | 0.00630 | [0.00260, 0.01247] | 0.690 | [0.000, 1.675] | 2.58 | -0.000 | recomputed |
+| ASCAD d50 | 700 | 80 | 10,000 | 0.00970 | [0.00485, 0.01701] | 1.312 | [0.311, 2.123] | 1.26 | 0.239 | recomputed |
+| ASCAD d100 | 700 | 80 | 10,000 | 0.00980 | [0.00492, 0.01714] | 1.327 | [0.332, 2.134] | 1.25 | 0.208 | recomputed |
+| AES-HD | 1,250 | 80 | 25,000 | 0.00520 | [0.00288, 0.00851] | 0.413 | [0.000, 1.124] | 2.56 | -0.006 | recomputed |
+| AES-RD | 3,500 | 80 | 12,500 | 0.13968 | [0.12135, 0.15946] | 5.160 | [4.957, 5.351] | 0.15 | 3.097 | recomputed |
+| DPAv4 | 4,000 | 80 | 500 | 0.02400 | [0.00201, 0.09144] | 2.619 | [0.000, 4.549] | 3.36 | 2.251 | recomputed |
+[PASS] Table 7 (finite-suite certificates): 80 values match the paper, 0 differ
+results/paper_results/recomputed/tches20_full_suite_loc/aes_rd_full_suite_bi_loc_summary.csv
+results/paper_results/recomputed/tches20_full_suite_loc/ascad_desync_0_full_suite_bi_loc_summary.csv
+results/paper_results/recomputed/tches20_full_suite_loc/ascad_desync_50_full_suite_bi_loc_summary.csv
+results/paper_results/recomputed/tches20_full_suite_loc/ascad_desync_100_full_suite_bi_loc_summary.csv
+$ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desync_50 --public-only --tches-root datasets/raw/tches20/TCHES20V3_CNN_SCA --output-dir results/paper_results/recomputed/ …
+$ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desync_100 --public-only --tches-root datasets/raw/tches20/TCHES20V3_CNN_SCA --output-dir results/paper_results/recomputed …
+
+100%|██████████| 500/500 [00:00<00:00, 2394.54it/s]
+WARNING:tensorflow:5 out of the last 5 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff40413c40> triggered tf.function retracing. Tracing is expensive and the excessi …
+WARNING:tensorflow:6 out of the last 6 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff4049e3e0> triggered tf.function retracing. Tracing is expensive and the excessi …
+
+100%|██████████| 10000/10000 [00:02<00:00, 4658.69it/s]
+
+100%|██████████| 10000/10000 [00:02<00:00, 4637.14it/s]
+
+100%|██████████| 10000/10000 [00:02<00:00, 4790.56it/s]
+
+100%|██████████| 25000/25000 [00:10<00:00, 2357.26it/s]
+
+100%|██████████| 25000/25000 [00:05<00:00, 4555.60it/s]
+
+100%|██████████| 500/500 [00:00<00:00, 2436.81it/s]
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 13 min 50 s]

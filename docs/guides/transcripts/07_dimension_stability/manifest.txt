@@ -1,0 +1,7 @@
+$ python -m dimension_stability.ches_nonbi_metric_cell --write-manifest-only --dimensions 100 --seeds 0 --metrics GKOV_MI,MLP_PI --manifest results/dimension_stability/manifest.csv --output-dir results/dimension_stability && \
+    cat results/dimension_stability/manifest.csv
+Wrote 2 tasks to results/dimension_stability/manifest.csv
+task_id,dataset,dimension,seed,metric,status,note
+0,ches_ctf_2025,100,0,GKOV_MI,scheduled,CHES high-dimensional non-BI metric-split Plot B pass
+1,ches_ctf_2025,100,0,MLP_PI,scheduled,CHES high-dimensional non-BI metric-split Plot B pass
+[exit code 0, 2 s]

@@ -1,0 +1,33 @@
+$ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m epi_comparison.epi_head_to_head --dataset ascad_desync_0 --dataset-dir $T/datasets --tches20-src-dir $T/src --models-dir $T/models --output-dir results/epi_comparison/main
+[... earlier output omitted; key lines kept ...]
+[...]
+  "raw_pi_ci95": [
+    0.002208332631117997,
+    0.007396932315823333
+  ],
+  "epi_beta_hat": 0.7780315996161693,
+  "calibration_ece_bits": 7.991205077209616,
+  "epi_bits": 0.0062125733950339915,
+  "epi_ci95": [
+    0.0042729614878547605,
+    0.008190891872394652
+[... 12 lines omitted ...]
+    "seed": 20260721,
+    "beta_max": 64.0,
+    "selection_fraction_per_class": 0.2,
+    "calibration_fraction_per_class": 0.2,
+    "bootstrap_reps": 2000,
+    "scarcity_reps": 20,
+    "hostname": "23f5f94aa8ca",
+    "platform": "Linux-7.0.14-linuxkit-aarch64-with-glibc2.36",
+    "python": "3.11.9 (main, Sep  5 2024, 18:07:15) [GCC 12.2.0]",
+    "numpy": "1.26.4",
+    "tensorflow": "2.15.0",
+    "slurm_job_id": "",
+    "slurm_array_task_id": "",
+    "elapsed_sec": 29.805309295654297
+  }
+}
+
+100%|██████████| 10000/10000 [00:01<00:00, 6543.98it/s]
+[exit code 0, 31 s]

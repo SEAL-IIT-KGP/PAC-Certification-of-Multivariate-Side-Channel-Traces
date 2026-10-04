@@ -1,0 +1,26 @@
+$ cat results/paper_results/table9_biloc_full_suite.md
+### Table 9: full-suite local-family certificate over M = 80 models (delta = 1e-06)
+
+| Benchmark | eps | S_loc | p_hat_loc | BI_loc_plus | Arch. | counts |
+|---|---|---|---|---|---|---|
+| AES-RD | 0 | 1,746 | 0.140 | 5.36 | CNN | archived |
+| AES-RD | 0.0001 | 1,756 | 0.140 | 5.37 | CNN | archived |
+| AES-RD | 0.0003 | 1,767 | 0.141 | 5.37 | CNN | archived |
+| AES-RD | 0.001 | 1,812 | 0.145 | 5.41 | CNN | archived |
+| AES-RD | 0.01 | 11,737 | 0.939 | 7.93 | MLP | archived |
+| ASCAD d0 | 0 | 63 | 0.006 | 1.71 | CNN | archived |
+| ASCAD d0 | 0.0001 | 264 | 0.026 | 3.28 | MLP | archived |
+| ASCAD d0 | 0.0003 | 1,694 | 0.169 | 5.64 | CNN | archived |
+| ASCAD d0 | 0.001 | 10,000 | 1.000 | 8.00 | MLP | archived |
+| ASCAD d0 | 0.01 | 10,000 | 1.000 | 8.00 | MLP | archived |
+| ASCAD d50 | 0 | 97 | 0.010 | 2.15 | CNN | archived |
+| ASCAD d50 | 0.0001 | 112 | 0.011 | 2.30 | CNN | archived |
+| ASCAD d50 | 0.0003 | 141 | 0.014 | 2.56 | CNN | archived |
+| ASCAD d50 | 0.001 | 815 | 0.082 | 4.68 | CNN | archived |
+| ASCAD d50 | 0.01 | 10,000 | 1.000 | 8.00 | CNN | archived |
+| ASCAD d100 | 0 | 98 | 0.010 | 2.16 | CNN | archived |
+| ASCAD d100 | 0.0001 | 109 | 0.011 | 2.28 | CNN | archived |
+| ASCAD d100 | 0.0003 | 233 | 0.023 | 3.13 | MLP | archived |
+| ASCAD d100 | 0.001 | 4,936 | 0.494 | 7.07 | MLP | archived |
+| ASCAD d100 | 0.01 | 9,934 | 0.993 | 8.00 | MLP | archived |
+[exit code 0, 0 s]

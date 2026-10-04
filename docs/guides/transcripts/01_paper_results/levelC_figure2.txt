@@ -1,0 +1,37 @@
+$ python -m bi_scope_certificates.prepare_aesrd_estranet_h5 && \
+    for ds in ascad_random_key ascad_desync_50 ascad_desync_100 aes_rd; do python -m bi_scope_certificates.profile_epsilon_calibration --dataset $ds --output-dir results/paper_results/recomputed/selected_centers/$ds; done && \
+    python -m paper_results.reproduce report
+[... earlier output omitted ...]
+ascad_random_key          MLP                        ascad_random_key_mlp_seed0           0.0003 80000       3145        3.482
+ascad_random_key  Transformer                  ascad_random_key_estranet_ckpt80           0.0003 80000       1428        2.416
+
+results/paper_results/figure2_biloc_selected_centers.pdf
+[PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
+[paper_results.figure2_biloc_selected_centers: 1 s, exit code 0]
+
+$ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
+### Full version: raw-ASCAD four-byte composition
+
+| Traces | Printed | Printed rate | Archived final models (1,000 campaigns) | Rerun | Rerun rate | Rerun median rank |
+[... 31 lines omitted ...]
+[PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
+[PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 27 min 34 s]

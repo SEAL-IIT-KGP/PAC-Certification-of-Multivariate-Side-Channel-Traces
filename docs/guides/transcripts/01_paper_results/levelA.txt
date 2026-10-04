@@ -1,0 +1,34 @@
+$ python -m paper_results.reproduce archived
+[... earlier output omitted ...]
+[PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
+[paper_results.figure2_biloc_selected_centers: 2 s, exit code 0]
+
+$ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/none --out-dir results/paper_results
+### Full version: raw-ASCAD four-byte composition
+
+| Traces | Printed | Printed rate | Archived final models (1,000 campaigns) | Rerun | Rerun rate | Rerun median rank |
+|---|---|---|---|---|---|---|
+| 100 | 40/250 | 0.160 | 0.203 |  |  |  |
+| 200 | 94/250 | 0.376 | 0.445 |  |  |  |
+| 500 | 191/250 | 0.764 | 0.918 |  |  |  |
+[... 11 lines omitted ...]
+[PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
+| ASCAD d100 | 22.48 | 9.43e-11 | yes | archived |
+| AES-HD | 5.30 | 1.78e-10 | yes | archived |
+| AES-RD | 27.31 | 7.02e-11 | yes | archived |
+| DPAv4 | 20.71 | 8.57e-10 | yes | archived |
+
+[PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
+[paper_results.fullversion_tables: 0 s, exit code 0]
+
+================ summary ================
+Table 7   matches the paper
+Table 8   matches the paper
+Table 9   matches the paper
+Figure 1  matches the paper
+Figure 2  matches the paper
+Full-version tables matches the paper
+tables and figures: results/paper_results
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 20 s]

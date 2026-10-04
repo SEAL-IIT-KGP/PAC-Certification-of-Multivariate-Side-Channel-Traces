@@ -1,0 +1,33 @@
+$ python -m bi_suite_8datasets.evaluate_estranet_bi_suite --help
+usage: evaluate_estranet_bi_suite.py [-h] --project-root PROJECT_ROOT
+                                     --dataset {ASCAD,CHES25} --dataset-name
+                                     DATASET_NAME --scope-id SCOPE_ID
+                                     --data-path DATA_PATH --checkpoint-dir
+                                     CHECKPOINT_DIR
+                                     [--checkpoint-indices CHECKPOINT_INDICES]
+                                     [--skip-missing-checkpoints] --output-csv
+                                     OUTPUT_CSV [--source-note SOURCE_NOTE]
+                                     --input-length INPUT_LENGTH
+                                     [--data-desync DATA_DESYNC]
+                                     [--eval-batch-size EVAL_BATCH_SIZE]
+                                     [--learning-rate LEARNING_RATE]
+[... 28 lines omitted ...]
+  --eval-batch-size EVAL_BATCH_SIZE
+  --learning-rate LEARNING_RATE
+  --n-layer N_LAYER
+  --d-model D_MODEL
+  --d-head D_HEAD
+  --n-head N_HEAD
+  --d-inner D_INNER
+  --n-head-softmax N_HEAD_SOFTMAX
+  --d-head-softmax D_HEAD_SOFTMAX
+  --dropout DROPOUT
+  --conv-kernel-size CONV_KERNEL_SIZE
+  --n-conv-layer N_CONV_LAYER
+  --pool-size POOL_SIZE
+  --d-kernel-map D_KERNEL_MAP
+  --beta-hat-2 BETA_HAT_2
+  --model-normalization MODEL_NORMALIZATION
+  --head-initialization HEAD_INITIALIZATION
+  --softmax-attn, --no-softmax-attn
+[exit code 0, 3 s]

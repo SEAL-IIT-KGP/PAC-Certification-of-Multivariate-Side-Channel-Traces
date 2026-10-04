@@ -1,0 +1,36 @@
+$ python -m paper_results.reproduce estranet --suites ascad_random_key ches_ctf_2025
+[... earlier output omitted ...]
+ ascad_desync_50          CNN           zaid_ascad_desync_50_no_preprocessing_3           0.0003  8000         97        2.436
+ ascad_desync_50          MLP        noConv1_ascad_desync_50_no_preprocessing_0           0.0003  8000         77        2.192
+ ascad_desync_50  Transformer                   ascad_desync_50_estranet_ckpt60           0.0003  8000         50        1.759
+ascad_random_key          CNN                        ascad_random_key_cnn_seed0           0.0003 80000       2112        2.941
+ascad_random_key          MLP                        ascad_random_key_mlp_seed0           0.0003 80000       3145        3.482
+ascad_random_key  Transformer                  ascad_random_key_estranet_ckpt80           0.0003 80000       1428        2.416
+
+results/paper_results/figure2_biloc_selected_centers.pdf
+[PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
+[paper_results.figure2_biloc_selected_centers: 2 s, exit code 0]
+
+[... 31 lines omitted ...]
+$ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
+[PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
+[PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
+Figure 1  matches the paper
+Figure 2  matches the paper
+Full-version tables matches the paper
+tables and figures: results/paper_results
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 56 min 53 s]

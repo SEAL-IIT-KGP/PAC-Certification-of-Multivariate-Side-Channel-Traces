@@ -12,8 +12,9 @@ Numbering follows the camera-ready version (Tables 7-9, Figures 1-2).
 | Figure 1 | CHES-CTF-2025 dimension sweep: `BI_suite,+` and density-style estimators | `figure1_dimension_sweep.py` |
 | Figure 2 | Selected-center local-family curves and the calibrated radius | `figure2_biloc_selected_centers.py` |
 
-There are three levels. Each level replaces more of the archived inputs with
-values recomputed from the traces.
+There are four levels. Each level replaces more of the archived inputs with
+values recomputed from the traces. [`docs/guides/01_paper_results.pdf`](../docs/guides/pdf/01_paper_results.pdf)
+walks through all four with the recorded terminal output of each command.
 
 | Level | Command | Starts from | Needs | Time |
 |---|---|---|---|---|

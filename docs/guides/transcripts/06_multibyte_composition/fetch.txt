@@ -1,0 +1,3 @@
+$ python -m multibyte_composition.fetch_raw_ascad
+datasets/raw/ascad_raw/ATMega8515_raw_traces.h5: checksum verified (raw traces)
+[exit code 0, 1 min 9 s]

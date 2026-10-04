@@ -28,6 +28,10 @@ Without Docker: `pip install -r requirements.txt && python -m paper_results.repr
 
 [`paper_results/README.md`](paper_results/README.md) is the step-by-step guide with the expected output of every level, and [`docs/EXPERIMENT_MAP.md`](docs/EXPERIMENT_MAP.md) maps each table and figure to its script.
 
+## Guides
+
+[`docs/guides/`](docs/guides/README.md) holds one short PDF per directory, written for a first-time reader: what the directory shows, what to have in place, the commands to type, and the terminal output to expect. The outputs were recorded inside the Docker image on a laptop (Apple M3 Pro, CPU only). Start with [`00_start_here.pdf`](docs/guides/pdf/00_start_here.pdf), then [`01_paper_results.pdf`](docs/guides/pdf/01_paper_results.pdf) for the four levels.
+
 ## Hardware: CPU for reproduction, GPU for training
 
 Everything behind the paper's tables and figures is inference and counting, and all four levels above run on CPU only; the reference runs used a 24-core workstation and a 16-core cluster node. A GPU is needed only to **train** models:
@@ -67,7 +71,7 @@ pip install -r requirements.txt
 pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ml.txt
 ```
 
-`requirements.txt` covers the certificate code and the table and figure builders; `requirements-ml.txt` adds TensorFlow 2.15 (pretrained Keras models, EstraNet checkpoints) and PyTorch 2.2 (diagnostics, training examples); `requirements-lock.txt` is the complete environment of the reference runs, which the `Dockerfile` reproduces. Run every entry point from the repository root (`python -m package.script`), because the scripts import shared code as `core.*`. The code is formatted and linted with `ruff` (`pyproject.toml`).
+The image and the virtual environment have been built and run on x86-64 Linux and on Apple Silicon (arm64 Linux inside Docker, native macOS Python); the requirement files select the matching wheels. `requirements.txt` covers the certificate code and the table and figure builders; `requirements-ml.txt` adds TensorFlow 2.15 (pretrained Keras models, EstraNet checkpoints) and PyTorch 2.2 (diagnostics, training examples); `requirements-lock.txt` is the complete environment of the reference runs, which the `Dockerfile` reproduces. Run every entry point from the repository root (`python -m package.script`), because the scripts import shared code as `core.*`. The code is formatted and linted with `ruff` (`pyproject.toml`).
 
 ## External code and data
 

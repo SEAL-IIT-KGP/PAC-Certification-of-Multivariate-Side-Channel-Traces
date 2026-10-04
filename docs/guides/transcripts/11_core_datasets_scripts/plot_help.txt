@@ -1,0 +1,18 @@
+$ python -m scripts.plot_bi_loc_radius_curves --help
+usage: plot_bi_loc_radius_curves.py [-h] [--csv CSV] [--out-dir OUT_DIR]
+                                    [--audited-points-csv AUDITED_POINTS_CSV]
+                                    [--point-label POINT_LABEL]
+                                    [--output-stem OUTPUT_STEM]
+
+options:
+  -h, --help            show this help message and exit
+  --csv CSV
+  --out-dir OUT_DIR
+  --audited-points-csv AUDITED_POINTS_CSV
+                        Optional CSV of concrete audited radius points to
+                        overlay with star markers.
+  --point-label POINT_LABEL
+                        Legend text for the star markers.
+  --output-stem OUTPUT_STEM
+                        File name (without extension) of the figure.
+[exit code 0, 1 s]

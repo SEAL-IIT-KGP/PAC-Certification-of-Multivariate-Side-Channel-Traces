@@ -1,0 +1,22 @@
+$ ls results/paper_results
+bi_suite_dataset_summary.csv
+figure1_dimension_sweep.csv
+figure1_dimension_sweep.pdf
+figure1_dimension_sweep.png
+figure2_biloc_selected_centers.csv
+figure2_biloc_selected_centers.pdf
+figure2_biloc_selected_centers.png
+figure2_biloc_selected_centers_full_attack_set.csv
+figure2_calibrated_radius_points.csv
+fullversion_epi_temperature.csv
+fullversion_epi_temperature.md
+fullversion_four_byte.csv
+fullversion_four_byte.md
+gaussian_oracle
+table7_bi_suite.csv
+table7_bi_suite.md
+table8_key_recovery.csv
+table8_key_recovery.md
+table9_biloc_full_suite.csv
+table9_biloc_full_suite.md
+[exit code 0, 0 s]
