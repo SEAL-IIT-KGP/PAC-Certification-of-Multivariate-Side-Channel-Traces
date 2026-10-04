@@ -8,14 +8,58 @@ Code for **Bounded Information: PAC Certification of Multivariate Side-Channel T
 
 ## Quick start
 
-Build the Docker image and run the default check. It rebuilds all tables and figures from the archived counts, needs no download, and takes about a minute:
+Everything runs inside one Docker image, so nothing else has to be installed. Build the image and create the folders that the container shares with your machine:
 
 ```bash
+git clone https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
+cd pac-artifact
 docker build -t bi-certification .
+mkdir -p results datasets/raw checkpoints external
+```
+
+**Level A** rebuilds all tables and figures from the archived counts and checks every number against the paper. It needs no download and takes about a minute:
+
+```bash
 docker run --rm -v "$PWD/results:/artifact/results" bi-certification
 ```
 
-Without Docker: `pip install -r requirements.txt && python -m paper_results.reproduce archived`.
+The other levels download traces and models into the shared folders. This shell function runs a command in the image with all four folders shared:
+
+```bash
+artifact() {
+  docker run --rm -v "$PWD/results:/artifact/results" -v "$PWD/datasets/raw:/artifact/datasets/raw" \
+    -v "$PWD/checkpoints:/artifact/checkpoints" -v "$PWD/external:/artifact/external" \
+    bi-certification "$@"
+}
+```
+
+```bash
+# Level B: the public TCHES20 traces and its 480 trained models (0.5 GB)
+artifact paper_results/fetch_tches20.sh
+artifact python -m paper_results.reproduce tches20
+
+# Level C: the released Transformer checkpoints (0.3 GB) and two trace files (0.4 GB and 4 GB)
+tar -xzf bi_certification_checkpoints.tar.gz     # checkpoint archive, see paper_results/README.md
+artifact paper_results/fetch_estranet.sh
+artifact python -m paper_results.fetch_ascad_random_key
+# put CHES_Challenge.h5 (https://pace-tl.gitbook.io/ches-challenge-2025) into datasets/raw/ches_ctf_2025/
+artifact python -m paper_results.reproduce estranet
+
+# Level C, optional parts: the BI line of Figure 1 and the Transformer models of Figure 2
+artifact python -m paper_results.reproduce estranet --suites ches_windows
+artifact bash -c 'python -m bi_scope_certificates.prepare_aesrd_estranet_h5 &&
+  for ds in ascad_random_key ascad_desync_50 ascad_desync_100 aes_rd; do
+    python -m bi_scope_certificates.profile_epsilon_calibration --dataset $ds \
+      --output-dir results/paper_results/recomputed/selected_centers/$ds; done &&
+  python -m paper_results.reproduce report'
+
+# Level D: the two results of the full version (downloads the raw ASCAD traces, 4.4 GB)
+artifact python -m paper_results.reproduce fullversion
+```
+
+Each `reproduce` run ends with one `[PASS]` line per table or figure and writes the tables and figures to `results/paper_results/`. Every run fits in 8 GB of memory except the 7,000-sample window suite of Figure 1, which needs 12 GB; with Docker Desktop, raise its memory limit before that run.
+
+Without Docker: `pip install -r requirements.txt && python -m paper_results.reproduce archived` runs Level A; [`paper_results/README.md`](paper_results/README.md) gives the Python setup for the other levels.
 
 ## Reproducing the paper
 
