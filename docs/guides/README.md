@@ -2,8 +2,9 @@
 
 One short PDF per folder of the repository. Each guide says what the folder shows, what you need
 before you start, the commands to type, and the terminal output you should see. The outputs were
-recorded inside the Docker image on a MacBook (Apple M3 Pro, 12 cores, 14 GB given to Docker),
-CPU only.
+recorded inside the Docker image on a Linux workstation (x86-64), CPU only. The same commands also
+ran inside Docker on a Mac (Apple M3 Pro, arm64) and passed every check; guide 00 lists the times on
+both machines.
 
 | Guide | Folder |
 |---|---|

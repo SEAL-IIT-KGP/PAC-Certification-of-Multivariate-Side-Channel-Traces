@@ -3,4 +3,4 @@ $ python -m bayes_oracle.gaussian_oracle_suite --amplitude 3.0 --sigma 1.0 --n-t
   "out_dir": "results/bayes_gaussian_oracle_suite",
   "rows": 6
 }
-[exit code 0, 19 s]
+[exit code 0, 16 s]

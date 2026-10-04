@@ -1,9 +1,9 @@
 $ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m attacker_scope_diagnostics.scope_cell_runner --dataset ascad_desync_0 --seed 0 --scope 1 --max-features 50 --dataset-dir $T/datasets --tches20-src-dir $T/src --device cpu --output-dir results/attacker_scope_diagnostic --checkpoint results/attacker_scope_diagnostic/scope_checkpoint.csv
-[config] {"cnn_epochs": 12, "cnn_patience": 3, "device": "cpu", "feature_select": "variance", "max_features": 50, "pid": 1, "started_at": "2026-10-04T06:41:06+0000", "target": {"dataset": "ascad_desyn …
+[config] {"cnn_epochs": 12, "cnn_patience": 3, "device": "cpu", "feature_select": "variance", "max_features": 50, "pid": 1, "started_at": "2026-10-04T18:23:45+0000", "target": {"dataset": "ascad_desyn …
 Creating all target labels for the attack traces:
   Loaded via TCHES20 dataLoaders: 50000 profiling traces, 700 features
 [feature-select] ascad_desync_0: 700 -> 50 features via variance
-    seed=0 scope=1 (Linear)... BI=3.0581 p_max=0.0046 M=6 (59s)
+    seed=0 scope=1 (Linear)... BI=3.0581 p_max=0.0046 M=6 (52s)
 [checkpoint] appended ('ascad_desync_0', 1, 0) to results/attacker_scope_diagnostic/scope_checkpoint.csv
     seed=1 scope=1 already in checkpoint, skipping
     seed=2 scope=1 already in checkpoint, skipping
@@ -11,7 +11,7 @@ Creating all target labels for the attack traces:
     seed=4 scope=1 already in checkpoint, skipping
 [done] target ('ascad_desync_0', 1, 0) complete
 
-100%|██████████| 10000/10000 [00:02<00:00, 4610.71it/s]
+100%|██████████| 10000/10000 [00:02<00:00, 4605.65it/s]
 /usr/local/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
 STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
 
@@ -20,4 +20,4 @@ Increase the number of iterations (max_iter) or scale the data as shown in:
 Please also refer to the documentation for alternative solver options:
     https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
   n_iter_i = _check_optimize_result(
-[exit code 0, 3 min 57 s]
+[exit code 0, 3 min 17 s]

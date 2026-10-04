@@ -2,16 +2,16 @@ $ python -m paper_results.reproduce tches20
 [... earlier output omitted; key lines kept ...]
 $ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_0 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --dat …
 {'dataset': 'ascad_desync_0', 'split': 'attack', 'scope_id': 'ascad_desync_0_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0063, 'p_minus': 0.0025954814754893776, 'p_plus': 0.012 …
-[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 20 s, exit code 0]
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 15 s, exit code 0]
 $ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_50 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --da …
 {'dataset': 'ascad_desync_50', 'split': 'attack', 'scope_id': 'ascad_desync_50_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0097, 'p_minus': 0.0048463177805206144, 'p_plus': 0.0 …
-[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 76 s, exit code 0]
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 36 s, exit code 0]
 $ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_100 --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --d …
 {'dataset': 'ascad_desync_100', 'split': 'attack', 'scope_id': 'ascad_desync_100_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0098, 'p_minus': 0.004915831105724693, 'p_plus': 0. …
-[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 102 s, exit code 0]
+[bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split: 40 s, exit code 0]
 $ python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset aes_hd --split attack --models-dir datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models/models --dataset-dir …
 {'dataset': 'aes_hd', 'split': 'attack', 'scope_id': 'aes_hd_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 25000, 'p_obs': 0.0052, 'p_minus': 0.0028794913844254534, 'p_plus': 0.008513928525316905, …
-[... 21 lines omitted ...]
+[... 116 lines omitted ...]
 $ python -m paper_results.table7_bi_suite --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
 ascad_desync_0: 80/80 recomputed per-model counts equal the archived counts
 ascad_desync_50: 80/80 recomputed per-model counts equal the archived counts
@@ -32,22 +32,22 @@ results/paper_results/recomputed/tches20_full_suite_loc/ascad_desync_50_full_sui
 results/paper_results/recomputed/tches20_full_suite_loc/ascad_desync_100_full_suite_bi_loc_summary.csv
 $ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desync_50 --public-only --tches-root datasets/raw/tches20/TCHES20V3_CNN_SCA --output-dir results/paper_results/recomputed/ …
 $ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desync_100 --public-only --tches-root datasets/raw/tches20/TCHES20V3_CNN_SCA --output-dir results/paper_results/recomputed …
+WARNING:tensorflow:6 out of the last 6 calls to <function Model.make_predict_function.<locals>.predict_function at 0x7274ac556160> triggered tf.function retracing. Tracing is expensive and the excessi …
 
-100%|██████████| 500/500 [00:00<00:00, 2394.54it/s]
-WARNING:tensorflow:5 out of the last 5 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff40413c40> triggered tf.function retracing. Tracing is expensive and the excessi …
-WARNING:tensorflow:6 out of the last 6 calls to <function Model.make_predict_function.<locals>.predict_function at 0xffff4049e3e0> triggered tf.function retracing. Tracing is expensive and the excessi …
+100%|██████████| 10000/10000 [00:02<00:00, 4442.42it/s]
 
-100%|██████████| 10000/10000 [00:02<00:00, 4658.69it/s]
+100%|██████████| 10000/10000 [00:02<00:00, 4466.87it/s]
 
-100%|██████████| 10000/10000 [00:02<00:00, 4637.14it/s]
+100%|█████████▉| 9963/10000 [00:02<00:00, 4525.13it/s]
+100%|██████████| 10000/10000 [00:02<00:00, 4507.64it/s]
 
-100%|██████████| 10000/10000 [00:02<00:00, 4790.56it/s]
+100%|█████████▉| 24954/25000 [00:10<00:00, 2305.33it/s]
+100%|██████████| 25000/25000 [00:10<00:00, 2297.90it/s]
 
-100%|██████████| 25000/25000 [00:10<00:00, 2357.26it/s]
+100%|█████████▉| 24904/25000 [00:05<00:00, 4477.57it/s]
+100%|██████████| 25000/25000 [00:05<00:00, 4507.33it/s]
 
-100%|██████████| 25000/25000 [00:05<00:00, 4555.60it/s]
-
-100%|██████████| 500/500 [00:00<00:00, 2436.81it/s]
+100%|██████████| 500/500 [00:00<00:00, 2370.30it/s]
 'created' timestamp seems very low; regarding as unix timestamp
 'modified' timestamp seems very low; regarding as unix timestamp
-[exit code 0, 13 min 50 s]
+[exit code 0, 6 min 49 s]

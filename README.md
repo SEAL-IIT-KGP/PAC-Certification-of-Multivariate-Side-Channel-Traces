@@ -31,7 +31,7 @@ Without Docker: `pip install -r requirements.txt && python -m paper_results.repr
 Where to read next:
 
 - [`paper_results/README.md`](paper_results/README.md): the four levels in detail, the expected output, and how to read each table.
-- [`docs/guides/`](docs/guides/README.md): one short PDF per directory for a first-time reader, with the terminal output of every command recorded inside the Docker image on a laptop (Apple M3 Pro, CPU only). Start with [`00_start_here.pdf`](docs/guides/pdf/00_start_here.pdf).
+- [`docs/guides/`](docs/guides/README.md): one short PDF per directory for a first-time reader, with the terminal output of every command recorded inside the Docker image on a Linux workstation (x86-64, CPU only); guide 00 also lists the times on a Mac (Apple M3 Pro). Start with [`00_start_here.pdf`](docs/guides/pdf/00_start_here.pdf).
 - [`docs/EXPERIMENT_MAP.md`](docs/EXPERIMENT_MAP.md): which script produces each table and figure.
 
 ## Hardware: CPU to reproduce, GPU only to train

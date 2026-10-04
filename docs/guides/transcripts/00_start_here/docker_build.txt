@@ -1,33 +1,33 @@
 $ docker build -t bi-certification .
 [... earlier output omitted ...]
-#9 67.33    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 288.9 MB/s eta 0:00:00
-#9 67.37 Downloading cffi-2.1.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl (218 kB)
-#9 67.37    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 218.7/218.7 kB 178.0 MB/s eta 0:00:00
-#9 67.41 Downloading oauthlib-4.0.0-py3-none-any.whl (159 kB)
-#9 67.41    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 159.7/159.7 kB 188.6 MB/s eta 0:00:00
-#9 67.43 Downloading pyasn1-0.6.4-py3-none-any.whl (84 kB)
-#9 67.44    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.4/84.4 kB 155.9 MB/s eta 0:00:00
-#9 67.46 Downloading pycparser-3.0-py3-none-any.whl (48 kB)
-#9 67.46    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 140.4 MB/s eta 0:00:00
-#9 68.21 Installing collected packages: mpmath, libclang, flatbuffers, wrapt, urllib3, typing-extensions, termcolor, tensorflow-io-gcs-filesystem, tensorflow-estimator, tensorboard-data-server, sympy, …
-#9 85.87 Successfully installed MarkupSafe-3.0.4 absl-py-2.5.0 astunparse-1.6.3 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 filelock-4.0.10 flatbuffers-25.12.19 fsspec-20 …
-#9 85.87 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: htt …
-#9 DONE 87.3s
+#9 27.43    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.6/69.6 kB 438.9 MB/s eta 0:00:00
+#9 27.46 Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+#9 27.46    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 181.3/181.3 kB 575.3 MB/s eta 0:00:00
+#9 27.48 Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl (24 kB)
+#9 27.50 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#9 27.51    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 261.4 MB/s eta 0:00:00
+#9 27.53 Downloading cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (217 kB)
+#9 27.53    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 217.8/217.8 kB 278.3 MB/s eta 0:00:00
+#9 27.56 Downloading oauthlib-4.0.0-py3-none-any.whl (159 kB)
+#9 27.56    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 159.7/159.7 kB 157.3 MB/s eta 0:00:00
+#9 27.58 Downloading pyasn1-0.6.4-py3-none-any.whl (84 kB)
+#9 27.58    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.4/84.4 kB 671.3 MB/s eta 0:00:00
+#9 27.61 Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+#9 27.61    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 128.0 MB/s eta 0:00:00
+#9 28.26 Installing collected packages: mpmath, libclang, flatbuffers, wrapt, urllib3, typing-extensions, termcolor, tensorflow-io-gcs-filesystem, tensorflow-estimator, tensorboard-data-server, sympy, …
+#9 44.06 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: htt …
+#9 44.06 Successfully installed MarkupSafe-3.0.4 absl-py-2.5.0 astunparse-1.6.3 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 filelock-4.0.10 flatbuffers-25.12.19 fsspec-20 …
+#9 DONE 45.0s
 
 #10 [6/6] COPY . .
-#10 DONE 0.6s
+#10 DONE 0.2s
 
 #11 exporting to image
 #11 exporting layers
-#11 exporting layers 43.9s done
-#11 exporting manifest sha256:63ed0a6db58283b51a6c35e821b53b6d2366d8200d9c55fa89b84274c7176abf done
-#11 exporting config sha256:60381d9201bdb96082b45338e5f034fa83725ca067dc03d89b74a917553ab6d4 done
-#11 exporting attestation manifest sha256:b588e64d37c6cdcb7feb6c63f549afb456dfe5c61469b191c0b52cd7b710c86d done
-#11 exporting manifest list sha256:2f01422606b084ba4218daed36bc3487dfd8aa22862992576e21ccec085eabe3 done
-#11 naming to docker.io/library/bi-certification:latest done
-#11 unpacking to docker.io/library/bi-certification:latest
-#11 unpacking to docker.io/library/bi-certification:latest 10.4s done
-#11 DONE 54.3s
+#11 exporting layers 5.6s done
+#11 writing image sha256:afd4fa89253ffa07d9dcaaef3ed2e54b4d886b5471a225a735ce060272ad6095 done
+#11 naming to docker.io/library/bi-certification done
+#11 DONE 5.6s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/tv6fu15fr0fhhb216letnpwf8
-[exit code 0, 2 min 23 s]
+View build details: docker-desktop://dashboard/build/default/default/alikvdngkzni8tcxpn3dscjie
+[exit code 0, 1 min 0 s]

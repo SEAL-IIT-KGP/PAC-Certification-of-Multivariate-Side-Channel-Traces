@@ -25,4 +25,4 @@ Full-version tables matches the paper
 tables and figures: results/paper_results
 'created' timestamp seems very low; regarding as unix timestamp
 'modified' timestamp seems very low; regarding as unix timestamp
-[exit code 0, 22 s]
+[exit code 0, 20 s]

@@ -31,4 +31,4 @@ $ python -m bi_scope_certificates.compute_full_suite_bi_loc --dataset ascad_desy
 [79/80] loading zaid_ascad_desync_50_no_preprocessing_8
 [80/80] loading zaid_ascad_desync_50_no_preprocessing_9
 results/bi_scope_certificates/full_suite_loc/ascad_desync_50_full_suite_bi_loc_summary.csv
-[exit code 0, 1 min 9 s]
+[exit code 0, 36 s]

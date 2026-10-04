@@ -1,33 +1,36 @@
 $ python -m multibyte_composition.train_raw_ascad_byte_attacker --target-byte 0
 byte=0 device=cpu
 raw=datasets/raw/ascad_raw/ATMega8515_raw_traces.h5 n_total=60000 trace_len=100000 base_pois=24 expanded_features=374
-{'epoch': 1, 'train_loss': 4.511685210800171, 'train_acc': 0.04795, 'val_loss': 3.589524269104004, 'val_acc': 0.15440000593662262}
-{'epoch': 2, 'train_loss': 2.8372331146240235, 'train_acc': 0.270425, 'val_loss': 2.2349112033843994, 'val_acc': 0.38339999318122864}
-{'epoch': 3, 'train_loss': 2.019215158081055, 'train_acc': 0.420875, 'val_loss': 1.8306177854537964, 'val_acc': 0.4537999927997589}
-{'epoch': 4, 'train_loss': 1.7122486515045166, 'train_acc': 0.481275, 'val_loss': 1.6293666362762451, 'val_acc': 0.5004000067710876}
-{'epoch': 5, 'train_loss': 1.5571004913330078, 'train_acc': 0.508025, 'val_loss': 1.4723453521728516, 'val_acc': 0.5289000272750854}
-{'epoch': 6, 'train_loss': 1.4567091352462769, 'train_acc': 0.5325, 'val_loss': 1.5397754907608032, 'val_acc': 0.5081999897956848}
-{'epoch': 7, 'train_loss': 1.3469295066833495, 'train_acc': 0.563575, 'val_loss': 1.358241319656372, 'val_acc': 0.5548999905586243}
-{'epoch': 8, 'train_loss': 1.307603094291687, 'train_acc': 0.572275, 'val_loss': 1.3890875577926636, 'val_acc': 0.5436000227928162}
-{'epoch': 9, 'train_loss': 1.2561079355239868, 'train_acc': 0.589375, 'val_loss': 1.3004268407821655, 'val_acc': 0.5709999799728394}
-{'epoch': 10, 'train_loss': 1.2292320028305053, 'train_acc': 0.59225, 'val_loss': 1.2228084802627563, 'val_acc': 0.5927000045776367}
-[... 5 lines omitted ...]
-{'epoch': 16, 'train_loss': 1.04424747505188, 'train_acc': 0.647225, 'val_loss': 1.1877027750015259, 'val_acc': 0.5957000255584717}
-{'epoch': 17, 'train_loss': 1.0474901607513427, 'train_acc': 0.6441, 'val_loss': 1.1784374713897705, 'val_acc': 0.6046000123023987}
-{'epoch': 18, 'train_loss': 1.00211676902771, 'train_acc': 0.65775, 'val_loss': 1.1766127347946167, 'val_acc': 0.6054999828338623}
-{'epoch': 19, 'train_loss': 0.9960979377746582, 'train_acc': 0.657825, 'val_loss': 1.2442864179611206, 'val_acc': 0.5889000296592712}
-{'epoch': 20, 'train_loss': 0.9701184679031372, 'train_acc': 0.669625, 'val_loss': 1.1272298097610474, 'val_acc': 0.619700014591217}
-{'epoch': 21, 'train_loss': 0.9445877880096436, 'train_acc': 0.67735, 'val_loss': 1.157904863357544, 'val_acc': 0.6129000186920166}
-{'epoch': 22, 'train_loss': 0.9228891040802002, 'train_acc': 0.683, 'val_loss': 1.1509817838668823, 'val_acc': 0.6104000210762024}
-{'epoch': 23, 'train_loss': 0.9183218925476074, 'train_acc': 0.6858, 'val_loss': 1.0924911499023438, 'val_acc': 0.6347000002861023}
-{'epoch': 24, 'train_loss': 0.8758448049545288, 'train_acc': 0.699175, 'val_loss': 1.1887245178222656, 'val_acc': 0.6013000011444092}
-{'epoch': 25, 'train_loss': 0.866223159790039, 'train_acc': 0.702175, 'val_loss': 1.1498908996582031, 'val_acc': 0.6208000183105469}
-{'epoch': 26, 'train_loss': 0.8551014095306396, 'train_acc': 0.703575, 'val_loss': 1.2124271392822266, 'val_acc': 0.6031000018119812}
-{'epoch': 27, 'train_loss': 0.8731923820495605, 'train_acc': 0.698075, 'val_loss': 1.1844329833984375, 'val_acc': 0.602400004863739}
-{'epoch': 28, 'train_loss': 0.838342523765564, 'train_acc': 0.7094, 'val_loss': 1.1774266958236694, 'val_acc': 0.6141999959945679}
-{'epoch': 29, 'train_loss': 0.8085810266494751, 'train_acc': 0.722675, 'val_loss': 1.1669788360595703, 'val_acc': 0.6110000014305115}
-{'epoch': 30, 'train_loss': 0.7972917036056518, 'train_acc': 0.724975, 'val_loss': 1.2197093963623047, 'val_acc': 0.5958999991416931}
-{'epoch': 31, 'train_loss': 0.7945099649429321, 'train_acc': 0.72765, 'val_loss': 1.178092122077942, 'val_acc': 0.6105999946594238}
-early stopping at epoch 31
-{'target_byte': 0, 'correct_key': 77, 'device': 'cpu', 'features': 374, 'base_pois': 24, 'val_top1': 0.6347, 'attack_top1': 0.6261, 'val_rank_at_5000': 0, 'val_top_key_at_5000': 77, 'attack_rank_at_50 …
-[exit code 0, 1 min 57 s]
+{'epoch': 1, 'train_loss': 4.53458910484314, 'train_acc': 0.045625, 'val_loss': 3.639897346496582, 'val_acc': 0.15139999985694885}
+{'epoch': 2, 'train_loss': 2.876675573348999, 'train_acc': 0.2672, 'val_loss': 2.3179752826690674, 'val_acc': 0.3569999933242798}
+{'epoch': 3, 'train_loss': 2.058112125778198, 'train_acc': 0.40785, 'val_loss': 1.842622995376587, 'val_acc': 0.44859999418258667}
+{'epoch': 4, 'train_loss': 1.7304063884735108, 'train_acc': 0.469825, 'val_loss': 1.603329062461853, 'val_acc': 0.505299985408783}
+{'epoch': 5, 'train_loss': 1.5603917753219605, 'train_acc': 0.5108, 'val_loss': 1.4557256698608398, 'val_acc': 0.5360000133514404}
+{'epoch': 6, 'train_loss': 1.4503826194763183, 'train_acc': 0.534275, 'val_loss': 1.4223123788833618, 'val_acc': 0.5444999933242798}
+{'epoch': 7, 'train_loss': 1.3656475721359254, 'train_acc': 0.559425, 'val_loss': 1.3832685947418213, 'val_acc': 0.5530999898910522}
+{'epoch': 8, 'train_loss': 1.3045739156723022, 'train_acc': 0.57215, 'val_loss': 1.2709510326385498, 'val_acc': 0.5859000086784363}
+{'epoch': 9, 'train_loss': 1.2549477767944337, 'train_acc': 0.58735, 'val_loss': 1.3662909269332886, 'val_acc': 0.5565000176429749}
+{'epoch': 10, 'train_loss': 1.2107664630889892, 'train_acc': 0.598725, 'val_loss': 1.3216325044631958, 'val_acc': 0.5644999742507935}
+{'epoch': 11, 'train_loss': 1.1746892864227294, 'train_acc': 0.609525, 'val_loss': 1.2272446155548096, 'val_acc': 0.5889000296592712}
+{'epoch': 12, 'train_loss': 1.1444717561721802, 'train_acc': 0.618425, 'val_loss': 1.301535964012146, 'val_acc': 0.5629000067710876}
+{'epoch': 13, 'train_loss': 1.1197312480926513, 'train_acc': 0.625575, 'val_loss': 1.19923734664917, 'val_acc': 0.6003999710083008}
+{'epoch': 14, 'train_loss': 1.1182953819274903, 'train_acc': 0.6248, 'val_loss': 1.1591306924819946, 'val_acc': 0.6115999817848206}
+{'epoch': 15, 'train_loss': 1.0911867448806762, 'train_acc': 0.63175, 'val_loss': 1.1777411699295044, 'val_acc': 0.6040999889373779}
+{'epoch': 16, 'train_loss': 1.0273464309692384, 'train_acc': 0.655375, 'val_loss': 1.2560102939605713, 'val_acc': 0.5803999900817871}
+{'epoch': 17, 'train_loss': 1.0474480457305908, 'train_acc': 0.64315, 'val_loss': 1.2235177755355835, 'val_acc': 0.5946000218391418}
+{'epoch': 18, 'train_loss': 1.0151738401412964, 'train_acc': 0.655625, 'val_loss': 1.1578502655029297, 'val_acc': 0.6089000105857849}
+{'epoch': 19, 'train_loss': 0.9850387971878052, 'train_acc': 0.66515, 'val_loss': 1.1150726079940796, 'val_acc': 0.6229000091552734}
+{'epoch': 20, 'train_loss': 0.9545434204101563, 'train_acc': 0.672525, 'val_loss': 1.1815303564071655, 'val_acc': 0.6035000085830688}
+{'epoch': 21, 'train_loss': 0.9196196630477905, 'train_acc': 0.68655, 'val_loss': 1.1663388013839722, 'val_acc': 0.6086999773979187}
+{'epoch': 22, 'train_loss': 0.9424442041397094, 'train_acc': 0.67855, 'val_loss': 1.117039442062378, 'val_acc': 0.6273000240325928}
+{'epoch': 23, 'train_loss': 0.9081079523086548, 'train_acc': 0.6898, 'val_loss': 1.129392147064209, 'val_acc': 0.6162999868392944}
+{'epoch': 24, 'train_loss': 0.8994436281204223, 'train_acc': 0.689, 'val_loss': 1.1848090887069702, 'val_acc': 0.6018999814987183}
+{'epoch': 25, 'train_loss': 0.86946695728302, 'train_acc': 0.702825, 'val_loss': 1.12627112865448, 'val_acc': 0.6215999722480774}
+{'epoch': 26, 'train_loss': 0.863576152896881, 'train_acc': 0.702, 'val_loss': 1.1631706953048706, 'val_acc': 0.6105999946594238}
+{'epoch': 27, 'train_loss': 0.8674269212722778, 'train_acc': 0.702, 'val_loss': 1.1412405967712402, 'val_acc': 0.6182000041007996}
+{'epoch': 28, 'train_loss': 0.8456347496986389, 'train_acc': 0.707575, 'val_loss': 1.1405495405197144, 'val_acc': 0.6183000206947327}
+{'epoch': 29, 'train_loss': 0.8112096353530884, 'train_acc': 0.723175, 'val_loss': 1.154564380645752, 'val_acc': 0.6189000010490417}
+{'epoch': 30, 'train_loss': 0.8086490453720093, 'train_acc': 0.7206, 'val_loss': 1.1500589847564697, 'val_acc': 0.6173999905586243}
+early stopping at epoch 30
+{'target_byte': 0, 'correct_key': 77, 'device': 'cpu', 'features': 374, 'base_pois': 24, 'val_top1': 0.6273, 'attack_top1': 0.613, 'val_rank_at_5000': 0, 'val_top_key_at_5000': 77, 'attack_rank_at_500 …
+[exit code 0, 14 s]

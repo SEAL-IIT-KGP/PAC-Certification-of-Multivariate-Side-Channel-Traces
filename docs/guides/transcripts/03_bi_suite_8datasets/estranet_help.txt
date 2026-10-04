@@ -30,4 +30,4 @@ usage: evaluate_estranet_bi_suite.py [-h] --project-root PROJECT_ROOT
   --model-normalization MODEL_NORMALIZATION
   --head-initialization HEAD_INITIALIZATION
   --softmax-attn, --no-softmax-attn
-[exit code 0, 3 s]
+[exit code 0, 2 s]

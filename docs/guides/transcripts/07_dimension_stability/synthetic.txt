@@ -14,22 +14,22 @@ Plots saved to results/dimension_stability/synthetic/figures
   synthetic: BI stability PASS (max CV = 0.1854)
 
 Results saved to results/dimension_stability/synthetic
-dimension_stability_results_20261004_053706.csv
-dimension_stability_stats_20261004_053706.csv
+dimension_stability_results_20261004_182337.csv
+dimension_stability_stats_20261004_182337.csv
 figures
 
   d=10:   0%|          | 0/2 [00:00<?, ?it/s]
-  d=10:  50%|█████     | 1/2 [00:06<00:06,  6.33s/it]
-  d=10: 100%|██████████| 2/2 [00:12<00:00,  6.38s/it]
+  d=10:  50%|█████     | 1/2 [00:03<00:03,  3.86s/it]
+  d=10: 100%|██████████| 2/2 [00:07<00:00,  3.62s/it]
                                                      
 
   d=20:   0%|          | 0/2 [00:00<?, ?it/s]
-  d=20:  50%|█████     | 1/2 [00:04<00:04,  4.63s/it]
-  d=20: 100%|██████████| 2/2 [00:10<00:00,  5.53s/it]
+  d=20:  50%|█████     | 1/2 [00:03<00:03,  3.25s/it]
+  d=20: 100%|██████████| 2/2 [00:07<00:00,  3.81s/it]
                                                      
 
   d=50:   0%|          | 0/2 [00:00<?, ?it/s]
-  d=50:  50%|█████     | 1/2 [00:22<00:22, 22.56s/it]
-  d=50: 100%|██████████| 2/2 [00:45<00:00, 22.92s/it]
+  d=50:  50%|█████     | 1/2 [00:23<00:23, 23.46s/it]
+  d=50: 100%|██████████| 2/2 [00:47<00:00, 23.86s/it]
                                                      
-[exit code 0, 1 min 12 s]
+[exit code 0, 1 min 5 s]

@@ -32,7 +32,7 @@ There is one short guide (PDF) per folder. Each guide tells you what the folder 
 
 # Hardware
 
-Nothing here needs a GPU. **Every command in these guides runs on an ordinary CPU.** The outputs shown in the guides were recorded on a MacBook (Apple M3 Pro, 12 cores, 18 GB of memory) inside Docker. The paper's own runs used a 24-core workstation, which is about three times faster for the Transformer models.
+Nothing here needs a GPU. **Every command in these guides runs on an ordinary CPU.** The outputs shown in the guides were recorded inside Docker on a Linux workstation (x86-64, 12 cores). The same commands were also run inside Docker on a Mac (Apple M3 Pro, 12 cores). Both machines pass every check; the Mac is two to four times slower on most long steps. The tables below list the times on both.
 
 A GPU would only be needed to train the Transformer models again from scratch. That is not needed: the trained models are provided, and the guides only use them to make guesses on traces.
 
@@ -40,12 +40,12 @@ A GPU would only be needed to train the Transformer models again from scratch. T
 
 The main script, `paper_results/reproduce.py`, has four levels. Each level recomputes more from scratch, so it needs more downloads and more time.
 
-| Level | What it does | Download | Memory | Time on the MacBook |
-|----|------------------------------------|-----------|-------|-------------|
-| A | rebuilds all tables and figures from the archived counts and checks them against the paper | none | 2 GB | about half a minute |
-| B | recomputes the counts behind Tables 7, 8 and 9 and Figure 2 from the public TCHES20 traces and models | 0.5 GB | 8 GB | 11 minutes |
-| C | recomputes the Transformer rows of Tables 7 and 8 and the BI line of Figure 1 from the provided checkpoints | 0.3 GB + 4.4 GB | 14 GB | 57 minutes for the main part; 2 hours and 28 minutes more for the optional parts |
-| D | recomputes the two results quoted from the full version of the paper | 4.4 GB | 8 GB | 26 minutes, plus the download |
+| Level | What it does | Download | Memory | Time on Linux workstation | Time on Mac (Apple M3 Pro) |
+|----|------------------------------|-----------|-------|------------|------------|
+| A | rebuilds all tables and figures from the archived counts and checks them against the paper | none | 2 GB | 20 seconds | 20 seconds |
+| B | recomputes the counts behind Tables 7, 8 and 9 and Figure 2 from the public TCHES20 traces and models | 0.5 GB | 8 GB | 7 minutes | 14 minutes |
+| C | recomputes the Transformer rows of Tables 7 and 8 and the BI line of Figure 1 from the provided checkpoints | 0.3 GB + 4.4 GB | 14 GB | 16 minutes for the main part; 46 minutes more for the optional parts | 57 minutes for the main part; 2 hours and 24 minutes more for the optional parts |
+| D | recomputes the two results quoted from the full version of the paper | 4.4 GB | 8 GB | 10 minutes, plus the download | 26 minutes, plus the download |
 
 The four commands:
 
@@ -56,9 +56,22 @@ python -m paper_results.reproduce estranet      # Level C
 python -m paper_results.reproduce fullversion   # Level D
 ```
 
+The other steps in the guides that take more than a minute:
+
+| Step | Guide | Time on Linux workstation | Time on Mac (Apple M3 Pro) |
+|------------------------------------|-------|------------|------------|
+| build the Docker image | 00 | 1 minute | 2.5 minutes |
+| test the eleven CHES-CTF-2025 Transformer models | 03 | 6 minutes | 21 minutes |
+| train the eight byte attackers on raw ASCAD | 06 | 1.5 minutes | 14 minutes |
+| combine four bytes over 250 tries | 06 | 3.5 minutes | 2.5 minutes |
+| run the artificial-trace sweep | 07 | 1 minute | 1 minute |
+| train one scope-1 cell with 50 points | 09 | 3 minutes | 4 minutes |
+
+The four-byte step is the only one that is faster on the Mac.
+
 # Setting up with Docker (recommended)
 
-Docker packs the code and all its libraries into one image, so nothing else has to be installed. Get the code, build the image, and run Level A. The build takes two to three minutes and uses 3.5 GB of disk.
+Docker packs the code and all its libraries into one image, so nothing else has to be installed. Get the code, build the image, and run Level A. The build takes one to three minutes and uses 3.5 GB of disk.
 
 ```bash
 git clone https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
