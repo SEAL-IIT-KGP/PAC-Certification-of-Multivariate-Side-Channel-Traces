@@ -1,0 +1,33 @@
+$ python -m multibyte_composition.train_raw_ascad_byte_attacker --target-byte 0
+byte=0 device=cpu
+raw=datasets/raw/ascad_raw/ATMega8515_raw_traces.h5 n_total=60000 trace_len=100000 base_pois=24 expanded_features=374
+{'epoch': 1, 'train_loss': 4.511685210800171, 'train_acc': 0.04795, 'val_loss': 3.589524269104004, 'val_acc': 0.15440000593662262}
+{'epoch': 2, 'train_loss': 2.8372331146240235, 'train_acc': 0.270425, 'val_loss': 2.2349112033843994, 'val_acc': 0.38339999318122864}
+{'epoch': 3, 'train_loss': 2.019215158081055, 'train_acc': 0.420875, 'val_loss': 1.8306177854537964, 'val_acc': 0.4537999927997589}
+{'epoch': 4, 'train_loss': 1.7122486515045166, 'train_acc': 0.481275, 'val_loss': 1.6293666362762451, 'val_acc': 0.5004000067710876}
+{'epoch': 5, 'train_loss': 1.5571004913330078, 'train_acc': 0.508025, 'val_loss': 1.4723453521728516, 'val_acc': 0.5289000272750854}
+{'epoch': 6, 'train_loss': 1.4567091352462769, 'train_acc': 0.5325, 'val_loss': 1.5397754907608032, 'val_acc': 0.5081999897956848}
+{'epoch': 7, 'train_loss': 1.3469295066833495, 'train_acc': 0.563575, 'val_loss': 1.358241319656372, 'val_acc': 0.5548999905586243}
+{'epoch': 8, 'train_loss': 1.307603094291687, 'train_acc': 0.572275, 'val_loss': 1.3890875577926636, 'val_acc': 0.5436000227928162}
+{'epoch': 9, 'train_loss': 1.2561079355239868, 'train_acc': 0.589375, 'val_loss': 1.3004268407821655, 'val_acc': 0.5709999799728394}
+{'epoch': 10, 'train_loss': 1.2292320028305053, 'train_acc': 0.59225, 'val_loss': 1.2228084802627563, 'val_acc': 0.5927000045776367}
+[... 5 lines omitted ...]
+{'epoch': 16, 'train_loss': 1.04424747505188, 'train_acc': 0.647225, 'val_loss': 1.1877027750015259, 'val_acc': 0.5957000255584717}
+{'epoch': 17, 'train_loss': 1.0474901607513427, 'train_acc': 0.6441, 'val_loss': 1.1784374713897705, 'val_acc': 0.6046000123023987}
+{'epoch': 18, 'train_loss': 1.00211676902771, 'train_acc': 0.65775, 'val_loss': 1.1766127347946167, 'val_acc': 0.6054999828338623}
+{'epoch': 19, 'train_loss': 0.9960979377746582, 'train_acc': 0.657825, 'val_loss': 1.2442864179611206, 'val_acc': 0.5889000296592712}
+{'epoch': 20, 'train_loss': 0.9701184679031372, 'train_acc': 0.669625, 'val_loss': 1.1272298097610474, 'val_acc': 0.619700014591217}
+{'epoch': 21, 'train_loss': 0.9445877880096436, 'train_acc': 0.67735, 'val_loss': 1.157904863357544, 'val_acc': 0.6129000186920166}
+{'epoch': 22, 'train_loss': 0.9228891040802002, 'train_acc': 0.683, 'val_loss': 1.1509817838668823, 'val_acc': 0.6104000210762024}
+{'epoch': 23, 'train_loss': 0.9183218925476074, 'train_acc': 0.6858, 'val_loss': 1.0924911499023438, 'val_acc': 0.6347000002861023}
+{'epoch': 24, 'train_loss': 0.8758448049545288, 'train_acc': 0.699175, 'val_loss': 1.1887245178222656, 'val_acc': 0.6013000011444092}
+{'epoch': 25, 'train_loss': 0.866223159790039, 'train_acc': 0.702175, 'val_loss': 1.1498908996582031, 'val_acc': 0.6208000183105469}
+{'epoch': 26, 'train_loss': 0.8551014095306396, 'train_acc': 0.703575, 'val_loss': 1.2124271392822266, 'val_acc': 0.6031000018119812}
+{'epoch': 27, 'train_loss': 0.8731923820495605, 'train_acc': 0.698075, 'val_loss': 1.1844329833984375, 'val_acc': 0.602400004863739}
+{'epoch': 28, 'train_loss': 0.838342523765564, 'train_acc': 0.7094, 'val_loss': 1.1774266958236694, 'val_acc': 0.6141999959945679}
+{'epoch': 29, 'train_loss': 0.8085810266494751, 'train_acc': 0.722675, 'val_loss': 1.1669788360595703, 'val_acc': 0.6110000014305115}
+{'epoch': 30, 'train_loss': 0.7972917036056518, 'train_acc': 0.724975, 'val_loss': 1.2197093963623047, 'val_acc': 0.5958999991416931}
+{'epoch': 31, 'train_loss': 0.7945099649429321, 'train_acc': 0.72765, 'val_loss': 1.178092122077942, 'val_acc': 0.6105999946594238}
+early stopping at epoch 31
+{'target_byte': 0, 'correct_key': 77, 'device': 'cpu', 'features': 374, 'base_pois': 24, 'val_top1': 0.6347, 'attack_top1': 0.6261, 'val_rank_at_5000': 0, 'val_top_key_at_5000': 77, 'attack_rank_at_50 …
+[exit code 0, 1 min 57 s]

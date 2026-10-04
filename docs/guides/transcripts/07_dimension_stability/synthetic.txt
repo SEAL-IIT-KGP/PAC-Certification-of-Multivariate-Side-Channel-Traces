@@ -1,0 +1,35 @@
+$ python -m dimension_stability.multivariate_stability_driver --dataset synthetic --sweep-dimensions --dimensions 10,20,50 --n-seeds 2 --no-baselines --output-dir results/dimension_stability/synthetic && \
+    ls results/dimension_stability/synthetic
+[... earlier output omitted; key lines kept ...]
+[...]
+======================================================================
+MULTIVARIATE STABILITY SUMMARY
+======================================================================
+  synthetic                  BI: 1.0080 +/- 0.6921  (n=6)  M=3
+    logistic: 0.0043
+    lda: 0.0043
+    mlp: 0.0040
+
+Plots saved to results/dimension_stability/synthetic/figures
+  synthetic: BI stability PASS (max CV = 0.1854)
+
+Results saved to results/dimension_stability/synthetic
+dimension_stability_results_20261004_053706.csv
+dimension_stability_stats_20261004_053706.csv
+figures
+
+  d=10:   0%|          | 0/2 [00:00<?, ?it/s]
+  d=10:  50%|█████     | 1/2 [00:06<00:06,  6.33s/it]
+  d=10: 100%|██████████| 2/2 [00:12<00:00,  6.38s/it]
+                                                     
+
+  d=20:   0%|          | 0/2 [00:00<?, ?it/s]
+  d=20:  50%|█████     | 1/2 [00:04<00:04,  4.63s/it]
+  d=20: 100%|██████████| 2/2 [00:10<00:00,  5.53s/it]
+                                                     
+
+  d=50:   0%|          | 0/2 [00:00<?, ?it/s]
+  d=50:  50%|█████     | 1/2 [00:22<00:22, 22.56s/it]
+  d=50: 100%|██████████| 2/2 [00:45<00:00, 22.92s/it]
+                                                     
+[exit code 0, 1 min 12 s]

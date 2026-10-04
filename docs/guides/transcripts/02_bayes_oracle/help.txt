@@ -1,0 +1,18 @@
+$ python -m bayes_oracle.gaussian_oracle_suite --help
+usage: gaussian_oracle_suite.py [-h] [--output-dir OUTPUT_DIR]
+                                [--n-seeds N_SEEDS] [--n-train N_TRAIN]
+                                [--n-attack N_ATTACK] [--amplitude AMPLITUDE]
+                                [--sigma SIGMA] [--delta DELTA]
+                                [--ece-bins ECE_BINS]
+
+options:
+  -h, --help            show this help message and exit
+  --output-dir OUTPUT_DIR
+  --n-seeds N_SEEDS
+  --n-train N_TRAIN
+  --n-attack N_ATTACK
+  --amplitude AMPLITUDE
+  --sigma SIGMA
+  --delta DELTA
+  --ece-bins ECE_BINS
+[exit code 0, 1 s]

@@ -1,0 +1,5 @@
+$ python -c "import pandas as pd; print(pd.read_csv('results/bayes_gaussian_oracle_suite/gaussian_oracle_suite_summary.csv')[['model', 'p_bayes_mean', 'p_suite_mean', 'p_suite_plus_mean']].to_string(index=False))"
+                    model  p_bayes_mean  p_suite_mean  p_suite_plus_mean
+ bayes_oracle_known_means      0.989577      0.989577           0.991176
+learned_gaussian_template      0.989577      0.989503           0.991108
+[exit code 0, 1 s]

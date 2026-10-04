@@ -1,0 +1,7 @@
+$ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desync_50 --public-only --output-dir results/bi_scope_certificates/calibration/ascad_desync_50
+Creating all target labels for the attack traces:
+[noConv1_ascad_desync_50_no_preprocessing_0] baseline n=10000 cal=2000 eval=8000
+Creating all target labels for the attack traces:
+[zaid_ascad_desync_50_no_preprocessing_3] baseline n=10000 cal=2000 eval=8000
+{"centers": 2, "dataset": "ascad_desync_50", "errors": 0}
+[exit code 0, 10 s]

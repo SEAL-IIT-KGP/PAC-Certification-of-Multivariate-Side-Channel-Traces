@@ -1,0 +1,34 @@
+$ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m model_training.train_mlp_example --dataset ascad_desync_0 --data-dir $T/datasets --tches20-src-dir $T/src
+[... earlier output omitted; key lines kept ...]
+[...]
+Iteration 7, loss = 5.14499616
+Validation score: 0.005833
+Iteration 8, loss = 4.99942495
+Validation score: 0.001667
+Iteration 9, loss = 4.83513662
+Validation score: 0.005000
+Iteration 10, loss = 4.65186182
+Validation score: 0.004167
+Iteration 11, loss = 4.46369898
+Validation score: 0.005000
+Iteration 12, loss = 4.27612801
+Validation score: 0.005000
+Iteration 13, loss = 4.06112644
+Validation score: 0.004167
+Iteration 14, loss = 3.85434941
+Validation score: 0.003333
+Iteration 15, loss = 3.65443757
+Validation score: 0.005000
+Iteration 16, loss = 3.46244354
+Validation score: 0.005000
+Iteration 17, loss = 3.26435261
+Validation score: 0.005000
+Iteration 18, loss = 3.09986383
+Validation score: 0.005000
+Validation score did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+validation_accuracy=0.004000
+holdout_accuracy=0.005750
+wrote checkpoints/model_training/ascad_desync_0/mlp
+
+100%|██████████| 10000/10000 [00:02<00:00, 4447.26it/s]
+[exit code 0, 18 s]

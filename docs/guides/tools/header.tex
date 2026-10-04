@@ -1,0 +1,16 @@
+\usepackage{float}
+\floatplacement{figure}{H}
+\usepackage{etoolbox}
+\AtBeginEnvironment{Shaded}{\small}
+\AtBeginEnvironment{verbatim}{\footnotesize}
+\AtBeginEnvironment{longtable}{\small}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\parindent}{0pt}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf,skip=4pt}
+\renewcommand{\arraystretch}{1.15}
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,breaksymbolleft={},breakindent=1em}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,frame=single,framesep=3pt,rulecolor=\color{gray!60},breaklines=true,breakanywhere=true}
+\usepackage[htt]{hyphenat}
+\emergencystretch=2em

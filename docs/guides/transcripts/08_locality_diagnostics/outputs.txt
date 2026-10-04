@@ -1,0 +1,12 @@
+$ cat results/locality_diagnostics/tau_sweep_results.csv && \
+    ls results/locality_diagnostics/figures
+tau,seed,best_position,profiling_accuracy,holdout_success,margin,certified_success,certified_advantage,bi_bits,n_holdout,n_profiling,n_positions_tested
+50,0,325,0.006000,0.004280,0.016623,-0.012343,-0.016249,0.000000,25000,35000,1
+700,0,0,0.005000,0.004600,0.016623,-0.012023,-0.015929,0.000000,25000,35000,1
+tau_sweep_bi.pdf
+tau_sweep_bi.png
+tau_sweep_positions.pdf
+tau_sweep_positions.png
+tau_sweep_success.pdf
+tau_sweep_success.png
+[exit code 0, 0 s]

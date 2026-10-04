@@ -1,0 +1,34 @@
+$ python -m bi_scope_certificates.compute_full_suite_bi_loc --dataset ascad_desync_50 --suite-csv results/paper_results/bi_suite_dataset_summary.csv --output-dir results/bi_scope_certificates/full_suite_loc
+[... earlier output omitted; key lines kept ...]
+[...]
+[52/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_1
+[53/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_2
+[54/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_3
+[55/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_4
+[56/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_5
+[57/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_6
+[58/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_7
+[59/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_8
+[60/80] loading zaid_ascad_desync_50_horizontal_scaling_m1_1_9
+[61/80] loading zaid_ascad_desync_50_horizontal_standardization_0
+[62/80] loading zaid_ascad_desync_50_horizontal_standardization_1
+[63/80] loading zaid_ascad_desync_50_horizontal_standardization_2
+[64/80] loading zaid_ascad_desync_50_horizontal_standardization_3
+[65/80] loading zaid_ascad_desync_50_horizontal_standardization_4
+[66/80] loading zaid_ascad_desync_50_horizontal_standardization_5
+[67/80] loading zaid_ascad_desync_50_horizontal_standardization_6
+[68/80] loading zaid_ascad_desync_50_horizontal_standardization_7
+[69/80] loading zaid_ascad_desync_50_horizontal_standardization_8
+[70/80] loading zaid_ascad_desync_50_horizontal_standardization_9
+[71/80] loading zaid_ascad_desync_50_no_preprocessing_0
+[72/80] loading zaid_ascad_desync_50_no_preprocessing_1
+[73/80] loading zaid_ascad_desync_50_no_preprocessing_2
+[74/80] loading zaid_ascad_desync_50_no_preprocessing_3
+[75/80] loading zaid_ascad_desync_50_no_preprocessing_4
+[76/80] loading zaid_ascad_desync_50_no_preprocessing_5
+[77/80] loading zaid_ascad_desync_50_no_preprocessing_6
+[78/80] loading zaid_ascad_desync_50_no_preprocessing_7
+[79/80] loading zaid_ascad_desync_50_no_preprocessing_8
+[80/80] loading zaid_ascad_desync_50_no_preprocessing_9
+results/bi_scope_certificates/full_suite_loc/ascad_desync_50_full_suite_bi_loc_summary.csv
+[exit code 0, 1 min 9 s]

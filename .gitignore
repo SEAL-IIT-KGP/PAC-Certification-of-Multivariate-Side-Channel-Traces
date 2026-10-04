@@ -35,3 +35,7 @@ external/
 *.tar.gz
 *.pdf
 *.png
+
+# The guides under docs/guides keep their PDFs and images
+!docs/guides/pdf/*.pdf
+!docs/guides/images/*.png

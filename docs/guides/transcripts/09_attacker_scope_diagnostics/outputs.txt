@@ -1,0 +1,4 @@
+$ cat results/attacker_scope_diagnostic/scope_checkpoint.csv
+dataset,scope_level,scope_name,seed,M,n_train,n_holdout,bi,bi_margin,p_max,margin_term,best_model,per_model_success,pi,ti,hi,mlp_pi,mlp_ti
+ascad_desync_0,1,Linear,0,6,40000,10000,3.058135789617974,0.028628737047779643,0.0046,0.027934987047779646,LogReg_C1.0,"{""LDA"": 0.0044, ""LogReg_C0.1"": 0.004, ""LogReg_C1.0"": 0.0046, ""LogReg_C10. …
+[exit code 0, 0 s]

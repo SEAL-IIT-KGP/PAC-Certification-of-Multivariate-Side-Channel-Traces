@@ -1,0 +1,8 @@
+$ python -m dimension_stability.ches_nonbi_metric_cell --task-id 0 --manifest results/dimension_stability/manifest.csv --output-dir results/dimension_stability
+[run] task=0 dataset=ches_ctf_2025 d=100 seed=0 metric=GKOV_MI
+[done] dataset=ches_ctf_2025 d=100 seed=0 metric=GKOV_MI success=True value=-0.47667486389370806 elapsed=5.871s
+dimension_stability/ches_nonbi_metric_cell.py:197: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude e …
+  df = pd.concat(
+dimension_stability/ches_nonbi_metric_cell.py:162: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_object …
+  success = group["success"].fillna(False).astype(bool) & values.notna()
+[exit code 0, 7 s]

@@ -1,0 +1,11 @@
+$ python -m multibyte_composition.scan_raw_ascad_pois
+Scanning datasets/raw/ascad_raw/ATMega8515_raw_traces.h5
+samples=20000 trace_len=100000 label_columns=48 key=[77, 251, 224, 242, 114, 33, 254, 16, 167, 141, 74, 220, 142, 73, 4, 105]
+processed columns 0:2048
+processed columns 20480:22528
+processed columns 40960:43008
+processed columns 61440:63488
+processed columns 81920:83968
+processed columns 98304:100000
+Done. Wrote results/multibyte_composition/poi_scan
+[exit code 0, 57 s]

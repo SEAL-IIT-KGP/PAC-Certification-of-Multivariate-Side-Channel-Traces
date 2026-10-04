@@ -1,0 +1,34 @@
+$ T=datasets/raw/tches20/TCHES20V3_CNN_SCA; python -m bi_suite_8datasets.evaluate_tches20_pretrained_fixed_split --dataset ascad_desync_0 --split attack --models-dir $T/models/pretrained_models/models --dataset-dir $T/datasets --tches20-src-dir $T/src --output-dir results/bi_suite_8datasets/tches20_fixed_split
+[... earlier output omitted; key lines kept ...]
+[...]
+[54/80] zaid_ascad_desync_0_feature_scaling_m1_1_3.hdf5
+[55/80] zaid_ascad_desync_0_feature_scaling_m1_1_4.hdf5
+[56/80] zaid_ascad_desync_0_feature_scaling_m1_1_5.hdf5
+[57/80] zaid_ascad_desync_0_feature_scaling_m1_1_6.hdf5
+[58/80] zaid_ascad_desync_0_feature_scaling_m1_1_7.hdf5
+[59/80] zaid_ascad_desync_0_feature_scaling_m1_1_8.hdf5
+[60/80] zaid_ascad_desync_0_feature_scaling_m1_1_9.hdf5
+[61/80] zaid_ascad_desync_0_feature_standardization_0.hdf5
+[62/80] zaid_ascad_desync_0_feature_standardization_1.hdf5
+[63/80] zaid_ascad_desync_0_feature_standardization_2.hdf5
+[64/80] zaid_ascad_desync_0_feature_standardization_3.hdf5
+[65/80] zaid_ascad_desync_0_feature_standardization_4.hdf5
+[66/80] zaid_ascad_desync_0_feature_standardization_5.hdf5
+[67/80] zaid_ascad_desync_0_feature_standardization_6.hdf5
+[68/80] zaid_ascad_desync_0_feature_standardization_7.hdf5
+[69/80] zaid_ascad_desync_0_feature_standardization_8.hdf5
+[70/80] zaid_ascad_desync_0_feature_standardization_9.hdf5
+[71/80] zaid_ascad_desync_0_no_preprocessing_0.hdf5
+[72/80] zaid_ascad_desync_0_no_preprocessing_1.hdf5
+[73/80] zaid_ascad_desync_0_no_preprocessing_2.hdf5
+[74/80] zaid_ascad_desync_0_no_preprocessing_3.hdf5
+[75/80] zaid_ascad_desync_0_no_preprocessing_4.hdf5
+[76/80] zaid_ascad_desync_0_no_preprocessing_5.hdf5
+[77/80] zaid_ascad_desync_0_no_preprocessing_6.hdf5
+[78/80] zaid_ascad_desync_0_no_preprocessing_7.hdf5
+[79/80] zaid_ascad_desync_0_no_preprocessing_8.hdf5
+[80/80] zaid_ascad_desync_0_no_preprocessing_9.hdf5
+{'dataset': 'ascad_desync_0', 'split': 'attack', 'scope_id': 'ascad_desync_0_tches20_m80_attack_fixed_split', 'M': 80, 'n_te': 10000, 'p_obs': 0.0063, 'p_minus': 0.0025954814754893776, 'p_plus': 0.012 …
+
+100%|██████████| 10000/10000 [00:01<00:00, 5911.31it/s]
+[exit code 0, 20 s]

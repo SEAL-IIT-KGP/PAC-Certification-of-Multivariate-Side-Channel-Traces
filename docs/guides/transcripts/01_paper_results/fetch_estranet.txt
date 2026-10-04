@@ -1,0 +1,4 @@
+$ paper_results/fetch_estranet.sh
+EstraNet sources ready in external/EstraNet
+Cloning into 'external/EstraNet'...
+[exit code 0, 1 s]

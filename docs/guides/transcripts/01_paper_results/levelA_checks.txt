@@ -1,0 +1,9 @@
+$ python -m paper_results.reproduce archived --skip-oracle 2>/dev/null | grep -E '^\[(PASS|DIFF)\]'
+[PASS] Table 7 (finite-suite certificates): 80 values match the paper, 0 differ
+[PASS] Table 8 (key-byte recovery success): 28 values match the paper, 0 differ
+[PASS] Table 9 (full-suite local-family certificates): 81 values match the paper, 0 differ
+[PASS] Figure 1 (dimension sweep): 5 values match the paper, 0 differ
+[PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
+[PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
+[PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
+[exit code 0, 4 s]

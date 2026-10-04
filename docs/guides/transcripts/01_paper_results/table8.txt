@@ -1,0 +1,14 @@
+$ cat results/paper_results/table8_key_recovery.md
+### Table 8: key-byte recovery success (%) over 100 shuffled orders
+
+| Benchmark | 100 | 500 | 1,000 | 2,000 | model | source |
+|---|---|---|---|---|---|---|
+| ASCAD d0 | 0 | 0 | 0 | 1 | zaid_ascad_desync_0_feature_scaling_0_1_2 | archived |
+| ASCAD d50 | 49 | 100 | 100 | 100 | zaid_ascad_desync_50_no_preprocessing_4 | archived |
+| ASCAD d100 | 67 | 100 | 100 | 100 | zaid_ascad_desync_100_no_preprocessing_1 | archived |
+| ASCAD random | 98 | 100 | 100 | 100 | ascad_random_key_estranet_ckpt80 | archived |
+| AES-HD | 1 | 4 | 13 | 30 | zaid_aes_hd_no_preprocessing_7 | archived |
+| AES-RD | 100 | 100 | 100 | 100 | zaid_aes_rd_no_preprocessing_9 | archived |
+| DPAv4 | 100 | 100 | --- | --- | zaid_dpav4_no_preprocessing_9 | archived |
+| CHES-CTF-2025 | 0 | 0 | 2 | 0 | ches_ctf_2025_estranet_ckpt5 | archived |
+[exit code 0, 0 s]

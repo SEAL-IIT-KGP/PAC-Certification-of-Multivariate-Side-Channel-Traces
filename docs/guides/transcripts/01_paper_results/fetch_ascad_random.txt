@@ -1,0 +1,4 @@
+$ python -m paper_results.fetch_ascad_random_key
+downloading https://www.data.gouv.fr/api/1/datasets/r/b4ace767-c2a4-4db4-8e01-4527b5b91f00
+datasets/raw/ascad_random_key/ASCAD.h5: checksum verified
+[exit code 0, 45 s]
