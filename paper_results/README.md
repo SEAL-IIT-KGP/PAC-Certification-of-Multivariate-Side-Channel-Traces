@@ -58,7 +58,7 @@ Options: `--quick` evaluates only the six selected models (about 2 min), `--data
 | Input | Location | How to get it |
 |---|---|---|
 | EstraNet sources | `external/EstraNet` | `paper_results/fetch_estranet.sh` |
-| Checkpoints (308 MB) | `checkpoints/` | extract `bi_certification_checkpoints.tar.gz` in the repository root (SHA-256 `8323e217130bd7e7db7a3f191ed9963b5304494cb83bec4f974902f10c296762`) |
+| Checkpoints (308 MB) | `checkpoints/` | `python -m paper_results.fetch_checkpoints` (release file `bi_certification_checkpoints.tar.gz`, SHA-256 `8323e217130bd7e7db7a3f191ed9963b5304494cb83bec4f974902f10c296762`) |
 | ASCAD random key (420 MB) | `datasets/raw/ascad_random_key/ASCAD.h5` | `python -m paper_results.fetch_ascad_random_key` |
 | CHES-CTF-2025 (4 GB) | `datasets/raw/ches_ctf_2025/CHES_Challenge.h5` | download from https://pace-tl.gitbook.io/ches-challenge-2025 (SHA-256 `132ae2e9a8213c983bf3b63449e9572d5d71d3b376a75b236415d4a728b9379f`) |
 
@@ -108,7 +108,7 @@ On the workstation, the Figure 1 window suites take 34 min and the twelve Figure
 | `figure1_dimension_sweep.py`, `figure2_biloc_selected_centers.py` | Figures 1 and 2 |
 | `fullversion_tables.py` | the two full-version tables |
 | `evaluate_selected_models.py`, `evaluate_estranet_suites.py`, `matched_metrics.py` | EPI and key recovery; the EstraNet suites |
-| `fetch_tches20.sh`, `fetch_estranet.sh`, `fetch_ascad_random_key.py` | downloads at fixed versions |
+| `fetch_tches20.sh`, `fetch_estranet.sh`, `fetch_ascad_random_key.py`, `fetch_checkpoints.py` | downloads at fixed versions, with checksums |
 | `archived/` | counts from the campaigns behind the paper (below) |
 | `expected/` | the printed values |
 
