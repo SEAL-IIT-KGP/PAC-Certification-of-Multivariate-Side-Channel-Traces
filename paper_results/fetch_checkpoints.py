@@ -20,7 +20,7 @@ URL = (
     "https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces"
     "/releases/download/v1.0/bi_certification_checkpoints.tar.gz"
 )
-SHA256 = "8323e217130bd7e7db7a3f191ed9963b5304494cb83bec4f974902f10c296762"
+SHA256 = "8af739b7295a8ee7d92fef62976e9f8c3d5efac4f10e14fd796db8eea11e89a3"
 FILES = 162
 
 
