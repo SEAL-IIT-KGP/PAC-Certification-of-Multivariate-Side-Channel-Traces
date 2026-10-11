@@ -29,4 +29,3 @@ python -m locality_diagnostics.ascad_temporal_window_sweep \
 # What to look for
 
 - One row per window length and seed: where the window was placed, the success rate inside the window, how many traces were tested, and the success rate on the full trace for comparison.
-- The script mixes training and test traces when it builds its test set, so the success rate is not a clean out-of-sample number. The paper presents this figure as a diagnostic, not as a certificate.

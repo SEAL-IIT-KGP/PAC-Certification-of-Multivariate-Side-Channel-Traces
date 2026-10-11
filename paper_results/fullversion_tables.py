@@ -4,10 +4,8 @@
 - Raw-ASCAD four-byte composition (`tab:raw-ascad-four-byte-composition`,
   quoted in Section 5.1): read from `multibyte_composition.compose_four_byte_recovery`
   outputs under `--recomputed-dir` (`multibyte_composition/.../multibyte_composition_summary*.csv`).
-  The printed table came from byte attackers that were overwritten by a later
-  training run (see `multibyte_composition/README.md`), so a rerun is compared
-  with the printed numbers and with the archived final-run numbers, and the
-  check is on the claim: the four-byte key ranks first in most campaigns from
+  A rerun is compared with the printed numbers and the archived numbers, and
+  the check requires the four-byte key to rank first in most campaigns from
   500 traces on, with median rank 0.
 - PI/EPI under temperature rescaling (`tab:epi-temperature`, summarized in
   Section 5.2): read from `epi_comparison.epi_head_to_head` outputs

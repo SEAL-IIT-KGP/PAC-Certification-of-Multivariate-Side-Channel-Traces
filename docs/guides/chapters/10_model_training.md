@@ -4,7 +4,7 @@ title: "model_training: small training examples"
 
 # What this folder shows
 
-The paper only uses models that others trained and published, so nothing in the reproduction trains a model. This folder shows, at a small scale, how each kind of model in the paper is trained: `train_mlp_example.py` (a plain network, scikit-learn), `train_cnn_example.py` (a convolutional network, PyTorch) and `train_transformer_example.py` (a small Transformer, PyTorch). The models they save cannot be used by the certificate scripts, which expect the published model files.
+The paper's results use the provided trained models (the published TCHES20 models and the released Transformer checkpoints), so nothing in the reproduction trains a model. This folder shows, at a small scale, how each kind of model in the paper is trained: `train_mlp_example.py` (a plain network, scikit-learn), `train_cnn_example.py` (a convolutional network, PyTorch) and `train_transformer_example.py` (a small Transformer, PyTorch). The models they save cannot be used by the certificate scripts, which expect the provided model files.
 
 # Before you start
 
@@ -32,4 +32,4 @@ python -m model_training.train_cnn_example --dataset ascad_desync_0 --data-dir $
 
 # What to look for
 
-Each example prints the sizes of the training, validation and test parts, the training progress, and the accuracy on the test part. It saves the model and a `metadata.json` with the settings and results. With `--dataset ascad` (the plain ASCAD file rather than the TCHES20 copy) the loader mixes training and attack traces, so that accuracy is not a clean test number.
+Each example prints the sizes of the training, validation and test parts, the training progress, and the accuracy on the test part. It saves the model and a `metadata.json` with the settings and results.

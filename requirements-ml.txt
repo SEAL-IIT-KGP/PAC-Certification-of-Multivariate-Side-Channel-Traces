@@ -5,8 +5,9 @@
 #   pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ml.txt
 #
 # TensorFlow evaluates the pretrained Keras models and the EstraNet checkpoints
-# behind the paper's tables; CPU inference is sufficient. For a GPU, install
-# `tensorflow[and-cuda]==2.15.0` instead of the two TensorFlow lines.
+# behind the paper's tables; CPU inference is sufficient. For training on a GPU,
+# install requirements-ml-gpu.txt instead of this file
+# (`tensorflow[and-cuda]==2.15.0.post1` in place of the two TensorFlow lines).
 tensorflow-cpu==2.15.0; platform_machine == "x86_64" or platform_machine == "AMD64"
 tensorflow==2.15.0; platform_machine == "aarch64" or platform_machine == "arm64"
 

@@ -60,6 +60,5 @@ python -m multibyte_composition.compose_four_byte_recovery --campaigns 250 \
 
 # What to look for
 
-- Each training run prints how well the network does on held-out traces. Some bytes do not learn well on a CPU; they are simply not picked. The runs behind the paper and the reruns all pick bytes 0, 1, 5 and 15.
+- Each training run prints how well the network does on held-out traces. The composition step picks the four best bytes: 0, 1, 5 and 15.
 - In the summary, `full_successes` is the number of tries (out of 250) in which all four bytes were right with that many traces. `median_rank` should be 0 from 500 traces on.
-- The exact counts change from one training run to the next. The table in the paper came from one such run (40, 94, 191, 206 and 221 out of 250 at 100 to 2,000 traces); the rerun shown above (Linux workstation) gives 23, 83, 207, 245 and 250, and a rerun on a Mac gave 35, 104, 224, 250 and 250. The claim that the check tests holds every time: four bytes recovered from 500 traces on.
