@@ -22,7 +22,7 @@ PLANS = {
         {"name": "levelB", "cmd": "python -m paper_results.reproduce tches20", "show": "tail", "n": 24, "timeout": 7200},
         {"name": "levelB_counts", "cmd": "ls results/paper_results/recomputed/tches20_suite && head -5 results/paper_results/recomputed/tches20_suite/ascad_desync_0_attack_success.csv"},
         {"name": "fetch_estranet", "cmd": "paper_results/fetch_estranet.sh", "show": "tail", "n": 24},
-        {"name": "checkpoints", "cmd": "sha256sum bi_certification_checkpoints.tar.gz && tar -xzf bi_certification_checkpoints.tar.gz && ls checkpoints/estranet checkpoints/keras_ascad_random_key"},
+        {"name": "checkpoints", "cmd": "python -m paper_results.fetch_checkpoints && ls checkpoints/estranet checkpoints/keras_ascad_random_key"},
         {"name": "fetch_ascad_random", "cmd": "python -m paper_results.fetch_ascad_random_key", "show": "tail", "n": 24, "timeout": 3600},
         {"name": "ches_file", "cmd": "ls -l datasets/raw/ches_ctf_2025 && sha256sum datasets/raw/ches_ctf_2025/CHES_Challenge.h5", "timeout": 3600},
         {"name": "levelC", "cmd": "python -m paper_results.reproduce estranet --suites ascad_random_key ches_ctf_2025", "show": "tail", "n": 24, "timeout": 14400},

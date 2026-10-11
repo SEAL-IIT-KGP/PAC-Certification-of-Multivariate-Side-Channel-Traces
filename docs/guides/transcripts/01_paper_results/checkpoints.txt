@@ -1,7 +1,8 @@
-$ sha256sum bi_certification_checkpoints.tar.gz && \
-    tar -xzf bi_certification_checkpoints.tar.gz && \
+$ python -m paper_results.fetch_checkpoints && \
     ls checkpoints/estranet checkpoints/keras_ascad_random_key
-8323e217130bd7e7db7a3f191ed9963b5304494cb83bec4f974902f10c296762  bi_certification_checkpoints.tar.gz
+downloading https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces/releases/download/v1.0/bi_certification_checkpoints.tar.gz
+bi_certification_checkpoints.tar.gz: checksum verified
+unpacked and verified 162 files in checkpoints
 checkpoints/estranet:
 aes_rd_fstd_pool5_lr5e4
 ascadf_desync100
@@ -17,4 +18,4 @@ ches25_lx_w500
 checkpoints/keras_ascad_random_key:
 ascad_random_key_cnn_seed0_best.hdf5
 ascad_random_key_mlp_seed0_best.hdf5
-[exit code 0, 3 s]
+[exit code 0, 8 s]

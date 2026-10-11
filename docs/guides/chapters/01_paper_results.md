@@ -102,11 +102,10 @@ paper_results/fetch_estranet.sh
 ```{.text transcript="transcripts/01_paper_results/fetch_estranet.txt"}
 ```
 
-Check and unpack the provided models:
+Download, check and unpack the provided models (308 MB):
 
 ```bash
-sha256sum bi_certification_checkpoints.tar.gz
-tar -xzf bi_certification_checkpoints.tar.gz
+python -m paper_results.fetch_checkpoints
 ls checkpoints/estranet checkpoints/keras_ascad_random_key
 ```
 
