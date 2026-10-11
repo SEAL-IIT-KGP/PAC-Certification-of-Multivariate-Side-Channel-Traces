@@ -39,7 +39,7 @@ artifact paper_results/fetch_tches20.sh
 artifact python -m paper_results.reproduce tches20
 
 # Level C: Transformer checkpoints (0.3 GB) and two trace files (0.4 GB and 4 GB)
-tar -xzf bi_certification_checkpoints.tar.gz
+artifact python -m paper_results.fetch_checkpoints
 artifact paper_results/fetch_estranet.sh
 artifact python -m paper_results.fetch_ascad_random_key
 # place CHES_Challenge.h5 (https://pace-tl.gitbook.io/ches-challenge-2025) in datasets/raw/ches_ctf_2025/

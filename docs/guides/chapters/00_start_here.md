@@ -132,7 +132,7 @@ The first file is enough for Level A. The second adds TensorFlow and PyTorch, wh
 |----------------------------|------------|------------------|----------------------------------|
 | TCHES20 traces and its 480 trained models | 0.5 GB (2.3 GB unpacked) | Levels B and D; guides 03, 04, 05, 08, 09, 10 | the script `paper_results/fetch_tches20.sh` |
 | Transformer source code (EstraNet) | a few MB | Level C; guides 03, 04 | the script `paper_results/fetch_estranet.sh` |
-| Trained Transformer models (162 files) | 308 MB | Level C; guides 03, 04 | unpack `bi_certification_checkpoints.tar.gz` in the top folder |
+| Trained Transformer models (162 files) | 308 MB | Level C; guides 03, 04 | `python -m paper_results.fetch_checkpoints` |
 | ASCAD random-key traces `ASCAD.h5` | 420 MB | Level C; guide 03 | `python -m paper_results.fetch_ascad_random_key` |
 | CHES-CTF-2025 traces `CHES_Challenge.h5` | 4 GB | Level C; guides 03, 07 | download by hand into the folder `datasets/raw/ches_ctf_2025/` |
 | Raw ASCAD traces | 4.4 GB (6 GB unpacked) | Level D; guide 06 | `python -m multibyte_composition.fetch_raw_ascad` |
