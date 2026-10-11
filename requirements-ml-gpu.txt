@@ -1,0 +1,14 @@
+# GPU variant of requirements-ml.txt, for retraining the EstraNet checkpoints on an
+# NVIDIA GPU (Linux x86-64, Python 3.11). Install it instead of requirements-ml.txt:
+#
+#   pip install -r requirements.txt
+#   pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ml-gpu.txt
+#
+# `docker build --build-arg TF=gpu` uses this file. The `and-cuda` extra brings the
+# CUDA 12.2 and cuDNN 8.9 libraries as pip packages, so the host needs only the
+# NVIDIA driver. 2.15.0.post1 is the TensorFlow 2.15.0 release packaged without the
+# optional TensorRT dependency, so it installs directly from PyPI.
+tensorflow[and-cuda]==2.15.0.post1
+
+# Same CPU build of PyTorch as in requirements-ml.txt; the GPU is used by TensorFlow only.
+torch==2.2.2

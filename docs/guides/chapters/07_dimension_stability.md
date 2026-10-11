@@ -67,5 +67,4 @@ python -m dimension_stability.multivariate_stability_driver --dataset synthetic 
 # What to look for
 
 - The results file has one row per value: length, seed, measure, the value in bits, and the run time. A finished value is skipped on rerun; `--force` recomputes it.
-- The mutual-information and Gaussian values come out the same on every machine, to three decimals. The network value moves by a few tenths of a bit between seeds and machines, because the network is trained for only a few seconds; treat one value on its own as noise around zero.
 - All three measures stay at or below zero while BI stays between 0.3 and 0.6 bits. That contrast is Figure 1.

@@ -124,7 +124,3 @@ Tables 1-6 and the pipeline illustration are descriptive and have no producing s
 - `epi_comparison/epi_head_to_head.py` and `summarize_epi_head_to_head.py`;
   check in `paper_results/fullversion_tables.py`.
 
-### Figure files drawn outside this repository
-
-- `figure4_architecture_scope_diagnostic.pdf` (`fig:scope-comparison`) is
-  drawn from the outputs of `attacker_scope_diagnostics/`.

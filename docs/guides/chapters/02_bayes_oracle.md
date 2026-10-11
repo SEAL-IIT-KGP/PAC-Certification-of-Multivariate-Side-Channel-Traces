@@ -42,4 +42,4 @@ python -m bayes_oracle.gaussian_oracle_suite --amplitude 3.0 --sigma 1.0 \
 
 # What to look for
 
-The two numbers to compare are in the summary table. The true success rate is 0.989577 and the suite's measured rate is 0.989503. The gap is 0.00007, which shows that the suite is as good as the best possible attacker, up to the small margin that comes from testing on a finite number of traces. With the old defaults of the script (amplitude 2, 50,000 traces) the rate is about 0.83 and does not match the paper.
+The two numbers to compare are in the summary table. The true success rate is 0.989577 and the suite's measured rate is 0.989503. The gap is 0.00007, which shows that the suite is as good as the best possible attacker, up to the small margin that comes from testing on a finite number of traces.

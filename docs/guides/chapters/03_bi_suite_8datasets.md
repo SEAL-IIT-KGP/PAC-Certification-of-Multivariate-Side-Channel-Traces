@@ -62,5 +62,5 @@ python -m paper_results.evaluate_estranet_suites --suites ches_ctf_2025 --skip-s
 
 - `<dataset>_attack_success.csv`: one row per model with its number of correct guesses. The largest number is what BI is computed from.
 - `<dataset>_attack_summary.csv`: the BI of the whole set of models: the best success rate, its guaranteed upper limit, and both in bits.
-- The Transformer script prints `successes=… n_te=100000` for each model. Models that guess about as well as chance (around 390 out of 100,000) can differ by one trace from machine to machine. The best model does not.
+- The Transformer script prints `successes=… n_te=100000` for each model.
 - `--split profiling` tests the models on the traces they were trained on. That is only a sanity check, not a certificate, and the script says so.

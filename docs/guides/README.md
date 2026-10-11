@@ -1,14 +1,10 @@
 # Guides
 
-One short PDF per folder of the repository. Each guide says what the folder shows, what you need
-before you start, the commands to type, and the terminal output you should see. The outputs were
-recorded inside the Docker image on a Linux workstation (x86-64), CPU only. The same commands also
-ran inside Docker on a Mac (Apple M3 Pro, arm64) and passed every check; guide 00 lists the times on
-both machines.
+One short PDF per folder: what it shows, what you need, the commands, and the terminal output you should see. The outputs were recorded in the Docker image on a Linux workstation (x86-64, CPU only). The same commands also passed every check in Docker on a Mac (Apple M3 Pro); guide 00 lists the times on both.
 
 | Guide | Folder |
 |---|---|
-| [00_start_here.pdf](pdf/00_start_here.pdf) | what the code does, hardware, setup with and without Docker, downloads |
+| [00_start_here.pdf](pdf/00_start_here.pdf) | overview, hardware, setup, downloads |
 | [01_paper_results.pdf](pdf/01_paper_results.pdf) | `paper_results/`: Levels A to D |
 | [02_bayes_oracle.pdf](pdf/02_bayes_oracle.pdf) | `bayes_oracle/` |
 | [03_bi_suite_8datasets.pdf](pdf/03_bi_suite_8datasets.pdf) | `bi_suite_8datasets/` |
@@ -21,13 +17,13 @@ both machines.
 | [10_model_training.pdf](pdf/10_model_training.pdf) | `model_training/` |
 | [11_core_datasets_scripts.pdf](pdf/11_core_datasets_scripts.pdf) | `core/`, `datasets/`, `scripts/`, `docs/` |
 
-## How the guides are made
+## Rebuilding the guides
 
-- `chapters/*.md` are the sources; `tools/build_pdf.sh` builds the PDFs with pandoc and XeLaTeX
-  (`tools/build_pdf.sh 03` builds one guide).
-- `transcripts/<guide>/<step>.txt` are the recorded terminal outputs that the chapters embed.
-  `tools/plans.py` lists the command of every step; `tools/record.py <guide> --mode docker`
-  reruns the steps of a guide in the `bi-certification` image and rewrites its transcripts
-  (`--only STEP`, `--force`); `tools/compact_transcripts.py` shortens them for the page.
-- `images/` holds the regenerated figures shown in the guides (`tools/collect_figures.sh` copies
-  them from `results/`), and `tools/check_margins.py` checks that no line runs off a page.
+| Path | Role |
+|---|---|
+| `chapters/*.md` | sources; `tools/build_pdf.sh [NN]` builds the PDFs (pandoc and XeLaTeX) |
+| `transcripts/<guide>/<step>.txt` | recorded terminal output embedded in the chapters |
+| `tools/plans.py`, `tools/record.py <guide> --mode docker` | the commands of each step, and the recorder that reruns them in the Docker image (`--only STEP`, `--force`) |
+| `tools/compact_transcripts.py` | shortens transcripts for the page |
+| `images/`, `tools/collect_figures.sh` | figures shown in the guides, copied from `results/` |
+| `tools/check_margins.py` | checks that no line runs off a page |

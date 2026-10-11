@@ -51,4 +51,4 @@ python -m bi_scope_certificates.profile_epsilon_calibration --dataset ascad_desy
 
 - The summary has one row per distance: the largest count over the 80 models, the matching rate, the limit in bits, and which model gave it. At distance 0 the count is the plain number of correct guesses. At the largest distance it covers almost every trace, which is why the table in the paper stops there.
 - `epsilon_margin_counts.csv` holds the counts for both parts of the traces. The Figure 2 script picks the smallest distance that changes the count of at least 75% of the twelve models and is larger than the score movement seen when the models are rerun.
-- `epsilon_variant_distances.csv` shows that movement. On a CPU, running a model again gives the same scores to within 0.000001. On the GPU used for the paper, the Transformer scores moved by up to 0.00019, which is why the paper's distance is 0.0003.
+- `epsilon_variant_distances.csv` shows that movement.

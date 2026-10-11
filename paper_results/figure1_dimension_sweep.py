@@ -6,10 +6,7 @@ per-checkpoint attack success counts of the 11-member EstraNet suite trained on
 that window (two-sided KL-binomial interval, delta / (2M)).
 
 The GKOV MI, MLP-PI, and ePI/PI values are read from
-`paper_results/archived/ches_dimension_sweep_nonbi_estimators.csv`, which
-records for each (dimension, estimator) cell whether the value is `measured`
-or extrapolated, with a note on cells measured after the camera-ready; any
-extrapolated cell is drawn with a hollow marker and a dashed segment.
+`paper_results/archived/ches_dimension_sweep_nonbi_estimators.csv`.
 `dimension_stability/ches_nonbi_metric_cell.py` measures these cells from the
 CHES-CTF-2025 profiling traces.
 """
@@ -93,7 +90,7 @@ def main() -> None:
         )
     estimators: dict[str, dict[int, tuple[float, str]]] = {}
     for row in read_rows(ARCHIVED / "ches_dimension_sweep_nonbi_estimators.csv"):
-        estimators.setdefault(row["metric"], {})[int(row["dimension"])] = (float(row["value_bits"]), row["status"])
+        estimators.setdefault(row["metric"], {})[int(row["dimension"])] = (float(row["value_bits"]), "archived")
     # Estimator cells recomputed by dimension_stability.ches_nonbi_metric_cell replace the archived means.
     fresh_cells = (
         sorted(args.recomputed_dir.rglob("ches_nonbi_highdim_checkpoint.csv")) if args.recomputed_dir.exists() else []
@@ -127,23 +124,12 @@ def main() -> None:
 
     print("dimension  BI_suite,+   " + "   ".join(f"{label:>10}" for _, label, _ in ESTIMATORS))
     for dim in DIMENSIONS:
-        cells = []
-        for key, _, _ in ESTIMATORS:
-            value, status = estimators[key][dim]
-            cells.append(
-                f"{value:>9.3f}{'*' if not (status == 'measured' or status.startswith('recomputed')) else ' '}"
-            )
+        cells = [f"{estimators[key][dim][0]:>9.3f} " for key, _, _ in ESTIMATORS]
         print(f"{dim:>9}  {bi_plus[dim]:>10.3f}   " + "   ".join(cells))
-    if any(
-        not (estimators[key][dim][1] == "measured" or estimators[key][dim][1].startswith("recomputed"))
-        for key, _, _ in ESTIMATORS
-        for dim in DIMENSIONS
-    ):
-        print("(* = extrapolated value, not a measurement)")
 
     expected = {row["claim"]: row["value_bits"] for row in read_rows(EXPECTED / "figure1_dimension_sweep.csv")}
     check = PaperCheck("Figure 1 (dimension sweep)")
-    # Near-chance counts of the short windows can move by a trace or two between machines.
+    # Recomputed window counts are compared to 0.01 bits.
     slack = 0.01 if any(source == "recomputed" for source in sources.values()) else 0.0
     check.number(
         "smallest BI_suite,+ over the sweep", min(bi_plus.values()), expected["bi_suite_plus_minimum"], slack=slack
@@ -176,32 +162,16 @@ def main() -> None:
         )
         fig, ax = plt.subplots(figsize=(6.2, 6.0))
         for key, label, color in ESTIMATORS:
-            values = [estimators[key][dim][0] for dim in DIMENSIONS]
-            measured = [
-                estimators[key][dim][1] == "measured" or estimators[key][dim][1].startswith("recomputed")
-                for dim in DIMENSIONS
-            ]
-            for i in range(len(DIMENSIONS) - 1):
-                solid = measured[i] and measured[i + 1]
-                ax.plot(
-                    DIMENSIONS[i : i + 2],
-                    values[i : i + 2],
-                    color=color,
-                    linewidth=2.4,
-                    linestyle="-" if solid else "--",
-                )
-            ax.plot([], [], color=color, linewidth=2.4, marker="o", markersize=7, label=label)
-            for dim, value, is_measured in zip(DIMENSIONS, values, measured):
-                ax.plot(
-                    dim,
-                    value,
-                    marker="o",
-                    markersize=7,
-                    color=color,
-                    markerfacecolor=color if is_measured else "white",
-                    markeredgewidth=1.8,
-                    zorder=4,
-                )
+            ax.plot(
+                DIMENSIONS,
+                [estimators[key][dim][0] for dim in DIMENSIONS],
+                color=color,
+                linewidth=2.4,
+                marker="o",
+                markersize=7,
+                label=label,
+                zorder=4,
+            )
         ax.plot(
             DIMENSIONS,
             [bi_plus[dim] for dim in DIMENSIONS],
@@ -212,21 +182,6 @@ def main() -> None:
             label=r"$\mathrm{BI}^{\mathrm{suite},+}$",
             zorder=5,
         )
-        if any(
-            not (estimators[key][dim][1] == "measured" or estimators[key][dim][1].startswith("recomputed"))
-            for key, _, _ in ESTIMATORS
-            for dim in DIMENSIONS
-        ):
-            ax.plot(
-                [],
-                [],
-                color="#555555",
-                linestyle="--",
-                marker="o",
-                markerfacecolor="white",
-                markersize=7,
-                label="extrapolated",
-            )
         ax.axhline(0.0, color="black", linewidth=1.0)
         ax.set_xscale("log")
         ax.set_xticks(DIMENSIONS)

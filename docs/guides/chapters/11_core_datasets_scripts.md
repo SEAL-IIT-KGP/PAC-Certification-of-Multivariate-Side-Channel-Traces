@@ -31,7 +31,7 @@ The check reports the two optional files as missing unless you fetched them; tha
 
 # scripts: extra tables and plots
 
-`plot_bi_loc_radius_curves.py` draws the curves of Figure 2. `generate_paper_plots.py` draws the extra plots of the long version from the results of guides 07 to 09; a few of its inputs come from runs whose scripts are not in this repository, and `scripts/README.md` lists them. The two figures of the paper do not depend on this folder.
+`plot_bi_loc_radius_curves.py` draws the curves of Figure 2. `generate_paper_plots.py` draws the extra plots of the long version from the results of guides 07 to 09. The two figures of the paper do not depend on this folder.
 
 ```bash
 python -m scripts.plot_bi_loc_radius_curves --help

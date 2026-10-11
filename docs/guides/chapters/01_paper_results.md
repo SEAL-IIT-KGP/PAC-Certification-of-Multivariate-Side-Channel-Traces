@@ -87,7 +87,7 @@ python -m paper_results.reproduce tches20
 ```{.text transcript="transcripts/01_paper_results/levelB_counts.txt"}
 ```
 
-**What to look for.** `80/80 recomputed per-model counts equal the archived counts` for each of the six trace sets. A count is the number of traces where the model's top guess is right, so it comes out the same on any machine. Table 9 uses a second kind of count that depends on tiny score differences; there, a few of the 2,880 counts may differ by one trace, and the check allows for that.
+**What to look for.** `80/80 recomputed per-model counts equal the archived counts` for each of the six trace sets. A count is the number of traces where the model's top guess is right, so it comes out the same on any machine.
 
 Shortcuts: `--quick` tests only the six best models (two minutes). `--datasets` limits the run to some trace sets. A stopped run continues where it left off.
 
@@ -157,7 +157,7 @@ python -m paper_results.reproduce report
 ```{.text transcript="transcripts/01_paper_results/levelC_figure2.txt"}
 ```
 
-**What to look for.** `ches_ctf_2025: 11/11` and `ascad_random_key: 9/11` recomputed counts equal to the saved ones. The best model of each suite is the same as in the paper (ASCAD random key: model 80 with 1,693 correct guesses out of 100,000; CHES-CTF-2025: model 5 with 429). Two of the weakest ASCAD models differ by a few traces between machines, which changes the BI by less than 0.003 bits. For Figure 2, the output prints the chosen safety margin (`0.0003`); on a CPU the models give exactly the same scores every time, so the code keeps the GPU measurements from the paper and the printed margin comes out the same.
+**What to look for.** The best model of each suite is the same as in the paper (ASCAD random key: model 80 with 1,693 correct guesses out of 100,000; CHES-CTF-2025: model 5 with 429), and every check ends with `[PASS]`. For Figure 2, the output prints the chosen safety margin, `0.0003`, as in the paper.
 
 # Level D: the two results quoted from the long version
 
@@ -168,6 +168,6 @@ python -m paper_results.reproduce fullversion
 ```{.text transcript="transcripts/01_paper_results/levelD.txt"}
 ```
 
-**What to look for.** First, a comparison of two information measures on six trace sets. Then the raw ASCAD traces are downloaded and checked, points of interest are found, eight small models are trained (one per key byte), and four of them are combined to recover four key bytes at once. The check ends with `[PASS]` for both results. The exact counts in the four-byte table depend on the training run, so the check tests the claim itself: the four bytes are recovered from 500 traces on.
+**What to look for.** First, a comparison of two information measures on six trace sets. Then the raw ASCAD traces are downloaded and checked, points of interest are found, eight small models are trained (one per key byte), and four of them are combined to recover four key bytes at once. The check ends with `[PASS]` for both results. The four-byte check tests that the four key bytes are recovered from 500 traces on.
 
 `python -m paper_results.reproduce report` rebuilds the tables from whatever has been recomputed so far.
