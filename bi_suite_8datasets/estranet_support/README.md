@@ -15,7 +15,7 @@ The Transformer attackers in the paper are EstraNet models (https://github.com/s
 
 ## Retraining (optional, GPU)
 
-The released checkpoints make retraining unnecessary. Retraining needs an NVIDIA GPU: a folder takes 4,000,000 steps at batch size 16 (AES-RD 200,000). On one NVIDIA RTX A4000, `ascadr` takes 8 h 41 min, `ches25_lx_w3000` 7 h 12 min, and `ascadf_desync50` and `ascadf_desync100` about 10 h 40 min each. [`docs/guides/pdf/12_gpu_docker.pdf`](../../docs/guides/pdf/12_gpu_docker.pdf) walks through it with recorded output and the time of each step.
+The released checkpoints make retraining unnecessary. Retraining needs an NVIDIA GPU: a folder takes 4,000,000 steps at batch size 16 (AES-RD 200,000). On one NVIDIA RTX A4000, `ascadr` takes 8 h 41 min and `ches25_lx_w3000` 7 h 12 min; the others take about 10 h 40 min (`ascadf_desync50`, `ascadf_desync100`), 1 h 50 min (`aes_rd_fstd_pool5_lr5e4`), 5 h 30 min to 7 h 10 min (`ches25_lx_w100` to `_w1000`) and 9 h (`ches25_lx`, which needs more than 64 GB of memory); all ten about 72 hours. [`docs/guides/pdf/12_gpu_docker.pdf`](../../docs/guides/pdf/12_gpu_docker.pdf) walks through it with recorded output and the time of each step.
 
 **With Docker** (Linux x86-64, NVIDIA driver and NVIDIA Container Toolkit): build the GPU image and define a helper that shares the four folders and the GPU:
 

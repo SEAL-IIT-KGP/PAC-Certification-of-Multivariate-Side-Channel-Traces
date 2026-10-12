@@ -159,14 +159,19 @@ Measured on the Linux workstation with one NVIDIA RTX A4000. A full run is 4,000
 | build the GPU image (first time) | GPU | 1.5 minutes |
 | get the traces (Step 3) | GPU | 30 seconds, plus the downloads |
 | train `ascadr` (Table 7, Table 8, Figure 2) | GPU | 8 hours 41 minutes |
+| train `ascadf_desync50` or `ascadf_desync100` (Figure 2) | GPU | about 10 hours 40 minutes each |
+| train `aes_rd_fstd_pool5_lr5e4` (Figure 2) | GPU | about 1 hour 50 minutes |
+| train `ches25_lx_w100` (Figure 1) | GPU | about 5 hours 30 minutes |
+| train `ches25_lx_w200` (Figure 1) | GPU | about 7 hours 10 minutes |
+| train `ches25_lx_w500` (Figure 1) | GPU | about 6 hours |
+| train `ches25_lx_w1000` (Figure 1) | GPU | about 5 hours 40 minutes |
 | train `ches25_lx_w3000` (Table 7, Figure 1) | GPU | 7 hours 12 minutes |
-| train `ascadf_desync50` (Figure 2) | GPU | about 10 hours 40 minutes |
-| train `ascadf_desync100` (Figure 2) | GPU | about 10 hours 40 minutes |
+| train `ches25_lx` (Figure 1, 7,000 samples) | GPU | about 9 hours; needs more than 64 GB of memory |
 | test the new `ascadr` models | CPU | 9.5 minutes |
 | test the new `ches25_lx_w3000` models | CPU | 6.5 minutes |
 | Table 7 from the new counts | CPU | 1 second |
 
-The two "about" times come from the speed over 40,000 steps; for `ascadr` the same method gives 8 hours 38 minutes, against 8 hours 41 minutes for the full run. The times of the remaining six folders will be added here.
+Times without "about" are full runs. The others come from the speed over 40,000 steps (20,000 for `ches25_lx`); for `ascadr` and `ches25_lx_w3000` this gives 8 hours 38 minutes and 7 hours 17 minutes, against 8 hours 41 minutes and 7 hours 12 minutes for the full runs. All ten folders take about 72 hours one after another.
 
 # What to look for
 
