@@ -1,0 +1,29 @@
+$ python -m paper_results.evaluate_estranet_suites --suites ascad_random_key --checkpoint-root checkpoints/estranet_retrained --out-dir results/paper_results/retrained
+[... earlier output omitted; key lines kept ...]
+$ python -m bi_suite_8datasets.evaluate_estranet_bi_suite --project-root external/EstraNet --dataset ASCAD --dataset-name ascad_random_key --scope-id ascad_random_estranet_checkpoint_su …
+ascad_random_key_estranet_ckpt1: successes=371 n_te=100000 success_rate=0.00371000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-1
+ascad_random_key_estranet_ckpt10: successes=434 n_te=100000 success_rate=0.00434000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-10
+ascad_random_key_estranet_ckpt20: successes=887 n_te=100000 success_rate=0.00887000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-20
+ascad_random_key_estranet_ckpt30: successes=1139 n_te=100000 success_rate=0.01139000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-30
+ascad_random_key_estranet_ckpt40: successes=1379 n_te=100000 success_rate=0.01379000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-40
+ascad_random_key_estranet_ckpt50: successes=1447 n_te=100000 success_rate=0.01447000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-50
+ascad_random_key_estranet_ckpt60: successes=1483 n_te=100000 success_rate=0.01483000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-60
+ascad_random_key_estranet_ckpt70: successes=1605 n_te=100000 success_rate=0.01605000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-70
+[...]
+6250/6250 [==============================] - ETA: 0s
+6250/6250 [==============================] - 44s 7ms/step
+ascad_random_key_estranet_ckpt80: successes=1643 n_te=100000 success_rate=0.01643000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-80
+
+6250/6250 [==============================] - 44s 7ms/step
+ascad_random_key_estranet_ckpt90: successes=1664 n_te=100000 success_rate=0.01664000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-90
+
+6250/6250 [==============================] - 44s 7ms/step
+ascad_random_key_estranet_ckpt99: successes=1678 n_te=100000 success_rate=0.01678000 checkpoint=checkpoints/estranet_retrained/ascadr/trans_long-99
+Wrote results/paper_results/retrained/estranet/ascad_random_key_estranet_success.csv
+Wrote results/paper_results/retrained/estranet/ascad_random_key_estranet_success.summary.json
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+ascad_random_key: checkpoint 99 successes=1678/100000 EPI=0.4989 key recovery at 100/500/1000/2000 traces = [97, 100, 100, 100] of 100
+[exit code 0, 9 min 29 s]

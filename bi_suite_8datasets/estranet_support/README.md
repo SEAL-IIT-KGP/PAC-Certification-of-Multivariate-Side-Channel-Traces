@@ -15,27 +15,51 @@ The Transformer attackers in the paper are EstraNet models (https://github.com/s
 
 ## Retraining (optional, GPU)
 
-The released checkpoints make retraining unnecessary. A full run is 4,000,000 steps at batch size 16, which takes 5 to 8 hours per suite on one CUDA GPU.
+The released checkpoints make retraining unnecessary. Retraining needs an NVIDIA GPU: a folder takes 4,000,000 steps at batch size 16 (AES-RD 200,000). On one NVIDIA RTX A4000, `ascadr` takes 8 h 41 min, `ches25_lx_w3000` 7 h 12 min, and `ascadf_desync50` and `ascadf_desync100` about 10 h 40 min each. [`docs/guides/pdf/12_gpu_docker.pdf`](../../docs/guides/pdf/12_gpu_docker.pdf) walks through it with recorded output and the time of each step.
 
-Place the suite's trace file as for Level C (`paper_results/README.md`), install `requirements-ml-gpu.txt` instead of `requirements-ml.txt` (TensorFlow 2.15 with CUDA, Linux x86-64), and run from the repository root:
-
-```bash
-bi_suite_8datasets/estranet_support/train_checkpoints.sh ascadr
-```
-
-With Docker (Linux x86-64 with the NVIDIA driver and the NVIDIA Container Toolkit), build the GPU image and run it with `--gpus all`:
+**With Docker** (Linux x86-64, NVIDIA driver and NVIDIA Container Toolkit): build the GPU image and define a helper that shares the four folders and the GPU:
 
 ```bash
 docker build --build-arg TF=gpu -t bi-certification-gpu .
-docker run --rm --gpus all -v "$PWD/results:/artifact/results" -v "$PWD/datasets/raw:/artifact/datasets/raw" \
-  -v "$PWD/checkpoints:/artifact/checkpoints" -v "$PWD/external:/artifact/external" \
-  bi-certification-gpu bi_suite_8datasets/estranet_support/train_checkpoints.sh ascadr
+mkdir -p results datasets/raw checkpoints external
+gpu() {
+  docker run --rm --gpus all -v "$PWD/results:/artifact/results" -v "$PWD/datasets/raw:/artifact/datasets/raw" \
+    -v "$PWD/checkpoints:/artifact/checkpoints" -v "$PWD/external:/artifact/external" \
+    bi-certification-gpu "$@"
+}
 ```
 
-- The script prints the number of GPUs TensorFlow sees (`gpus=1`) before training starts.
-- Checkpoints go to `checkpoints/estranet_retrained/<suite>/trans_long-<index>`: index 1 is the model at step 0, and each later index adds 20,000 steps (index 201 ends a 4,000,000-step run).
-- Running the same command again resumes from the latest checkpoint.
-- To evaluate the retrained checkpoints, pass `--checkpoint-root checkpoints/estranet_retrained` to `paper_results/evaluate_estranet_suites.py` or `bi_scope_certificates/profile_epsilon_calibration.py`.
+```bash
+# traces (CHES_Challenge.h5 is a manual download, see paper_results/README.md, Level C)
+gpu bash -c "python -m paper_results.fetch_ascad_random_key && paper_results/fetch_tches20.sh \
+  && python -m bi_scope_certificates.prepare_aesrd_estranet_h5"
+
+# one folder
+gpu bi_suite_8datasets/estranet_support/train_checkpoints.sh ascadr
+
+# all ten, one after another
+for suite in ascadr ascadf_desync50 ascadf_desync100 aes_rd_fstd_pool5_lr5e4 ches25_lx_w100 \
+             ches25_lx_w200 ches25_lx_w500 ches25_lx_w1000 ches25_lx_w3000 ches25_lx; do
+  gpu bi_suite_8datasets/estranet_support/train_checkpoints.sh "$suite"
+done
+
+# test the retrained Table 7 folders (ascadr, ches25_lx_w3000) in the CPU image (artifact() of the main README)
+artifact python -m paper_results.evaluate_estranet_suites --checkpoint-root checkpoints/estranet_retrained \
+  --out-dir results/paper_results/retrained
+```
+
+**Without Docker:** install `requirements-ml-gpu.txt` instead of `requirements-ml.txt` (Linux x86-64) and run `bi_suite_8datasets/estranet_support/train_checkpoints.sh <folder>` from the repository root.
+
+| Folder | Trace file in `datasets/raw/` |
+|---|---|
+| `ascadr` | `ascad_random_key/ASCAD.h5` (`fetch_ascad_random_key`) |
+| `ascadf_desync50`, `ascadf_desync100` | `tches20/.../ASCAD_desync50.h5`, `ASCAD_desync100.h5` (`fetch_tches20.sh`) |
+| `aes_rd_fstd_pool5_lr5e4` | `aes_rd/AES_RD_estranet_feature_standardized.h5` (`prepare_aesrd_estranet_h5`) |
+| `ches25_lx_w100`, `_w200`, `_w500`, `_w1000`, `_w3000`, `ches25_lx` | `ches_ctf_2025/CHES_Challenge.h5` |
+
+- The script prints `gpus=1` when TensorFlow sees the GPU.
+- Checkpoints go to `checkpoints/estranet_retrained/<folder>/trans_long-<n>`: `n = 1` is the untrained model, each later index adds 20,000 steps, `n = 201` ends the run. The same command resumes a stopped run.
+- `--suites ches_windows` tests the window folders of Figure 1; for the Figure 2 reference models pass the same `--checkpoint-root` to `bi_scope_certificates/profile_epsilon_calibration.py`.
 
 ## Training settings of the released checkpoints
 

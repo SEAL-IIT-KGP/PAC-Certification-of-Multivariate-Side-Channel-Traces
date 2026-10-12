@@ -1,6 +1,6 @@
 # Guides
 
-One short PDF per folder: what it shows, what you need, the commands, and the terminal output you should see. The outputs were recorded in the Docker image on a Linux workstation (x86-64, CPU only). The same commands also passed every check in Docker on a Mac (Apple M3 Pro); guide 00 lists the times on both.
+One short PDF per folder: what it shows, what you need, the commands, and the terminal output you should see. The outputs were recorded in the Docker image on a Linux workstation (x86-64, CPU only); guide 12 uses the optional GPU image on the same workstation. The same commands also passed every check in Docker on a Mac (Apple M3 Pro); guide 00 lists the times on both.
 
 | Guide | Folder |
 |---|---|
@@ -16,6 +16,7 @@ One short PDF per folder: what it shows, what you need, the commands, and the te
 | [09_attacker_scope_diagnostics.pdf](pdf/09_attacker_scope_diagnostics.pdf) | `attacker_scope_diagnostics/` |
 | [10_model_training.pdf](pdf/10_model_training.pdf) | `model_training/` |
 | [11_core_datasets_scripts.pdf](pdf/11_core_datasets_scripts.pdf) | `core/`, `datasets/`, `scripts/`, `docs/` |
+| [12_gpu_docker.pdf](pdf/12_gpu_docker.pdf) | optional: training the Transformer models again with the GPU image |
 
 ## Rebuilding the guides
 

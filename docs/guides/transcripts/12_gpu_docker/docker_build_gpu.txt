@@ -1,0 +1,28 @@
+$ docker build --build-arg TF=gpu -t bi-certification-gpu .
+[... earlier output omitted; key lines kept ...]
+[...]
+#9 50.48 Downloading cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (217 kB)
+#9 50.48    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 217.8/217.8 kB 249.4 MB/s eta 0:00:00
+#9 50.50 Downloading oauthlib-4.0.0-py3-none-any.whl (159 kB)
+#9 50.50    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 159.7/159.7 kB 660.8 MB/s eta 0:00:00
+#9 50.52 Downloading pyasn1-0.6.4-py3-none-any.whl (84 kB)
+#9 50.52    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.4/84.4 kB 190.4 MB/s eta 0:00:00
+#9 50.54 Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+#9 50.54    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 545.3 MB/s eta 0:00:00
+#9 51.48 Installing collected packages: mpmath, libclang, flatbuffers, wrapt, urllib3, typing-extensions, termcolor, tensorflow-io-gcs-filesystem, tensorflow-estimator, tensorboard-data-server, sympy, …
+#9 84.14 Successfully installed MarkupSafe-3.0.4 absl-py-2.5.1 astunparse-1.6.3 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 filelock-4.1.1 flatbuffers-25.12.19 fsspec-202 …
+#9 84.14 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: htt …
+#9 DONE 85.9s
+
+#10 [6/6] COPY . .
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 10.3s done
+#11 writing image sha256:3a02d77d52f38e761ff47814aa8d116ef3ea5740525facc48abd81bd7747e666 done
+#11 naming to docker.io/library/bi-certification-gpu done
+#11 DONE 10.3s
+
+View build details: docker-desktop://dashboard/build/default/default/sllkxckct9xquo7u04h68s1j8
+[exit code 0, 1 min 36 s]

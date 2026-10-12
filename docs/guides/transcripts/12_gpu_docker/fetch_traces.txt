@@ -1,0 +1,16 @@
+$ python -m paper_results.fetch_ascad_random_key && \
+    paper_results/fetch_tches20.sh && \
+    python -m bi_scope_certificates.prepare_aesrd_estranet_h5
+downloading https://www.data.gouv.fr/api/1/datasets/r/b4ace767-c2a4-4db4-8e01-4527b5b91f00
+datasets/raw/ascad_random_key/ASCAD.h5: checksum verified
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/ASCAD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/AES_HD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/AES_RD_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/datasets/DPAv4_dataset.zip
+unpacking datasets/raw/tches20/TCHES20V3_CNN_SCA/models/pretrained_models.zip
+TCHES20 benchmark ready in datasets/raw/tches20/TCHES20V3_CNN_SCA (480 pretrained models)
+wrote=datasets/raw/aes_rd/AES_RD_estranet_feature_standardized.h5
+profile=(25000, 3500) attack=(25000, 3500)
+trace_mode=feature_standardize target_byte=0
+Cloning into 'datasets/raw/tches20/TCHES20V3_CNN_SCA'...
+[exit code 0, 31 s]

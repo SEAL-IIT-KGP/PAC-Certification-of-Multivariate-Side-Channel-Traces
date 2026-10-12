@@ -1,0 +1,25 @@
+$ bi_suite_8datasets/estranet_support/train_checkpoints.sh ches25_lx_w3000
+suite=ches25_lx_w3000 dataset=CHES25 input_length=3000 pool_size=20 beta_hat_2=150 learning_rate=2.5e-4
+train_steps=4000000 data=datasets/raw/ches_ctf_2025/CHES_Challenge.h5 checkpoints=checkpoints/estranet_retrained/ches25_lx_w3000 gpus=1
+2026-10-11 10:22:41.722517: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been  …
+2026-10-11 10:22:41.722551: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been r …
+2026-10-11 10:22:41.723271: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already be …
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+INFO:tensorflow:
+INFO:tensorflow:
+INFO:tensorflow:use_tpu               : False
+[... 846 lines omitted ...]
+INFO:tensorflow:[3960000] | gnorm 90.80 lr  0.000001 | loss  4.93
+INFO:tensorflow:Train batches[  100]                | loss  4.77
+INFO:tensorflow:Eval  batches[  100]                | loss  5.95
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-199
+INFO:tensorflow:[3980000] | gnorm 91.04 lr  0.000001 | loss  4.93
+INFO:tensorflow:Train batches[  100]                | loss  4.83
+INFO:tensorflow:Eval  batches[  100]                | loss  5.93
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-200
+INFO:tensorflow:[4000000] | gnorm 90.69 lr  0.000001 | loss  4.92
+INFO:tensorflow:Train batches[  100]                | loss  4.82
+INFO:tensorflow:Eval  batches[  100]                | loss  5.91
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-201
+[exit code 0, 7 h 11 min 57 s]
