@@ -1,9 +1,20 @@
 """Commands recorded for each guide chapter (see record.py).
 
-Each step: name, cmd, optional mode ("host" runs on the Mac outside the container),
-show ("tail" keeps only the last n lines), timeout, stop_on_error.
+Each step: name, cmd, optional mode ("host" runs on the machine outside the container),
+show ("tail" keeps only the last n lines), timeout, stop_on_error, image and gpus
+(run in another image, with `--gpus all`).
 """
 T = "T=datasets/raw/tches20/TCHES20V3_CNN_SCA"
+GPU = {"image": "bi-certification-gpu", "gpus": True}
+FIGURE2 = (
+    "python -m bi_scope_certificates.prepare_aesrd_estranet_h5 && for ds in ascad_random_key ascad_desync_50 "
+    "ascad_desync_100 aes_rd; do python -m bi_scope_certificates.profile_epsilon_calibration --dataset $ds "
+    "--output-dir results/paper_results/recomputed/selected_centers/$ds; done && python -m paper_results.reproduce report"
+)
+SUITES = [
+    "ascadr", "ascadf_desync50", "ascadf_desync100", "aes_rd_fstd_pool5_lr5e4", "ches25_lx_w100",
+    "ches25_lx_w200", "ches25_lx_w500", "ches25_lx_w1000", "ches25_lx_w3000", "ches25_lx",
+]
 
 PLANS = {
     "00_start_here": [
@@ -84,5 +95,26 @@ PLANS = {
         {"name": "data_loader", "cmd": "python -m core.data_loader"},
         {"name": "setup_datasets", "cmd": "python -m datasets.setup_datasets --info; python -m datasets.setup_datasets --verify --data-dir datasets/raw", "stop_on_error": False},
         {"name": "plot_help", "cmd": "python -m scripts.plot_bi_loc_radius_curves --help"},
+    ],
+    "12_gpu_docker": [
+        {"name": "nvidia_smi", "cmd": "nvidia-smi --query-gpu=name,driver_version --format=csv && nvidia-ctk --version | head -1", "mode": "host"},
+        {"name": "docker_build_gpu", "cmd": "docker build --build-arg TF=gpu -t bi-certification-gpu .", "mode": "host", "show": "tail", "n": 24, "timeout": 3600},
+        {"name": "gpu_visible", "cmd": "python -c \"import tensorflow as tf; print('TensorFlow', tf.__version__, '| CUDA build:', tf.test.is_built_with_cuda(), '| GPUs:', tf.config.list_physical_devices('GPU'))\"", "show": "tail", "n": 4, **GPU},
+        {"name": "fetch_traces", "cmd": "python -m paper_results.fetch_ascad_random_key && paper_results/fetch_tches20.sh && python -m bi_scope_certificates.prepare_aesrd_estranet_h5", "show": "tail", "n": 24, "timeout": 3600, **GPU},
+        *[
+            {"name": f"train_full_{s}", "cmd": f"bi_suite_8datasets/estranet_support/train_checkpoints.sh {s}", "head": 10, "tail": 12, "timeout": 43200, **GPU}
+            for s in ("ascadr", "ches25_lx_w3000")
+        ],
+        # The new models are tested in the CPU image, like Level C.
+        *[
+            {"name": f"eval_retrained_{s}", "cmd": f"python -m paper_results.evaluate_estranet_suites --suites {s} --checkpoint-root checkpoints/estranet_retrained --out-dir results/paper_results/retrained", "show": "tail", "n": 16, "timeout": 7200}
+            for s in ("ascad_random_key", "ches_ctf_2025")
+        ],
+        {"name": "table7_retrained", "cmd": "python -m paper_results.table7_bi_suite --recomputed-dir results/paper_results/retrained --out-dir results/paper_results/retrained_table7 >/dev/null 2>&1; cat results/paper_results/retrained_table7/table7_bi_suite.md"},
+    ],
+    # Timing runs (not shown in a guide): 60,000 training steps of each suite with the paper's settings.
+    "12_gpu_timing": [
+        {"name": f"train_{s}", "cmd": f"CKP_DIR=/artifact/checkpoints/timing/{s} bi_suite_8datasets/estranet_support/train_checkpoints.sh {s} --train_steps=60000", "show": "tail", "n": 16, "timeout": 7200, "stop_on_error": False, **GPU}
+        for s in SUITES
     ],
 }

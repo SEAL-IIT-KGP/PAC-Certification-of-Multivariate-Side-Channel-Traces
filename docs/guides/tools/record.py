@@ -6,8 +6,9 @@
 A transcript (transcripts/<chapter>/<step>.txt) is the command as typed, prefixed with
 "$ ", followed by its combined stdout/stderr and a closing line with the exit code and the
 elapsed time.  Long outputs keep their first and last lines.  In docker mode every step runs
-in a fresh container of the image `bi-certification` with results/, datasets/raw/,
-checkpoints/ and external/ of the repository mounted, so the steps share their files.
+in a fresh container of the image `bi-certification` (or the step's "image", with
+`--gpus all` when the step sets "gpus") with results/, datasets/raw/, checkpoints/ and
+external/ of the repository mounted, so the steps share their files.
 """
 import argparse
 import os
@@ -51,10 +52,12 @@ def clean(text: str, repo: str) -> str:
     text = "\n".join(kept)
     text = text.replace(repo + "/", "").replace(repo, ".")
     text = text.replace("/artifact/", "")
+    # paths inside the image, shown relative
+    text = text.replace("/usr/local/lib/python3.11/site-packages/", "site-packages/").replace("/usr/local/bin/python", "python")
     return text
 
 
-def run_step(cmd: str, mode: str, repo: str, timeout: int) -> tuple[str, int, float]:
+def run_step(cmd: str, mode: str, repo: str, timeout: int, image: str = "bi-certification", gpus: bool = False) -> tuple[str, int, float]:
     if mode == "host":
         argv = ["bash", "-c", f"cd '{repo}' && {cmd}"]
     elif mode == "venv":
@@ -67,7 +70,8 @@ def run_step(cmd: str, mode: str, repo: str, timeout: int) -> tuple[str, int, fl
         for sub, host in (("results", results_host), ("datasets/raw", f"{repo}/datasets/raw"),
                           ("checkpoints", f"{repo}/checkpoints"), ("external", f"{repo}/external")):
             mounts += ["-v", f"{host}:/artifact/{sub}"]
-        argv = ["docker", "run", "--rm", *mounts, "bi-certification", "bash", "-c", cmd]
+        gpu_args = ["--gpus", "all"] if gpus else []
+        argv = ["docker", "run", "--rm", *gpu_args, *mounts, image, "bash", "-c", cmd]
     t0 = time.time()
     try:
         p = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, errors="replace")
@@ -79,6 +83,8 @@ def run_step(cmd: str, mode: str, repo: str, timeout: int) -> tuple[str, int, fl
 
 def fmt_elapsed(s: float) -> str:
     s = int(round(s))
+    if s >= 3600:
+        return f"{s // 3600} h {s % 3600 // 60} min {s % 60} s"
     return f"{s // 60} min {s % 60} s" if s >= 60 else f"{s} s"
 
 
@@ -103,7 +109,10 @@ def main():
             print(f"skip {name} (exists)")
             continue
         print(f"[{a.chapter}/{name}] running ...", flush=True)
-        out, code, dt = run_step(cmd, step.get("mode", a.mode), repo, step.get("timeout", 7200))
+        out, code, dt = run_step(
+            cmd, step.get("mode", a.mode), repo, step.get("timeout", 7200),
+            step.get("image", "bi-certification"), step.get("gpus", False),
+        )
         rawdir = GUIDE / "transcripts_raw" / a.chapter
         rawdir.mkdir(parents=True, exist_ok=True)
         (rawdir / f"{name}.log").write_text(out)

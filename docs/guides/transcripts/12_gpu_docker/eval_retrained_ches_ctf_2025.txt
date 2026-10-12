@@ -1,0 +1,31 @@
+$ python -m paper_results.evaluate_estranet_suites --suites ches_ctf_2025 --checkpoint-root checkpoints/estranet_retrained --out-dir results/paper_results/retrained
+[... earlier output omitted; key lines kept ...]
+$ python -m bi_suite_8datasets.evaluate_estranet_bi_suite --project-root external/EstraNet --dataset CHES25 --dataset-name ches_ctf_2025 --scope-id ches_ctf_2025_estranet_w3000_checkpoi …
+ches_ctf_2025_estranet_ckpt1: successes=425 n_te=100000 success_rate=0.00425000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-1
+ches_ctf_2025_estranet_ckpt2: successes=408 n_te=100000 success_rate=0.00408000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-2
+ches_ctf_2025_estranet_ckpt3: successes=383 n_te=100000 success_rate=0.00383000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-3
+ches_ctf_2025_estranet_ckpt4: successes=374 n_te=100000 success_rate=0.00374000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-4
+ches_ctf_2025_estranet_ckpt5: successes=405 n_te=100000 success_rate=0.00405000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-5
+ches_ctf_2025_estranet_ckpt10: successes=363 n_te=100000 success_rate=0.00363000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-10
+ches_ctf_2025_estranet_ckpt20: successes=383 n_te=100000 success_rate=0.00383000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-20
+ches_ctf_2025_estranet_ckpt50: successes=404 n_te=100000 success_rate=0.00404000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-50
+ches_ctf_2025_estranet_ckpt100: successes=367 n_te=100000 success_rate=0.00367000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-100
+ches_ctf_2025_estranet_ckpt150: successes=404 n_te=100000 success_rate=0.00404000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-150
+[...]
+
+6250/6250 [==============================] - 30s 5ms/step
+ches_ctf_2025_estranet_ckpt201: successes=417 n_te=100000 success_rate=0.00417000 checkpoint=checkpoints/estranet_retrained/ches25_lx_w3000/trans_long-201
+Wrote results/paper_results/retrained/estranet/ches_ctf_2025_estranet_w3000_success.csv
+Wrote results/paper_results/retrained/estranet/ches_ctf_2025_estranet_w3000_success.summary.json
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+  warnings.warn(
+[CHES25] Loaded LucianoXu drift stats from datasets/raw/ches_ctf_2025/CHES_Challenge.h5.estranet_lucianoxu_dn1_len3000_prof450000_att100000.npz
+[CHES25] Available keys in 'Attack_traces': ['metadata', 'traces']
+[CHES25] Loaded 100000 traces of shape (100000, 3000)
+[CHES25] Loaded LucianoXu drift stats from datasets/raw/ches_ctf_2025/CHES_Challenge.h5.estranet_lucianoxu_dn1_len3000_prof450000_att100000.npz
+[CHES25] Applied LucianoXu drift-fix preprocessing to test traces
+[CHES25] Using labels from structured metadata
+ches_ctf_2025: checkpoint 1 successes=425/100000 EPI=0.0000 key recovery at 100/500/1000/2000 traces = [0, 0, 0, 0] of 100
+[exit code 0, 6 min 33 s]

@@ -34,7 +34,7 @@ There is one short guide (PDF) per folder. Each guide tells you what the folder 
 
 Nothing here needs a GPU. **Every command in these guides runs on an ordinary CPU.** The outputs shown in the guides were recorded inside Docker on a Linux workstation (x86-64, 12 cores). The same commands were also run inside Docker on a Mac (Apple M3 Pro, 12 cores). Both machines pass every check; the Mac is two to four times slower on most long steps. The tables below list the times on both.
 
-A GPU would only be needed to train the Transformer models again from scratch. That is not needed: the trained models are provided, and the guides only use them to make guesses on traces.
+A GPU would only be needed to train the Transformer models again from scratch. That is not needed: the trained models are provided, and the guides only use them to make guesses on traces. Guide 12 shows how to train them again with the optional GPU image, for readers who want to.
 
 # The four levels of reproduction
 

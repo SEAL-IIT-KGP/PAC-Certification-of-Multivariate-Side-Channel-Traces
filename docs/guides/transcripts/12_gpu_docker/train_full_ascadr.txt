@@ -1,0 +1,25 @@
+$ bi_suite_8datasets/estranet_support/train_checkpoints.sh ascadr
+Cloning into 'external/EstraNet'...
+EstraNet sources ready in external/EstraNet
+suite=ascadr dataset=ASCAD input_length=1400 pool_size=10 beta_hat_2=50 learning_rate=2.5e-4
+train_steps=4000000 data=datasets/raw/ascad_random_key/ASCAD.h5 checkpoints=checkpoints/estranet_retrained/ascadr gpus=1
+2026-10-11 01:41:36.241849: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been  …
+2026-10-11 01:41:36.241883: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been r …
+2026-10-11 01:41:36.242608: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already be …
+external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  ks = 11 if l is 0 else self.conv_kernel_size
+INFO:tensorflow:
+[... 838 lines omitted ...]
+INFO:tensorflow:[3960000] | gnorm 145.56 lr  0.000001 | loss  4.45
+INFO:tensorflow:Train batches[  100]                | loss  4.20
+INFO:tensorflow:Eval  batches[  100]                | loss  5.26
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ascadr/trans_long-199
+INFO:tensorflow:[3980000] | gnorm 146.48 lr  0.000001 | loss  4.45
+INFO:tensorflow:Train batches[  100]                | loss  4.21
+INFO:tensorflow:Eval  batches[  100]                | loss  5.32
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ascadr/trans_long-200
+INFO:tensorflow:[4000000] | gnorm 146.07 lr  0.000001 | loss  4.45
+INFO:tensorflow:Train batches[  100]                | loss  4.19
+INFO:tensorflow:Eval  batches[  100]                | loss  5.28
+INFO:tensorflow:Model saved in path: checkpoints/estranet_retrained/ascadr/trans_long-201
+[exit code 0, 8 h 41 min 6 s]

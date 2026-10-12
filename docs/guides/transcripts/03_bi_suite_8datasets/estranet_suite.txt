@@ -1,6 +1,6 @@
 $ python -m paper_results.evaluate_estranet_suites --suites ches_ctf_2025 --skip-selected --out-dir results/bi_suite_8datasets/estranet
 [... earlier output omitted; key lines kept ...]
-$ /usr/local/bin/python -m bi_suite_8datasets.evaluate_estranet_bi_suite --project-root external/EstraNet --dataset CHES25 --dataset-name ches_ctf_2025 --scope-id ches_ctf_2025_estranet_w3000_checkpoi …
+$ python -m bi_suite_8datasets.evaluate_estranet_bi_suite --project-root external/EstraNet --dataset CHES25 --dataset-name ches_ctf_2025 --scope-id ches_ctf_2025_estranet_w3000_checkpoi …
 ches_ctf_2025_estranet_ckpt1: successes=378 n_te=100000 success_rate=0.00378000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-1
 ches_ctf_2025_estranet_ckpt2: successes=382 n_te=100000 success_rate=0.00382000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-2
 ches_ctf_2025_estranet_ckpt3: successes=376 n_te=100000 success_rate=0.00376000 checkpoint=checkpoints/estranet/ches25_lx_w3000/trans_long-3
@@ -29,6 +29,6 @@ Wrote results/bi_suite_8datasets/estranet/estranet/ches_ctf_2025_estranet_w3000_
 Wrote results/bi_suite_8datasets/estranet/estranet/ches_ctf_2025_estranet_w3000_success.summary.json
 external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
   ks = 11 if l is 0 else self.conv_kernel_size
-/usr/local/lib/python3.11/site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
   warnings.warn(
 [exit code 0, 5 min 55 s]

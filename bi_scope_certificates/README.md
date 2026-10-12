@@ -43,6 +43,14 @@ python -m bi_scope_certificates.train_keras_ascad_random_key --arch MLP
 python -m bi_scope_certificates.train_keras_ascad_random_key --arch CNN
 ```
 
+With Docker, on CPU (about 35 minutes on 24 cores, most of it for the CNN):
+
+```bash
+docker run --rm -v "$PWD/datasets/raw:/artifact/datasets/raw" -v "$PWD/checkpoints:/artifact/checkpoints" \
+  bi-certification bash -c "python -m bi_scope_certificates.train_keras_ascad_random_key --arch MLP \
+    && python -m bi_scope_certificates.train_keras_ascad_random_key --arch CNN"
+```
+
 ## Outputs
 
 | File | Content |

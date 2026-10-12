@@ -77,7 +77,7 @@ All levels run on CPU. More detail:
 ## Hardware
 
 - **Reproduction:** CPU only. The reference runs used a 24-core Linux workstation, a 16-core cluster node and a Mac (Apple M3 Pro).
-- **Retraining (optional):** the Transformer checkpoints were trained on one CUDA GPU (5 to 8 hours per suite). [`bi_suite_8datasets/estranet_support/`](bi_suite_8datasets/estranet_support/README.md) has their settings and the retraining script; `bi_scope_certificates/train_keras_ascad_random_key.py` retrains the two Keras models in the same archive.
+- **Retraining (optional):** the Transformer checkpoints were trained on one CUDA GPU (5 to 9 hours per suite). `docker build --build-arg TF=gpu -t bi-certification-gpu .` builds a GPU image that retrains them; [`bi_suite_8datasets/estranet_support/`](bi_suite_8datasets/estranet_support/README.md) has the commands and settings, and [guide 12](docs/guides/pdf/12_gpu_docker.pdf) the recorded steps. `bi_scope_certificates/train_keras_ascad_random_key.py` retrains the two Keras models in the same archive.
 - The TCHES20 models are downloaded pretrained.
 
 ## Repository layout

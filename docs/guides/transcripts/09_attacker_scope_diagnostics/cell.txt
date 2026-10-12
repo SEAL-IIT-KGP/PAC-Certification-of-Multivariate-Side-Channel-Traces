@@ -12,7 +12,7 @@ Creating all target labels for the attack traces:
 [done] target ('ascad_desync_0', 1, 0) complete
 
 100%|██████████| 10000/10000 [00:02<00:00, 4605.65it/s]
-/usr/local/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
+site-packages/sklearn/linear_model/_logistic.py:469: ConvergenceWarning: lbfgs failed to converge (status=1):
 STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
 
 Increase the number of iterations (max_iter) or scale the data as shown in:
