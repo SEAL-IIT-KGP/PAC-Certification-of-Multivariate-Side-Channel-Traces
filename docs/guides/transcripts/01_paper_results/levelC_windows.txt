@@ -8,32 +8,33 @@ window 500: 9/11 recomputed per-checkpoint counts equal the archived counts (lar
 window 1000: 8/11 recomputed per-checkpoint counts equal the archived counts (largest difference 1 traces)
 window 3000: 11/11 recomputed per-checkpoint counts equal the archived counts (largest difference 0 traces)
 window 7000: 11/11 recomputed per-checkpoint counts equal the archived counts (largest difference 0 traces)
-dimension  BI_suite,+      GKOV MI       MLP-PI       ePI/PI
-      100       0.467      -0.394       -0.016       -0.091 
-      200       0.544      -0.178       -0.040       -0.145 
-[... 81 lines omitted ...]
-[PASS] Figure 1 (dimension sweep): 5 values match the paper, 0 differ
+dimension  BI+ (0.05)  BI+ (1e-06)      GKOV MI       MLP-PI       ePI/PI
+      100       0.314        0.467      -0.394       -0.016       -0.091 
+      200       0.396        0.544      -0.178       -0.040       -0.145 
+[... 85 lines omitted ...]
+[PASS] Figure 1 (dimension sweep): 10 values match the paper, 0 differ
+[PASS] Figure 1 at delta = 1e-6 (additional result, confidence level of Table 7): 2 values match the paper, 0 differ
 $ python -m paper_results.figure2_biloc_selected_centers --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
 [PASS] Figure 2 (selected-center local-family certificates): 12 values match the paper, 0 differ
 $ python -m paper_results.fullversion_tables --recomputed-dir results/paper_results/recomputed --out-dir results/paper_results
 [PASS] Four-byte composition (full version): 1 values match the paper, 0 differ
 [PASS] PI/EPI temperature sweep (full version): 18 values match the paper, 0 differ
-external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
-  ks = 11 if l is 0 else self.conv_kernel_size
-site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical values each time (even if  …
   warnings.warn(
 external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
   ks = 11 if l is 0 else self.conv_kernel_size
-site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical values each time (even if  …
   warnings.warn(
 external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
   ks = 11 if l is 0 else self.conv_kernel_size
-site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical values each time (even if  …
   warnings.warn(
 external/EstraNet/transformer.py:244: SyntaxWarning: "is" with a literal. Did you mean "=="?
   ks = 11 if l is 0 else self.conv_kernel_size
-site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical  …
+site-packages/keras/src/initializers/initializers.py:120: UserWarning: The initializer RandomUniform is unseeded and being called multiple times, which will return identical values each time (even if  …
   warnings.warn(
 'created' timestamp seems very low; regarding as unix timestamp
 'modified' timestamp seems very low; regarding as unix timestamp
-[exit code 0, 29 min 42 s]
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[exit code 0, 1 h 46 min 44 s]
