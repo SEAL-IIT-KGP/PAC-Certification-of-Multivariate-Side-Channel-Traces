@@ -1,4 +1,10 @@
 claim,value_bits,location
-bi_suite_plus_minimum,0.47,Section 5.2
-bi_suite_plus_maximum,0.55,Section 5.2
-bi_suite_plus_at_3000,0.521,BI-suite table (CHES-CTF-2025 row)
+bi_suite_plus_d100,0.314,Figure 1 (plotted value)
+bi_suite_plus_d200,0.399,Figure 1 (plotted value)
+bi_suite_plus_d500,0.346,Figure 1 (plotted value)
+bi_suite_plus_d1000,0.383,Figure 1 (plotted value)
+bi_suite_plus_d3000,0.371,Figure 1 (plotted value)
+bi_suite_plus_d7000,0.340,Figure 1 (plotted value)
+bi_suite_plus_minimum,0.3,Section 5.4 text
+bi_suite_plus_maximum,0.4,Section 5.4 text
+table7_bi_suite_plus_at_3000,0.521,Table 7 (CHES-CTF-2025 row)

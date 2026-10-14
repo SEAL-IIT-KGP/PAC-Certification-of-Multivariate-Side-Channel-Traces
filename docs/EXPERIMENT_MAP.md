@@ -36,7 +36,9 @@ with the printed values; see `paper_results/README.md`.
   `bi_suite_8datasets/summarize_ches_transformer_bi_sweep.py` summarizes the same counts.
 - GKOV MI, MLP-PI, ePI/PI cells: `dimension_stability/ches_nonbi_metric_cell.py`
   and `dimension_stability/real_nonbi_dimcap_baselines.py`.
-- Figure and check: `paper_results/figure1_dimension_sweep.py`.
+- Figure and check: `paper_results/figure1_dimension_sweep.py`. Figure 1 draws the BI line at
+  `delta = 0.05`, as in the paper (`figure1_dimension_sweep.pdf`); an additional figure draws it at
+  `delta = 1e-6`, the confidence level of Table 7 (`figure1_dimension_sweep_delta1e-6.pdf`).
 
 ### Figure 2 (`fig:biloc-curve`): selected-center local-family curves and calibrated radius
 

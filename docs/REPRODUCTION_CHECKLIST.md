@@ -13,7 +13,7 @@ Level A (`reproduce archived`, no download) rebuilds and checks every result bel
 | [Table 7](#table-7-finite-suite-certificates-and-epi) | Certified leakage bound (bits) for each of the eight benchmarks, with EPI next to it | 80 | Level B (`reproduce tches20`): the six TCHES20 rows<br>Level C (`reproduce estranet`): the ASCAD random key and CHES-CTF-2025 rows |
 | [Table 8](#table-8-key-byte-recovery) | How often the best model recovers the key byte with 100 to 2,000 traces | 28 | Level B (`reproduce tches20`): the six TCHES20 rows<br>Level C (`reproduce estranet`): the ASCAD random key row |
 | [Table 9](#table-9-full-suite-local-family-certificate) | Certified bound that also covers attackers close to the 80 models, at five radii | 81 | Level B (`reproduce tches20`): all 20 rows |
-| [Figure 1](#figure-1-dimension-sweep-on-ches-ctf-2025) | BI stays flat as traces get longer, while the MI and PI estimates drift | 5 | Level C (`reproduce estranet`, then `--suites ches_windows`): the BI line<br>Separate long run (steps 2–3, about 18 h): the MI and PI lines |
+| [Figure 1](#figure-1-dimension-sweep-on-ches-ctf-2025) | BI stays flat as traces get longer, while the MI and PI estimates drift (BI line at `delta = 0.05`, as in the paper; additional figure at `delta = 1e-6`) | 10 + 2 | Level C (`reproduce estranet`, then `--suites ches_windows`): the BI line<br>Separate long run (steps 2–3, about 18 h): the MI and PI lines |
 | [Figure 2](#figure-2-selected-center-local-family-curves) | Certified bound of twelve chosen models as the radius grows, with the chosen radius marked | 12 | Level B (`reproduce tches20`): the six public MLP and CNN models<br>Level C (steps 2–3): all twelve models |
 | [Four-byte key recovery](#four-byte-key-recovery-section-53-full-version) (Section 5.3) | Recovering four key bytes together from raw ASCAD traces | 6 (1 in Level A) | Level D (`reproduce fullversion`) |
 | [Temperature sweep](#pi-and-epi-under-temperature-rescaling-section-54-full-version) (Section 5.4) | Rescaling a model's confidence changes PI a lot but leaves EPI and BI unchanged | 18 | Level D (`reproduce fullversion`) |
@@ -120,7 +120,9 @@ Checks `S^loc`, `p^loc`, `BI^loc,+` and the architecture at the five printed rad
 
 ## Figure 1: dimension sweep on CHES-CTF-2025
 
-Checks the smallest and largest `BI^suite,+` over the sweep (0.47 and 0.55 bits, Section 5.4), `BI^suite,+` at 3,000 samples (0.521 bits, Table 7), a positive `BI^suite,+` at every dimension, and a negative GKOV MI at 7,000 samples (5 values).
+Figure 1 draws the BI line at `delta = 0.05`, as in the paper. The check compares the six plotted `BI^suite,+` values (0.314, 0.399, 0.346, 0.383, 0.371 and 0.340 bits), the range quoted in Section 5.4 (0.3 to 0.4 bits), a positive `BI^suite,+` at every dimension, and a negative GKOV MI at 7,000 samples (10 values).
+
+Additional result: the same counts at `delta = 1e-6`, the confidence level of Table 7. Its 3,000-sample value is the CHES-CTF-2025 row of Table 7 (0.521 bits; 2 values).
 
 1. **BI line: count the correct guesses of the 11 EstraNet checkpoints for each trace length**, 100 to 7,000 samples (Level C, 34 min, 12 GB of memory): `paper_results/evaluate_estranet_suites.py`
    ```bash
@@ -139,12 +141,13 @@ Checks the smallest and largest `BI^suite,+` over the sweep (0.47 and 0.55 bits,
      seq 53 -1 0 | xargs -P 3 -I{} python -m dimension_stability.ches_nonbi_metric_cell \
        --task-id {} --manifest $D/manifest.csv --output-dir $D'
    ```
-4. **Draw the figure and compare it with the paper**; it uses the archived MI and PI values if steps 2–3 were skipped: `paper_results/figure1_dimension_sweep.py`
+4. **Draw Figure 1 (`figure1_dimension_sweep.pdf`) and the additional `delta = 1e-6` figure (`figure1_dimension_sweep_delta1e-6.pdf`), and compare them with the paper**; they use the archived MI and PI values if steps 2–3 were skipped: `paper_results/figure1_dimension_sweep.py`
    ```bash
    artifact python -m paper_results.figure1_dimension_sweep
    ```
 
-- [ ] `[PASS] Figure 1 (dimension sweep): 5 values match the paper, 0 differ`
+- [ ] `[PASS] Figure 1 (dimension sweep): 10 values match the paper, 0 differ`
+- [ ] `[PASS] Figure 1 at delta = 1e-6 (additional result, confidence level of Table 7): 2 values match the paper, 0 differ`
 
 ## Figure 2: selected-center local-family curves
 

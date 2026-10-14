@@ -3,6 +3,8 @@ bi_suite_dataset_summary.csv
 figure1_dimension_sweep.csv
 figure1_dimension_sweep.pdf
 figure1_dimension_sweep.png
+figure1_dimension_sweep_delta1e-6.pdf
+figure1_dimension_sweep_delta1e-6.png
 figure2_biloc_selected_centers.csv
 figure2_biloc_selected_centers.pdf
 figure2_biloc_selected_centers.png
