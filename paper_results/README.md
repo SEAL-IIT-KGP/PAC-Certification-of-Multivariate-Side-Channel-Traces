@@ -1,6 +1,6 @@
 # paper_results
 
-Rebuilds every experimental table and figure of the paper (Tables 7–9, Figures 1–2, and two tables quoted from the full version) and checks each value against the printed one. [Guide 01](../docs/guides/pdf/01_paper_results.pdf) walks through the same steps with recorded terminal output.
+Rebuilds every experimental table and figure of the paper (Tables 7–9, Figures 1–2, and two tables quoted from the full version) and checks each value against the printed one. [Guide 01](../docs/guides/pdf/01_paper_results.pdf) walks through the same steps with recorded terminal output, and the [reproduction checklist](../docs/REPRODUCTION_CHECKLIST.md) maps each table and figure to its experiment.
 
 ## Levels
 
