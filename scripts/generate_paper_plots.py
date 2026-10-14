@@ -395,12 +395,9 @@ def plot_b_stability_vs_dimension(
     ches_transformer: pd.DataFrame | None = None,
     ches_nonbi_highdim: pd.DataFrame | None = None,
     ches_nonbi_d100: pd.DataFrame | None = None,
-    fill_missing_dimension_cells: bool = False,
 ) -> None:
     if ches_transformer is not None and not ches_transformer.empty:
-        plot_b_ches_transformer_dimension(
-            out_dir, nonbi, ches_transformer, ches_nonbi_highdim, fill_missing_dimension_cells
-        )
+        plot_b_ches_transformer_dimension(out_dir, nonbi, ches_transformer, ches_nonbi_highdim)
         plot_b_ches_transformer_real_extrapolated(out_dir, nonbi, ches_transformer, ches_nonbi_highdim, ches_nonbi_d100)
         return
 
@@ -518,16 +515,11 @@ def plot_b_stability_vs_dimension(
 
 
 def plot_b_ches_transformer_dimension(
-    out_dir: Path,
-    nonbi: pd.DataFrame,
-    ches_transformer: pd.DataFrame,
-    ches_nonbi_highdim: pd.DataFrame | None = None,
-    fill_missing_cells: bool = False,
+    out_dir: Path, nonbi: pd.DataFrame, ches_transformer: pd.DataFrame, ches_nonbi_highdim: pd.DataFrame | None = None
 ) -> None:
     ds = "ches_ctf_2025"
     floor_value = -3.0
     plotted_metrics = ["GKOV_MI", "MLP_PI", "ePI_or_PI"]
-    filled_keys: set[tuple[float, str]] = set()
     rows = nonbi[
         nonbi["dataset"].astype(str).eq(ds) & pd.to_numeric(nonbi["dimension"], errors="coerce").isin([10, 50, 100])
     ].copy()
@@ -535,122 +527,6 @@ def plot_b_ches_transformer_dimension(
         highdim = ches_nonbi_highdim[ches_nonbi_highdim["dataset"].astype(str).eq(ds)].copy()
         if not highdim.empty:
             rows = pd.concat([rows, highdim], ignore_index=True, sort=False)
-    expected_plot_values = pd.DataFrame(
-        [
-            {
-                "dataset": ds,
-                "dimension": 10,
-                "metric": "GKOV_MI",
-                "value_mean": 0.8566736824820961,
-                "status": "measured",
-            },
-            {"dataset": ds, "dimension": 50, "metric": "GKOV_MI", "value_mean": 0.62, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 100, "metric": "GKOV_MI", "value_mean": 0.48, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 200, "metric": "GKOV_MI", "value_mean": 0.32, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 500, "metric": "GKOV_MI", "value_mean": 0.18, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 1000, "metric": "GKOV_MI", "value_mean": 0.02, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 3000, "metric": "GKOV_MI", "value_mean": -0.30, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 7000, "metric": "GKOV_MI", "value_mean": -0.65, "status": "plot_expected"},
-            {
-                "dataset": ds,
-                "dimension": 10,
-                "metric": "MLP_PI",
-                "value_mean": -0.010726578125510101,
-                "status": "measured",
-            },
-            {
-                "dataset": ds,
-                "dimension": 50,
-                "metric": "MLP_PI",
-                "value_mean": -0.006006256298604125,
-                "status": "measured",
-            },
-            {
-                "dataset": ds,
-                "dimension": 100,
-                "metric": "MLP_PI",
-                "value_mean": -0.012458636445056327,
-                "status": "log_interpolated",
-            },
-            {
-                "dataset": ds,
-                "dimension": 200,
-                "metric": "MLP_PI",
-                "value_mean": -0.018911016591508532,
-                "status": "log_interpolated",
-            },
-            {"dataset": ds, "dimension": 7000, "metric": "MLP_PI", "value_mean": -0.95, "status": "plot_expected"},
-            {
-                "dataset": ds,
-                "dimension": 10,
-                "metric": "ePI_or_PI",
-                "value_mean": -0.024714658942190867,
-                "status": "measured",
-            },
-            {
-                "dataset": ds,
-                "dimension": 50,
-                "metric": "ePI_or_PI",
-                "value_mean": -0.06725349095005305,
-                "status": "measured",
-            },
-            {
-                "dataset": ds,
-                "dimension": 100,
-                "metric": "ePI_or_PI",
-                "value_mean": -0.13322691877464252,
-                "status": "log_interpolated",
-            },
-            {
-                "dataset": ds,
-                "dimension": 200,
-                "metric": "ePI_or_PI",
-                "value_mean": -0.19920034659923197,
-                "status": "log_interpolated",
-            },
-            {
-                "dataset": ds,
-                "dimension": 3000,
-                "metric": "ePI_or_PI",
-                "value_mean": -0.75,
-                "status": "log_interpolated",
-            },
-            {"dataset": ds, "dimension": 7000, "metric": "ePI_or_PI", "value_mean": -1.05, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 10, "metric": "eHI_or_HI", "value_mean": -0.18, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 50, "metric": "eHI_or_HI", "value_mean": -0.32, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 100, "metric": "eHI_or_HI", "value_mean": -0.45, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 200, "metric": "eHI_or_HI", "value_mean": -0.58, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 500, "metric": "eHI_or_HI", "value_mean": -0.72, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 1000, "metric": "eHI_or_HI", "value_mean": -0.82, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 3000, "metric": "eHI_or_HI", "value_mean": -0.88, "status": "plot_expected"},
-            {"dataset": ds, "dimension": 7000, "metric": "eHI_or_HI", "value_mean": -0.90, "status": "plot_expected"},
-        ]
-    )
-    if fill_missing_cells and not rows.empty:
-        rows["dimension"] = pd.to_numeric(rows["dimension"], errors="coerce")
-        existing_keys = set(
-            zip(
-                rows.dropna(subset=["dimension", "value_mean"])["dimension"].astype(float),
-                rows.dropna(subset=["dimension", "value_mean"])["metric"].astype(str),
-            )
-        )
-        expected_plot_values = expected_plot_values[
-            ~expected_plot_values.apply(lambda r: (float(r["dimension"]), str(r["metric"])) in existing_keys, axis=1)
-        ].copy()
-    if fill_missing_cells and not expected_plot_values.empty:
-        filled = expected_plot_values[
-            pd.to_numeric(expected_plot_values["dimension"], errors="coerce").ge(100)
-            & expected_plot_values["metric"].astype(str).isin(plotted_metrics)
-        ]
-        filled_keys = set(zip(filled["dimension"].astype(float), filled["metric"].astype(str)))
-        if not filled.empty:
-            listing = "; ".join(f"({int(r.dimension)}, {r.metric}, {r.status})" for r in filled.itertuples(index=False))
-            warnings.warn(
-                "plot_B_stability_vs_dimension.pdf: filling missing CHES (dimension, metric) cells with "
-                f"hard-coded non-measured values, drawn with hollow markers: {listing}",
-                stacklevel=2,
-            )
-        rows = pd.concat([rows, expected_plot_values], ignore_index=True, sort=False)
     rows["dimension"] = pd.to_numeric(rows["dimension"], errors="coerce")
     rows = rows[rows["dimension"].ge(100)].copy()
     pivot = rows.pivot_table(index="dimension", columns="metric", values="value_mean")
@@ -679,19 +555,6 @@ def plot_b_ches_transformer_dimension(
             alpha=0.95,
             zorder=3,
         )
-        filled_points = [(d, v) for d, v in zip(plot_dims, plot_vals) if (d, metric) in filled_keys]
-        if filled_points:
-            ax.plot(
-                [d for d, _ in filled_points],
-                [v for _, v in filled_points],
-                linestyle="None",
-                marker="o",
-                markersize=MARKER_SIZE - 2,
-                markerfacecolor="white",
-                markeredgecolor=METRIC_COLORS[metric],
-                markeredgewidth=1.6,
-                zorder=4,
-            )
 
     if not ches.empty:
         ax.plot(
@@ -718,20 +581,6 @@ def plot_b_ches_transformer_dimension(
     ax.set_ylabel("Bits", fontsize=AXIS_TITLE_SIZE)
     format_axis(ax)
     handles, labels = ax.get_legend_handles_labels()
-    if filled_keys:
-        handles.append(
-            plt.Line2D(
-                [],
-                [],
-                linestyle="None",
-                marker="o",
-                markersize=MARKER_SIZE - 2,
-                markerfacecolor="white",
-                markeredgecolor=GRAY,
-                label="filled, not measured",
-            )
-        )
-        labels.append("filled, not measured")
     ax.legend(
         handles,
         labels,
@@ -1267,15 +1116,6 @@ def main() -> None:
     parser.add_argument(
         "--scope-budget-results", default=str(repo / "results/attacker_scope_diagnostic/aesrd_budget_checkpoint.csv")
     )
-    parser.add_argument(
-        "--fill-missing-dimension-cells",
-        action="store_true",
-        help=(
-            "Fill CHES (dimension, metric) cells missing from the non-BI summaries in "
-            "plot_B_stability_vs_dimension.pdf with hard-coded expected/interpolated values that are "
-            "not measurements. Off by default; filled cells are listed in a warning and drawn with hollow markers."
-        ),
-    )
     args = parser.parse_args()
 
     setup_style()
@@ -1347,7 +1187,6 @@ def main() -> None:
         ches_transformer,
         ches_nonbi_highdim,
         ches_nonbi_d100,
-        fill_missing_dimension_cells=args.fill_missing_dimension_cells,
     )
     plot_c_tau_sweep(out_dir, tau_df)
     plot_d_attack_scope(out_dir, scope_summary)

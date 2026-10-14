@@ -12,7 +12,7 @@
    ```bash
    artifact python -m paper_results.reproduce estranet
    ```
-5. Recompute the BI line of Figure 1 (30 minutes to 2 hours, 12 GB of memory). Check `[PASS]` for Figure 1.
+5. Recompute the BI line of Figure 1 (30 minutes to 2 hours, 12 GB of memory). Check `[PASS]` for Figure 1 and for its additional `delta = 1e-6` figure.
    ```bash
    artifact python -m paper_results.reproduce estranet --suites ches_windows
    ```

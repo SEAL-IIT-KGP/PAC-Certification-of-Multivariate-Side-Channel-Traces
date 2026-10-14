@@ -119,7 +119,9 @@ On the workstation, the Figure 1 window suites take 34 min and the twelve Figure
 | `table7_bi_suite.csv` | `p_obs` (best success rate in the suite), its KL-binomial interval `[p_minus, p_plus]` at `delta = 1e-6` with the union bound over `M` members, `BI_*` in bits, and `R_margin = (p_plus - p_obs) / (p_obs - 1/256)` |
 | `table8_key_recovery.csv` | share of 100 shuffled trace orders in which the key byte ranks first |
 | `table9_biloc_full_suite.csv` | per radius: largest relaxed-margin count over the 80 models, its rate, the bound in bits, and the model that attains it |
-| `figure1_dimension_sweep.csv`, `figure2_biloc_selected_centers.csv` | the plotted values |
+| `figure1_dimension_sweep.pdf` | Figure 1, with the BI line at `delta = 0.05` as in the paper |
+| `figure1_dimension_sweep_delta1e-6.pdf` | additional result: the same figure with the BI line at `delta = 1e-6`, the confidence level of Table 7 |
+| `figure1_dimension_sweep.csv`, `figure2_biloc_selected_centers.csv` | the plotted values (Figure 1: both BI lines, with a `delta` column) |
 
 ## Archived inputs
 

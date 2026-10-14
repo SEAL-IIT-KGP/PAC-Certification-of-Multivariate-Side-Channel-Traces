@@ -11,7 +11,7 @@ This folder rebuilds every table and figure of the paper and compares each numbe
 | Table 7 | BI for a suite of models on eight sets of traces | `table7_bi_suite.py` |
 | Table 8 | how often the best model of each suite finds the key byte | `table8_key_recovery.py` |
 | Table 9 | BI for a suite of 80 models, widened to nearby models | `table9_biloc_full_suite.py` |
-| Figure 1 | BI stays stable while other information measures drift, as traces get longer | `figure1_dimension_sweep.py` |
+| Figure 1 | BI stays stable while other information measures drift, as traces get longer (also drawn at the confidence level of Table 7) | `figure1_dimension_sweep.py` |
 | Figure 2 | how far a model can be changed before its BI changes, and the chosen safety margin | `figure2_biloc_selected_centers.py` |
 | full-version tables | two results quoted from the long version of the paper | `fullversion_tables.py` |
 
@@ -58,11 +58,15 @@ The tables and figures are written to `results/paper_results/`:
 ```{.text transcript="transcripts/01_paper_results/table9.txt"}
 ```
 
-![Figure 1, as rebuilt by the code.](images/figure1_dimension_sweep.png){width=85%}
+![Figure 1, as rebuilt by the code (`figure1_dimension_sweep.png`): the BI line at `delta = 0.05`, as in the paper.](images/figure1_dimension_sweep.png){width=85%}
 
 ![Figure 2, as rebuilt by the code.](images/figure2_biloc_selected_centers.png){width=85%}
 
-**What to look for.** Eight `[PASS]` lines, and `matches the paper` for every result. In the Table 7 file, `p_obs` is the success rate of the best model in the suite, `p_plus` is the guaranteed upper limit on that rate, and `BI_plus` is the same limit in bits. The last column says whether a row used saved or recomputed counts.
+![Additional result (`figure1_dimension_sweep_delta1e-6.png`): the same figure with the BI line at `delta = 1e-6`, the setting of Table 7.](images/figure1_dimension_sweep_delta1e-6.png){width=85%}
+
+The two Figure 1 files differ only in `delta`, the chance that the guaranteed limit is wrong: `0.05` (95% confidence) in the paper's figure and `1e-6` (99.9999% confidence) in Table 7. A smaller `delta` gives a higher limit, so the BI line of the second file sits about 0.15 bits higher. Its value at 3,000 samples, 0.521 bits, is the CHES-CTF-2025 row of Table 7.
+
+**What to look for.** Nine `[PASS]` lines, and `matches the paper` for every result. In the Table 7 file, `p_obs` is the success rate of the best model in the suite, `p_plus` is the guaranteed upper limit on that rate, and `BI_plus` is the same limit in bits. The last column says whether a row used saved or recomputed counts.
 
 # Level B: recompute from the TCHES20 traces and models
 
