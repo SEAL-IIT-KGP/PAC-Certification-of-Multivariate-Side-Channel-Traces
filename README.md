@@ -6,6 +6,14 @@ Bounded Information (BI) is a guaranteed upper limit, in bits, on how often any 
 
 This repository holds the certificate code, the evaluators for the paper's eight benchmarks, and a reproduction package that rebuilds every table and figure and checks each number against the printed one.
 
+## Artifact badges
+
+What to do to check each badge:
+
+- [Artifacts Available](docs/badges/AVAILABLE.md)
+- [Artifacts Functional](docs/badges/FUNCTIONAL.md)
+- [Artifacts Reproduced](docs/badges/REPRODUCED.md)
+
 ## Quick start
 
 Everything runs in one Docker image. Build it and create the folders it shares with your machine:
@@ -70,6 +78,7 @@ Each run ends with one `[PASS]` line per table or figure and writes its outputs 
 
 All levels run on CPU. More detail:
 
+- [`docs/REPRODUCTION_CHECKLIST.md`](docs/REPRODUCTION_CHECKLIST.md): each table and figure, the code files that reproduce it step by step, and the `[PASS]` line to expect.
 - [`paper_results/README.md`](paper_results/README.md): each level, its output, and how to read the tables.
 - [`docs/guides/`](docs/guides/README.md): one short PDF per directory with recorded terminal output; start with [`00_start_here.pdf`](docs/guides/pdf/00_start_here.pdf).
 - [`docs/EXPERIMENT_MAP.md`](docs/EXPERIMENT_MAP.md): the script behind each table and figure.
