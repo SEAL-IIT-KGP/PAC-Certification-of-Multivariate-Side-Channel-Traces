@@ -74,7 +74,7 @@ The four-byte step is the only one that is faster on the Mac.
 Docker packs the code and all its libraries into one image, so nothing else has to be installed. Get the code, build the image, and run Level A. The build takes one to three minutes and uses 3.5 GB of disk.
 
 ```bash
-git clone https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
+git clone https://github.com/SEAL-IIT-KGP/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
 cd pac-artifact
 docker build -t bi-certification .
 ```
