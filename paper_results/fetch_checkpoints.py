@@ -17,7 +17,7 @@ import urllib.request
 from pathlib import Path
 
 URL = (
-    "https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces"
+    "https://github.com/SEAL-IIT-KGP/PAC-Certification-of-Multivariate-Side-Channel-Traces"
     "/releases/download/v1.0/bi_certification_checkpoints.tar.gz"
 )
 SHA256 = "8af739b7295a8ee7d92fef62976e9f8c3d5efac4f10e14fd796db8eea11e89a3"

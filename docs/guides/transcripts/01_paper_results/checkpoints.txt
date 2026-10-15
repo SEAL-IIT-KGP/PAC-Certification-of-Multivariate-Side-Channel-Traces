@@ -1,6 +1,6 @@
 $ python -m paper_results.fetch_checkpoints && \
     ls checkpoints/estranet checkpoints/keras_ascad_random_key
-downloading https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces/releases/download/v1.0/bi_certification_checkpoints.tar.gz
+downloading https://github.com/SEAL-IIT-KGP/PAC-Certification-of-Multivariate-Side-Channel-Traces/releases/download/v1.0/bi_certification_checkpoints.tar.gz
 bi_certification_checkpoints.tar.gz: checksum verified
 unpacked and verified 162 files in checkpoints
 checkpoints/estranet:

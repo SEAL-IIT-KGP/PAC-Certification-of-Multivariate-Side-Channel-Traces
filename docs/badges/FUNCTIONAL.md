@@ -3,7 +3,7 @@
 1. Install Docker.
 2. Get the code:
    ```bash
-   git clone https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
+   git clone https://github.com/SEAL-IIT-KGP/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
    cd pac-artifact
    ```
 3. Build the image (1 to 3 minutes):

@@ -19,7 +19,7 @@ What to do to check each badge:
 Everything runs in one Docker image. Build it and create the folders it shares with your machine:
 
 ```bash
-git clone https://github.com/K1015/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
+git clone https://github.com/SEAL-IIT-KGP/PAC-Certification-of-Multivariate-Side-Channel-Traces.git pac-artifact
 cd pac-artifact
 docker build -t bi-certification .
 mkdir -p results datasets/raw checkpoints external
