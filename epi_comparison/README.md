@@ -1,6 +1,6 @@
 # epi_comparison
 
-Compares BI with effective perceived information (EPI, Ito, Ueno and Homma) on the same frozen model. It produces the temperature-rescaling table of the full version (summarized in Section 5.2): rescaling the model's log-probabilities changes raw PI by tens of bits, leaves EPI unchanged, and changes no predicted label. Level D of `paper_results/` checks this table.
+Compares BI with effective perceived information (EPI, Ito, Ueno and Homma) on the same frozen model. It produces the temperature-rescaling table of the full version (summarized in Section 5.4): rescaling the model's log-probabilities changes raw PI by tens of bits, leaves EPI unchanged, and changes no predicted label. Level D of `paper_results/` checks this table.
 
 ## Files
 

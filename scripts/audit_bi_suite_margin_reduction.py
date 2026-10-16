@@ -266,8 +266,8 @@ def write_markdown(path: Path, comparison: pd.DataFrame) -> None:
     lines = [
         "# BI-suite margin reduction audit",
         "",
-        "This audit does not overwrite the manuscript table. It compares the current",
-        "`R_margin` values against pooled seed-row diagnostics and sample-size targets.",
+        "This audit compares the current `R_margin` values against pooled seed-row",
+        "diagnostics and sample-size targets.",
         "",
         "Important provenance note: `dimension_stability/multivariate_stability_driver.py` forms each seed row by",
         "drawing a fresh random train/holdout split from the same finite dataset. Those",

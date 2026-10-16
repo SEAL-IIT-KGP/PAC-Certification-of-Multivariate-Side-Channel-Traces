@@ -180,7 +180,7 @@ def write_summary(
         "1. Preserve the existing eight-dataset `BI^suite` table as the main finite-suite evidence.",
         "2. Add an appendix-facing `BI^sing` table by applying a singleton KL-binomial endpoint to the frozen attacker recorded for each dataset.",
         "3. Add exact `BI^loc` curves using declared normalized scores and relaxed-margin counts `rho >= -2 epsilon`.",
-        "4. Keep older product-norm / `BIarch` artifacts as diagnostics, not as architecture-family certificates.",
+        "4. Report the product-norm / `BIarch` outputs as diagnostics.",
         "",
         "## BI^sing Table",
         "",

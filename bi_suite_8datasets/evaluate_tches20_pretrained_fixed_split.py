@@ -271,8 +271,8 @@ def main() -> None:
         "--split",
         required=True,
         choices=["profiling", "attack", "both"],
-        help="Evaluation split. Use 'attack' for certificates; 'profiling' and 'both' include the "
-        "models' own training traces and are in-sample diagnostics only.",
+        help="Evaluation split. Certificates use 'attack', the held-out attack traces; 'profiling' and "
+        "'both' evaluate the profiling traces the models were trained on.",
     )
     parser.add_argument("--models-dir", required=True, type=Path)
     parser.add_argument("--dataset-dir", required=True, type=Path)
@@ -293,8 +293,8 @@ def main() -> None:
         parser.error("--max-eval-traces must be a positive integer")
     if args.split != "attack":
         warnings.warn(
-            f"--split {args.split} evaluates the pretrained models on their own profiling (training) "
-            "traces; the result is in-sample and is not a valid certificate. Use --split attack."
+            f"--split {args.split} evaluates the pretrained models on their profiling (training) traces; "
+            "certificates use --split attack."
         )
 
     rows, summary = evaluate(args)

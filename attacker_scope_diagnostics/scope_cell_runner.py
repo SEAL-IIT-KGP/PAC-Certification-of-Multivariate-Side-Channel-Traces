@@ -6,12 +6,12 @@ This script wraps `attacker_scope_diagnostics/attacker_scope_diagnostic.py` with
 checkpoint schema. It runs exactly one (dataset, seed, scope) cell per task,
 appends under a file lock, and skips rows that are already present.
 
-Two runtime fixes are applied for the aes_rd scope-diagnostic cells:
+Two runtime settings are used for the aes_rd scope-diagnostic cells:
   1. high-dimensional datasets can be reduced with deterministic unsupervised
      variance feature selection so sklearn baselines checkpoint within an 8h
      allocation;
   2. the PyTorch DataLoader path keeps tensors on CPU and moves mini-batches to
-     CUDA inside the training loop, avoiding CUDA tensor multiprocessing issues.
+     CUDA inside the training loop, so the DataLoader workers handle CPU tensors only.
 """
 
 from __future__ import annotations

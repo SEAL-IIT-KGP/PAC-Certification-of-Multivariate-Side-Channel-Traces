@@ -10,7 +10,7 @@ A BI value for a set of models covers only those models. The paper extends it to
 |----------------------------------|--------------------------------------------|--------------------|
 | `compute_full_suite_bi_loc.py` | these counts for all 80 models of one trace set, at nine distances | Table 9 |
 | `profile_epsilon_calibration.py` | the counts on two parts of the traces, plus how much the scores move when the model is run again, in another batch size, in lower precision, or with noise | Figure 2 |
-| `compute_bi_loc_margin_curves.py` | the same curves for chosen models on all their attack traces | numbers in Section 5.3 |
+| `compute_bi_loc_margin_curves.py` | the same curves for chosen models on all their attack traces | numbers in Section 5.5 |
 | `prepare_aesrd_estranet_h5.py` | the input file for the AES-RD Transformer | Level C |
 | `build_bi_scope_tables.py` | tables from the curves | long version |
 

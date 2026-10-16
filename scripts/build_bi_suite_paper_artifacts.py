@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build paper-safe BI-suite artifacts for the updated AsiaCRYPT evidence.
+"""Build the BI-suite tables from per-model holdout success rates.
 
-This script recomputes the Section 3/4 KL-binomial BI^{suite} bracket from
-per-model holdout success rates. It never reuses legacy scalar `bi`
-column except as provenance in the seed-level CSV.
+This script computes the KL-binomial BI^{suite} bracket of Sections 3 and 4
+from per-model holdout success rates. The seed-level CSV keeps the input `bi`
+column for provenance.
 """
 
 from __future__ import annotations

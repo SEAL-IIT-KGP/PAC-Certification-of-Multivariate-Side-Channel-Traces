@@ -35,7 +35,7 @@ LOADER_BACKED_DATASETS = [
 
 UNSUPPORTED_DATASETS = {
     "ascad_random_key": (
-        "no_loader_backed_random-key H5 was found locally/remotely; the visible ASCAD.h5 asset has fixed key metadata"
+        "outside this pass: ASCAD random key uses its own file (paper_results/fetch_ascad_random_key.py)"
     )
 }
 
@@ -371,7 +371,7 @@ def metric_attempts(
                 mi, ok = compute_mi(X_mi, y_mi, max_dim_for_estimate=args.max_dim_mi)
                 err = "" if ok else "estimator returned not stable"
                 if max_mi_samples > 0 and int(len(y_train)) > max_mi_samples:
-                    suffix = f" (MI subsampled {max_mi_samples}/{len(y_train)})"
+                    suffix = f" (MI on {max_mi_samples} of {len(y_train)} training traces)"
                     err = (err + suffix).strip()
                 result.update({"mi": safe_float(mi) if ok else math.nan, "mi_success": bool(ok), "mi_error": err})
             except SystemExit as exc:

@@ -89,7 +89,7 @@ def main() -> int:
         f"- Scope: {best['scope_name']} (level {int(best['scope_level'])})",
         f"- Seed: {int(best['seed'])}",
         f"- Model: `{best['best_model_fixed']}`",
-        f"- Matched fixed-profiling success (in-sample): `{float(best['p_fixed']):.6f}`",
+        f"- Matched fixed-profiling success: `{float(best['p_fixed']):.6f}`",
         f"- Observed BI from point success: `{float(best['bi_fixed_obs']):.6f}` bits",
         f"- Old-holdout reproduction success for this fitted pool: `{float(best['p_old_holdout']):.6f}`",
         "",
@@ -97,8 +97,8 @@ def main() -> int:
         "",
         f"- Suite endpoint ({endpoint_note}): `p_suite^+ = {suite_p_plus:.15f}`",
         f"- The matched MLP challenger {'exceeds' if exceeds_suite_p_plus else 'does not exceed'} this endpoint.",
-        "- `p_fixed` from `evaluate_ascad_d0_challenger_fixed_split.py` is scored on the full profiling set, "
-        "including the challengers' own training traces (in-sample), so this is not an out-of-sample comparison.",
+        "- `p_fixed` from `evaluate_ascad_d0_challenger_fixed_split.py` is the success on the full profiling set, "
+        "which includes the challengers' fitting traces.",
         "",
         "## Protocol",
         "",

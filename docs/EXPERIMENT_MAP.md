@@ -47,7 +47,7 @@ with the printed values; see `paper_results/README.md`.
 - Calibration rule, certificates, figure, and check:
   `paper_results/figure2_biloc_selected_centers.py` (plot style from
   `scripts/plot_bi_loc_radius_curves.py`).
-- Bounds quoted in Section 5.3 at `eps = 1e-4` (full attack sets):
+- Bounds quoted in Section 5.5 at `eps = 1e-4` (full attack sets):
   `bi_scope_certificates/compute_bi_loc_margin_curves.py`.
 - AES-RD input file of the Transformer reference model:
   `bi_scope_certificates/prepare_aesrd_estranet_h5.py`.
@@ -115,13 +115,13 @@ Tables 1-6 and the pipeline illustration are descriptive and have no producing s
   `scripts/build_audited_score_radius_points.py`,
   `bi_scope_certificates/build_bi_scope_tables.py`.
 
-### Four-byte key recovery on raw ASCAD traces (`tab:raw-ascad-four-byte-composition`, quoted in Section 5.1)
+### Four-byte key recovery on raw ASCAD traces (`tab:raw-ascad-four-byte-composition`, quoted in Section 5.3)
 
 - `multibyte_composition/fetch_raw_ascad.py`, `scan_raw_ascad_pois.py`,
   `train_raw_ascad_byte_attacker.py`, `compose_four_byte_recovery.py`;
   check in `paper_results/fullversion_tables.py` (`paper_results.reproduce fullversion`).
 
-### PI/EPI under temperature rescaling (`tab:epi-temperature`, summarized in Section 5.2)
+### PI/EPI under temperature rescaling (`tab:epi-temperature`, summarized in Section 5.4)
 
 - `epi_comparison/epi_head_to_head.py` and `summarize_epi_head_to_head.py`;
   check in `paper_results/fullversion_tables.py`.
