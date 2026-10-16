@@ -6,13 +6,9 @@ Bounded Information (BI) is a guaranteed upper limit, in bits, on how often any 
 
 This repository holds the certificate code, the evaluators for the paper's eight benchmarks, and a reproduction package that rebuilds every table and figure and checks each number against the printed one.
 
-## Artifact badges
+## Reproducibility
 
-What to do to check each badge:
-
-- [Artifacts Available](docs/badges/AVAILABLE.md)
-- [Artifacts Functional](docs/badges/FUNCTIONAL.md)
-- [Artifacts Reproduced](docs/badges/REPRODUCED.md)
+Every experimental result of the paper is reproducible from this repository: Tables 7, 8 and 9, Figures 1 and 2, and three results of the full version (four-byte key recovery, the PI/EPI temperature sweep and the Gaussian oracle). Each run compares the recomputed values with the printed ones and ends with one `[PASS]` line per result. Step-by-step instructions are in [`docs/REPRODUCTION_CHECKLIST.md`](docs/REPRODUCTION_CHECKLIST.md). If you run into any difficulty, please contact Kuheli Pratihar at its.kuheli96@gmail.com.
 
 ## Quick start
 

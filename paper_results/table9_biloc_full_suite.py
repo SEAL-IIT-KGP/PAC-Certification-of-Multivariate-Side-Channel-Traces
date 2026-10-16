@@ -121,7 +121,7 @@ def main() -> None:
         check.number(f"{label} BI_loc_plus", float(record["BI_loc_plus"]), printed["BI_loc_plus"], slack=bits_slack)
         check.exact(f"{label} architecture", record["architecture"], printed["architecture"])
     d0_zero = by_key[("ascad_desync_0", 0.0)]
-    check.number("ASCAD d0 local bound at eps=0 (Section 5.3)", float(d0_zero["BI_loc_plus"]), "1.709")
+    check.number("ASCAD d0 local bound at eps=0 (Section 5.5)", float(d0_zero["BI_loc_plus"]), "1.709")
 
     body = [
         [

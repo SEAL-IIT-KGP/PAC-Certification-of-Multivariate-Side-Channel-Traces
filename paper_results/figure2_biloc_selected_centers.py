@@ -16,7 +16,7 @@ Counts are read from `paper_results/archived/selected_center_relaxed_margin_coun
 and `selected_center_score_variation.csv`, or from the `epsilon_margin_counts.csv`
 and `epsilon_variant_distances.csv` files found under `--recomputed-dir`.
 
-Section 5.3 also quotes the twelve bounds at eps = 1e-4. Those values use every
+Section 5.5 also quotes the twelve bounds at eps = 1e-4. Those values use every
 attack trace of each reference model (no calibration split) with the confidence
 split delta / |grid| per model, as computed by
 `bi_scope_certificates.compute_bi_loc_margin_curves`. They are checked here from

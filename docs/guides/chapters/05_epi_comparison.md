@@ -6,7 +6,7 @@ title: "epi_comparison: BI next to a common information measure"
 
 Perceived information (PI) is a common way to score how much a model knows about the key. It is sensitive to how confident the model is, not just to whether its guesses are right. A corrected version, effective PI (EPI), first rescales the model's confidence.
 
-This folder compares BI with EPI on the same frozen model. Its main table (quoted in Section 5.2) rescales the model's confidence by factors from 0.05 to 20. Raw PI changes by tens of bits. EPI does not change at all, and no guess changes, so the count behind BI does not change either. Level D checks this table.
+This folder compares BI with EPI on the same frozen model. Its main table (quoted in Section 5.4) rescales the model's confidence by factors from 0.05 to 20. Raw PI changes by tens of bits. EPI does not change at all, and no guess changes, so the count behind BI does not change either. Level D checks this table.
 
 `epi_head_to_head.py` works on one trace set: it picks the most accurate of the 80 models, fits EPI's one parameter on separate traces, reports PI, EPI and BI with error bars, then repeats EPI at nine rescaling factors. `summarize_epi_head_to_head.py` combines the results of the six trace sets.
 

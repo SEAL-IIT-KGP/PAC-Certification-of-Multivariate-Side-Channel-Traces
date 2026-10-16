@@ -4,7 +4,7 @@ title: "multibyte_composition: recovering four key bytes from raw traces"
 
 # What this folder shows
 
-Section 5.1 quotes a result from the long version: using the full raw ASCAD traces (100,000 points each, instead of the usual 700-point window), four key bytes are recovered exactly from a few hundred traces. Four scripts, run in order:
+Section 5.3 quotes a result from the long version: using the full raw ASCAD traces (100,000 points each, instead of the usual 700-point window), four key bytes are recovered exactly from a few hundred traces. Four scripts, run in order:
 
 1. `fetch_raw_ascad.py` downloads the ANSSI archive (4.4 GB), checks it, unpacks the 6 GB raw trace file, and checks that too. If the file is already there, it is only checked.
 2. `scan_raw_ascad_pois.py` finds the points in the trace that relate to each key byte.

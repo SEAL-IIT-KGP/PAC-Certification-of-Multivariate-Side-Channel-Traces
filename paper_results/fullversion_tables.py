@@ -2,13 +2,13 @@
 """Check the two full-version tables quoted in Section 5 of the paper.
 
 - Raw-ASCAD four-byte composition (`tab:raw-ascad-four-byte-composition`,
-  quoted in Section 5.1): read from `multibyte_composition.compose_four_byte_recovery`
+  quoted in Section 5.3): read from `multibyte_composition.compose_four_byte_recovery`
   outputs under `--recomputed-dir` (`multibyte_composition/.../multibyte_composition_summary*.csv`).
   A rerun is compared with the printed numbers and the archived numbers, and
   the check requires the four-byte key to rank first in most campaigns from
   500 traces on, with median rank 0.
 - PI/EPI under temperature rescaling (`tab:epi-temperature`, summarized in
-  Section 5.2): read from `epi_comparison.epi_head_to_head` outputs
+  Section 5.4): read from `epi_comparison.epi_head_to_head` outputs
   (`epi_comparison/main/<dataset>/temperature_stress.csv`) under `--recomputed-dir`,
   or from the archived per-temperature values.
 """

@@ -4,8 +4,8 @@ point,aes_rd,CNN,0.0003,5.36,certification_split,Figure 2 caption
 point,aes_rd,Transformer,0.0003,6.83,certification_split,Figure 2 caption
 ascad_minimum,,,0.0003,1.76,certification_split,Figure 2 caption
 ascad_maximum,,,0.0003,3.48,certification_split,Figure 2 caption
-point,aes_rd,MLP,0.0001,2.85,full_attack_set,Section 5.3
-point,aes_rd,CNN,0.0001,5.34,full_attack_set,Section 5.3
-point,aes_rd,Transformer,0.0001,6.80,full_attack_set,Section 5.3
-ascad_minimum,,,0.0001,1.5,full_attack_set,Section 5.3
-ascad_maximum,,,0.0001,2.3,full_attack_set,Section 5.3
+point,aes_rd,MLP,0.0001,2.85,full_attack_set,Section 5.5
+point,aes_rd,CNN,0.0001,5.34,full_attack_set,Section 5.5
+point,aes_rd,Transformer,0.0001,6.80,full_attack_set,Section 5.5
+ascad_minimum,,,0.0001,1.5,full_attack_set,Section 5.5
+ascad_maximum,,,0.0001,2.3,full_attack_set,Section 5.5

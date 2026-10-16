@@ -1,6 +1,6 @@
 # multibyte_composition
 
-Recovers four key bytes of the fixed-key ASCAD capture from the full 100,000-sample raw traces. This is the full version's four-byte table, quoted in Section 5.1 and checked by Level D of `paper_results/`.
+Recovers four key bytes of the fixed-key ASCAD capture from the full 100,000-sample raw traces. This is the full version's four-byte table, quoted in Section 5.3 and checked by Level D of `paper_results/`.
 
 ## Files, in the order they run
 

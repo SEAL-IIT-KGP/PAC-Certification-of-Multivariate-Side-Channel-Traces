@@ -22,8 +22,8 @@ Compares BI certification across four hierarchical attack scopes:
    - All of Scope 3
    - CNN with R_L=65, R_L=129 (3 channel variants each)
 
-Key insight: Each scope is a superset of the previous. By monotonicity of BI
-(Proposition 4), BI(Scope_i) <= BI(Scope_j) for i < j. The experiment validates:
+Key insight: Each scope is a superset of the previous, so its best success rate,
+and with it BI, cannot decrease: BI(Scope_i) <= BI(Scope_j) for i < j. The experiment validates:
 - BI is monotonically non-decreasing across scopes
 - τ-local scope captures most achievable leakage at lower cost
 - Suite correction penalty grows only as √ln(M), not linearly

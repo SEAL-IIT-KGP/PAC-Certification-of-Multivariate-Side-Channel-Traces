@@ -14,7 +14,7 @@ Such an attacker succeeds whenever the member's margin is at least `-2 epsilon`,
 |---|---|---|
 | `compute_full_suite_bi_loc.py` | relaxed-margin counts of all 80 TCHES20 models of one benchmark over the nine radii | Table 9 |
 | `profile_epsilon_calibration.py` | relaxed-margin counts of the twelve reference models on a 20% calibration and 80% certification split, plus their score variation under re-runs, batch sizes, FP16, quantization and noise | Figure 2 |
-| `compute_bi_loc_margin_curves.py` | `BI^loc` curves of the reference models on their full attack sets | Section 5.3 |
+| `compute_bi_loc_margin_curves.py` | `BI^loc` curves of the reference models on their full attack sets | Section 5.5 |
 | `prepare_aesrd_estranet_h5.py` | the AES-RD input file of the EstraNet reference model | Level C |
 | `train_keras_ascad_random_key.py` | retrains the two Keras reference models of ASCAD random key (optional) | retraining |
 | `build_bi_scope_tables.py` | `BI^sing` and `BI^loc` tables | full version |
